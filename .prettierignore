@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+build
+dist
+telegram_webapp_example
+.specify
+.claude
+docs
+specs
+pnpm-lock.yaml
+*.log
+*.md

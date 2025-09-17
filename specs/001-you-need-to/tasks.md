@@ -4,9 +4,9 @@
 **Prerequisites**: research.md, data-model.md, contracts/api-spec.yaml, quickstart.md
 
 ## Phase 3.1: Setup
-- [ ] T001 Create project structure per research.md architecture patterns
-- [ ] T002 Initialize Next.js 15 project with TypeScript and pnpm dependencies
-- [ ] T003 [P] Configure ESLint, Prettier, and TypeScript strict mode
+- [x] T001 Create project structure per research.md architecture patterns
+- [x] T002 Initialize Next.js 15 project with TypeScript and pnpm dependencies
+- [x] T003 [P] Configure ESLint, Prettier, and TypeScript strict mode
 - [ ] T004 [P] Setup SQLite database with schema from data-model.md
 - [ ] T005 [P] Configure environment variables for Telegram Bot, TON Connect, and database
 
