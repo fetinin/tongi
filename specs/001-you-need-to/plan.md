@@ -39,7 +39,7 @@ A Telegram Mini App for establishing buddy relationships between users to facili
 **Storage**: SQLite database for user data, buddy relationships, transactions
 **Testing**: Jest, React Testing Library, Playwright for E2E
 **Target Platform**: Mobile web browsers via Telegram Mini Apps (iOS/Android)
-**Project Type**: web - frontend and backend in Next.js app
+**Project Type**: web - frontend and backend in Next.js app (project root directory)
 **Performance Goals**: <3s initial load, <500ms page transitions, real-time notifications
 **Constraints**: Must work within Telegram Mini App environment, secure TON wallet integration, mobile-first responsive design
 **Scale/Scope**: Initially 1k-10k users, ~20 screens/components, real-time buddy interactions
@@ -106,19 +106,36 @@ tests/
 └── unit/
 
 # Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+# Using Next.js App Router structure in project root
+src/
+├── app/
+│   ├── api/           # Backend API routes
+│   │   ├── auth/
+│   │   ├── buddy/
+│   │   ├── corgi/
+│   │   ├── wishes/
+│   │   ├── marketplace/
+│   │   └── transactions/
+│   ├── globals.css    # Global styles
+│   ├── layout.tsx     # Root layout
+│   └── page.tsx       # Home page
+├── components/
+│   ├── buddy/         # Buddy management components
+│   ├── corgi/         # Corgi sighting components
+│   ├── wish/          # Wish creation/marketplace
+│   ├── wallet/        # TON Connect integration
+│   └── Root/          # App initialization
+├── core/
+│   ├── telegram/      # Telegram SDK utilities
+│   ├── ton/           # TON Connect utilities
+│   ├── database/      # SQLite schema and queries
+│   └── types/         # TypeScript definitions
+└── lib/               # Utility functions
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+__tests__/
+├── api/               # API endpoint tests
+├── components/        # Component tests
+└── integration/       # E2E tests
 
 # Option 3: Mobile + API (when "iOS/Android" detected)
 api/
@@ -128,7 +145,7 @@ ios/ or android/
 └── [platform-specific structure]
 ```
 
-**Structure Decision**: Option 2 (Web application) - Using existing Next.js structure in `telegram_webapp_example/` with backend API routes and frontend components
+**Structure Decision**: Option 2 (Web application) - New Next.js application in project root with backend API routes and frontend components, using `telegram_webapp_example/` as reference implementation
 
 ## Phase 0: Outline & Research
 1. **Extract unknowns from Technical Context** above:
@@ -187,7 +204,9 @@ ios/ or android/
 *This section describes what the /tasks command will do - DO NOT execute during /plan*
 
 **Task Generation Strategy**:
-1. **Database Foundation** (Priority 1):
+1. **Project Setup & Database Foundation** (Priority 1):
+   - Initialize Next.js 15 project with TypeScript in project root
+   - Install required dependencies (@telegram-apps/sdk-react, @tonconnect/ui-react, etc.)
    - Database migration scripts from data-model.md schema
    - Seed scripts for bank wallet initialization
    - Database connection and ORM setup
@@ -232,6 +251,7 @@ ios/ or android/
 - **Sequential Gates**: Each priority level must complete before next begins
 
 **Estimated Task Breakdown**:
+- Project setup: 2-3 tasks
 - Database setup: 3-4 tasks
 - Contract tests: 8-10 tasks [P]
 - Entity implementation: 6-8 tasks [P]
@@ -239,9 +259,10 @@ ios/ or android/
 - API endpoints: 8-10 tasks
 - UI components: 10-12 tasks [P]
 - Integration tests: 4-5 tasks
-- **Total**: 44-55 numbered, ordered tasks
+- **Total**: 46-58 numbered, ordered tasks
 
 **Key Dependencies**:
+- Next.js project setup must complete before any development
 - Database schema must be established before any model implementation
 - Authentication service required before any protected endpoints
 - TON Connect service needed before marketplace functionality

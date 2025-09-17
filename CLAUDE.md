@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains a Telegram Mini Apps Next.js template located in `telegram_webapp_example/`. The main project is a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration.
+This repository will contain a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration. The `telegram_webapp_example/` directory serves as a reference implementation and template.
 
 **NEW FEATURE (001-you-need-to)**: Corgi Buddy TON Cryptocurrency Mini-App
 - Buddy pairing system between Telegram users
@@ -14,7 +14,7 @@ This repository contains a Telegram Mini Apps Next.js template located in `teleg
 
 ## Commands
 
-All commands should be run from the `telegram_webapp_example/` directory:
+All commands should be run from the project root directory (after Next.js setup):
 
 - `pnpm install` - Install dependencies (required - this project uses pnpm exclusively)
 - `pnpm run dev` - Run development server on http://localhost:3000
@@ -61,6 +61,7 @@ All commands should be run from the `telegram_webapp_example/` directory:
 - Use `pnpm run dev:https` to get HTTPS URL
 - Submit `https://127.0.0.1:3000` to @BotFather (not localhost)
 - Test in Telegram Web or desktop client
+- Reference `telegram_webapp_example/` for implementation patterns
 
 ## Data Model
 
