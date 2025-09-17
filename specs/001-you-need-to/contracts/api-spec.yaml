@@ -1,0 +1,815 @@
+openapi: 3.0.3
+info:
+  title: Corgi Buddy TON Cryptocurrency Mini-App API
+  description: API for managing buddy relationships, corgi sightings, wishes, and TON transactions
+  version: 1.0.0
+  contact:
+    name: Corgi Buddy Development Team
+
+servers:
+  - url: https://localhost:3000/api
+    description: Development server
+  - url: https://corgi-buddy.vercel.app/api
+    description: Production server
+
+paths:
+  # Authentication & User Management
+  /auth/validate:
+    post:
+      summary: Validate Telegram user authentication
+      description: Validates Telegram initData and creates/updates user record
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [initData]
+              properties:
+                initData:
+                  type: string
+                  description: Raw Telegram initData string for validation
+                tonWalletAddress:
+                  type: string
+                  description: TON wallet address from TON Connect
+              example:
+                initData: "user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456"
+                tonWalletAddress: "UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-"
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid authentication data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Buddy Management
+  /buddy/search:
+    get:
+      summary: Search for users by Telegram username
+      description: Find users to establish buddy relationships with
+      tags: [Buddy Management]
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Telegram username to search for (without @)
+      responses:
+        '200':
+          description: User search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: No users found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /buddy/request:
+    post:
+      summary: Send buddy request to another user
+      description: Initiate buddy pairing with another user
+      tags: [Buddy Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetUserId]
+              properties:
+                targetUserId:
+                  type: integer
+                  format: int64
+                  description: Telegram ID of user to become buddies with
+              example:
+                targetUserId: 987654321
+      responses:
+        '201':
+          description: Buddy request sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuddyPair'
+        '400':
+          description: Invalid request (user already has buddy, targeting self, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /buddy/status:
+    get:
+      summary: Get current buddy relationship status
+      description: Returns user's current buddy pairing information
+      tags: [Buddy Management]
+      responses:
+        '200':
+          description: Buddy status retrieved successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/BuddyPair'
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [no_buddy]
+                      message:
+                        type: string
+                        example: "No active buddy relationship"
+
+  # Corgi Sighting Management
+  /corgi/sightings:
+    post:
+      summary: Report a corgi sighting
+      description: Submit a corgi sighting that requires buddy confirmation
+      tags: [Corgi Sightings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [corgiCount]
+              properties:
+                corgiCount:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  description: Number of corgis spotted
+              example:
+                corgiCount: 3
+      responses:
+        '201':
+          description: Sighting reported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorgiSighting'
+        '400':
+          description: Invalid sighting data or no active buddy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: Get user's corgi sightings
+      description: Retrieve user's reported sightings with their status
+      tags: [Corgi Sightings]
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, confirmed, denied]
+          description: Filter sightings by status
+      responses:
+        '200':
+          description: Sightings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sightings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CorgiSighting'
+
+  /corgi/confirmations:
+    get:
+      summary: Get pending confirmation requests
+      description: Retrieve corgi sightings that need user's confirmation
+      tags: [Corgi Sightings]
+      responses:
+        '200':
+          description: Pending confirmations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  confirmations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CorgiSighting'
+
+  /corgi/confirm/{sightingId}:
+    post:
+      summary: Confirm or deny a corgi sighting
+      description: Respond to a buddy's corgi sighting report
+      tags: [Corgi Sightings]
+      parameters:
+        - name: sightingId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the sighting to confirm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmed]
+              properties:
+                confirmed:
+                  type: boolean
+                  description: Whether to confirm (true) or deny (false) the sighting
+              example:
+                confirmed: true
+      responses:
+        '200':
+          description: Sighting response recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorgiSighting'
+        '404':
+          description: Sighting not found or not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Wish Management
+  /wishes:
+    post:
+      summary: Create a new wish
+      description: Create a wish that your buddy can accept
+      tags: [Wish Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [description, proposedAmount]
+              properties:
+                description:
+                  type: string
+                  maxLength: 500
+                  description: Description of the wish
+                proposedAmount:
+                  type: number
+                  format: decimal
+                  minimum: 0.01
+                  maximum: 1000
+                  description: Proposed amount in Corgi coins
+              example:
+                description: "Please walk my dog while I'm at work"
+                proposedAmount: 5.50
+      responses:
+        '201':
+          description: Wish created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wish'
+        '400':
+          description: Invalid wish data or no active buddy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: Get user's wishes
+      description: Retrieve wishes created by the user
+      tags: [Wish Management]
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, accepted, rejected, purchased]
+          description: Filter wishes by status
+      responses:
+        '200':
+          description: Wishes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wishes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Wish'
+
+  /wishes/pending:
+    get:
+      summary: Get pending wish approvals
+      description: Retrieve wishes that need user's approval
+      tags: [Wish Management]
+      responses:
+        '200':
+          description: Pending wishes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wishes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Wish'
+
+  /wishes/{wishId}/respond:
+    post:
+      summary: Accept or reject a wish
+      description: Respond to a buddy's wish request
+      tags: [Wish Management]
+      parameters:
+        - name: wishId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the wish to respond to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accepted]
+              properties:
+                accepted:
+                  type: boolean
+                  description: Whether to accept (true) or reject (false) the wish
+              example:
+                accepted: true
+      responses:
+        '200':
+          description: Wish response recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wish'
+        '404':
+          description: Wish not found or not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Wish Marketplace
+  /marketplace:
+    get:
+      summary: Get marketplace wishes
+      description: Retrieve accepted wishes available for purchase
+      tags: [Marketplace]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of wishes to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of wishes to skip (for pagination)
+      responses:
+        '200':
+          description: Marketplace wishes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wishes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MarketplaceWish'
+                  total:
+                    type: integer
+                    description: Total number of available wishes
+                  hasMore:
+                    type: boolean
+                    description: Whether more wishes are available
+
+  /marketplace/{wishId}/purchase:
+    post:
+      summary: Initiate wish purchase
+      description: Start the process of purchasing a wish with TON transaction
+      tags: [Marketplace]
+      parameters:
+        - name: wishId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the wish to purchase
+      responses:
+        '200':
+          description: Purchase initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: integer
+                    description: ID of the created transaction
+                  tonTransaction:
+                    type: object
+                    description: TON transaction parameters for user's wallet
+                    properties:
+                      to:
+                        type: string
+                        description: Recipient wallet address
+                      amount:
+                        type: string
+                        description: Amount in nanotons
+                      payload:
+                        type: string
+                        description: Transaction payload
+        '404':
+          description: Wish not found or not available for purchase
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Transaction Management
+  /transactions:
+    get:
+      summary: Get user's transaction history
+      description: Retrieve user's transaction history
+      tags: [Transactions]
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [reward, purchase]
+          description: Filter transactions by type
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of transactions to return
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+
+  /transactions/{transactionId}/confirm:
+    post:
+      summary: Confirm transaction completion
+      description: Update transaction status after blockchain confirmation
+      tags: [Transactions]
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the transaction to confirm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [transactionHash]
+              properties:
+                transactionHash:
+                  type: string
+                  description: Blockchain transaction hash
+                success:
+                  type: boolean
+                  description: Whether transaction was successful
+              example:
+                transactionHash: "abc123def456ghi789"
+                success: true
+      responses:
+        '200':
+          description: Transaction status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Bank Wallet Management
+  /bank/status:
+    get:
+      summary: Get bank wallet status
+      description: Retrieve current bank wallet balance and statistics
+      tags: [Bank Management]
+      responses:
+        '200':
+          description: Bank status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankWallet'
+
+components:
+  schemas:
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+
+    AuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        token:
+          type: string
+          description: JWT token for authenticated requests
+        isNewUser:
+          type: boolean
+          description: Whether this is a first-time user
+
+    UserProfile:
+      type: object
+      required: [id, firstName, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Telegram user ID
+        telegramUsername:
+          type: string
+          nullable: true
+          description: Telegram username (without @)
+        firstName:
+          type: string
+          description: User's first name
+        tonWalletAddress:
+          type: string
+          nullable: true
+          description: Connected TON wallet address
+        createdAt:
+          type: string
+          format: date-time
+          description: Registration timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last activity timestamp
+
+    BuddyPair:
+      type: object
+      required: [id, buddy, status, createdAt]
+      properties:
+        id:
+          type: integer
+          description: Buddy pair ID
+        buddy:
+          $ref: '#/components/schemas/UserProfile'
+        status:
+          type: string
+          enum: [pending, active, dissolved]
+          description: Current pairing status
+        initiatedBy:
+          type: integer
+          format: int64
+          description: User ID who initiated the pairing
+        createdAt:
+          type: string
+          format: date-time
+          description: Pairing initiation timestamp
+        confirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Pairing confirmation timestamp
+
+    CorgiSighting:
+      type: object
+      required: [id, reporterId, buddyId, corgiCount, status, createdAt]
+      properties:
+        id:
+          type: integer
+          description: Sighting ID
+        reporterId:
+          type: integer
+          format: int64
+          description: User who reported the sighting
+        buddyId:
+          type: integer
+          format: int64
+          description: Buddy who must confirm
+        corgiCount:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of corgis spotted
+        status:
+          type: string
+          enum: [pending, confirmed, denied]
+          description: Confirmation status
+        createdAt:
+          type: string
+          format: date-time
+          description: Sighting report timestamp
+        respondedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Buddy response timestamp
+
+    Wish:
+      type: object
+      required: [id, creatorId, buddyId, description, proposedAmount, status, createdAt]
+      properties:
+        id:
+          type: integer
+          description: Wish ID
+        creatorId:
+          type: integer
+          format: int64
+          description: User who created the wish
+        buddyId:
+          type: integer
+          format: int64
+          description: Buddy who must accept
+        description:
+          type: string
+          maxLength: 500
+          description: Wish description
+        proposedAmount:
+          type: number
+          format: decimal
+          description: Proposed amount in Corgi coins
+        status:
+          type: string
+          enum: [pending, accepted, rejected, purchased]
+          description: Current wish status
+        createdAt:
+          type: string
+          format: date-time
+          description: Wish creation timestamp
+        acceptedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Buddy acceptance timestamp
+        purchasedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Purchase completion timestamp
+        purchasedBy:
+          type: integer
+          format: int64
+          nullable: true
+          description: User who purchased the wish
+
+    MarketplaceWish:
+      allOf:
+        - $ref: '#/components/schemas/Wish'
+        - type: object
+          properties:
+            creator:
+              $ref: '#/components/schemas/UserProfile'
+            timeRemaining:
+              type: string
+              description: Human-readable time until expiration
+
+    Transaction:
+      type: object
+      required: [id, fromWallet, toWallet, amount, transactionType, status, createdAt]
+      properties:
+        id:
+          type: integer
+          description: Transaction ID
+        transactionHash:
+          type: string
+          nullable: true
+          description: Blockchain transaction hash
+        fromWallet:
+          type: string
+          description: Sender wallet address
+        toWallet:
+          type: string
+          description: Recipient wallet address
+        amount:
+          type: number
+          format: decimal
+          description: Amount in Corgi coins
+        transactionType:
+          type: string
+          enum: [reward, purchase]
+          description: Type of transaction
+        relatedEntityId:
+          type: integer
+          nullable: true
+          description: ID of related entity
+        relatedEntityType:
+          type: string
+          enum: [corgi_sighting, wish]
+          nullable: true
+          description: Type of related entity
+        status:
+          type: string
+          enum: [pending, completed, failed]
+          description: Transaction status
+        createdAt:
+          type: string
+          format: date-time
+          description: Transaction initiation timestamp
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Transaction completion timestamp
+
+    BankWallet:
+      type: object
+      required: [walletAddress, currentBalance, totalDistributed, updatedAt]
+      properties:
+        walletAddress:
+          type: string
+          description: Bank wallet TON address
+        currentBalance:
+          type: number
+          format: decimal
+          description: Current Corgi coin balance
+        totalDistributed:
+          type: number
+          format: decimal
+          description: Total coins distributed to users
+        lastTransactionHash:
+          type: string
+          nullable: true
+          description: Last transaction hash
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last balance update timestamp
+
+  securitySchemes:
+    TelegramAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/validate endpoint
+
+security:
+  - TelegramAuth: []
