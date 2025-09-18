@@ -24,11 +24,11 @@
 - [ ] T011 [P] Integration test buddy pairing flow in tests/integration/buddy-pairing.test.ts
 
 ### Corgi Sighting Tests
-- [ ] T012 [P] Contract test POST /api/corgi/sightings in tests/api/corgi-sightings.test.ts
-- [ ] T013 [P] Contract test GET /api/corgi/sightings in tests/api/corgi-sightings-get.test.ts
-- [ ] T014 [P] Contract test GET /api/corgi/confirmations in tests/api/corgi-confirmations.test.ts
-- [ ] T015 [P] Contract test POST /api/corgi/confirm/[id] in tests/api/corgi-confirm.test.ts
-- [ ] T016 [P] Integration test corgi sighting confirmation flow in tests/integration/corgi-flow.test.ts
+- [x] T012 [P] Contract test POST /api/corgi/sightings in tests/api/corgi-sightings.test.ts
+- [x] T013 [P] Contract test GET /api/corgi/sightings in tests/api/corgi-sightings-get.test.ts
+- [x] T014 [P] Contract test GET /api/corgi/confirmations in tests/api/corgi-confirmations.test.ts
+- [x] T015 [P] Contract test POST /api/corgi/confirm/[id] in tests/api/corgi-confirm.test.ts
+- [x] T016 [P] Integration test corgi sighting confirmation flow in tests/integration/corgi-flow.test.ts
 
 ### Wish Management Tests
 - [ ] T017 [P] Contract test POST /api/wishes in tests/api/wishes-create.test.ts

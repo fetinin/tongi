@@ -114,11 +114,8 @@ All commands should be run from the project root directory (after Next.js setup)
 - Bank wallet operations logged for audit trails
 
 ## Performance Goals
-- <3s initial load in Telegram environment
-- <500ms page transitions
 - Real-time buddy notifications via bot
 - SQLite appropriate for 1k-10k initial user scale
-- Migration path to PostgreSQL documented for growth
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
