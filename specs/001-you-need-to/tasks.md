@@ -14,8 +14,8 @@
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
 
 ### Authentication Tests
-- [ ] T006 [P] Contract test POST /api/auth/validate in tests/api/auth.test.ts
-- [ ] T007 [P] Integration test Telegram initData validation in tests/integration/auth.test.ts
+- [x] T006 [P] Contract test POST /api/auth/validate in tests/api/auth.test.ts
+- [x] T007 [P] Integration test Telegram initData validation in tests/integration/auth.test.ts
 
 ### Buddy Management Tests
 - [ ] T008 [P] Contract test GET /api/buddy/search in tests/api/buddy-search.test.ts
