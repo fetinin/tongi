@@ -1,168 +1,50 @@
-import { describe, test, expect, beforeEach } from '@jest/globals';
-import crypto from 'crypto';
+import { describe, test, expect } from '@jest/globals';
 
 // T007: Integration test Telegram initData validation
+// This test MUST FAIL until the actual validation utilities are implemented
 describe('Telegram initData validation integration', () => {
-  let mockTelegramBotToken: string;
 
-  beforeEach(() => {
-    mockTelegramBotToken = process.env.TELEGRAM_BOT_TOKEN || 'test_telegram_bot_token';
-  });
+  describe('validateInitData function from src/lib/telegram.ts', () => {
+    test('should validate correctly signed initData', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { validateInitData } = await import('@/lib/telegram');
 
-  describe('initData HMAC validation', () => {
-    test('should validate correctly signed initData', () => {
-      // Create a valid initData string with proper HMAC signature
-      const userData = {
-        id: 123456789,
-        first_name: 'John',
-        username: 'john_doe',
-        language_code: 'en'
-      };
+      const validInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
+      const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
 
-      const authDate = Math.floor(Date.now() / 1000);
-      const dataToCheck = `auth_date=${authDate}&user=${JSON.stringify(userData)}`;
-
-      // Generate HMAC signature using bot token
-      const secretKey = crypto
-        .createHmac('sha256', 'WebAppData')
-        .update(mockTelegramBotToken)
-        .digest();
-
-      const hash = crypto
-        .createHmac('sha256', secretKey)
-        .update(dataToCheck)
-        .digest('hex');
-
-      const validInitData = `${dataToCheck}&hash=${hash}`;
-
-      // Test the validation logic (this would normally be part of a utility function)
-      const validateInitData = (initData: string, botToken: string): boolean => {
-        try {
-          const params = new URLSearchParams(initData);
-          const receivedHash = params.get('hash');
-          params.delete('hash');
-
-          const sortedParams = Array.from(params.entries())
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
-
-          const secretKey = crypto
-            .createHmac('sha256', 'WebAppData')
-            .update(botToken)
-            .digest();
-
-          const calculatedHash = crypto
-            .createHmac('sha256', secretKey)
-            .update(sortedParams)
-            .digest('hex');
-
-          return calculatedHash === receivedHash;
-        } catch (error) {
-          return false;
-        }
-      };
-
-      const isValid = validateInitData(validInitData, mockTelegramBotToken);
+      const isValid = validateInitData(validInitData, botToken);
       expect(isValid).toBe(true);
     });
 
-    test('should reject initData with invalid HMAC signature', () => {
+    test('should reject initData with invalid HMAC signature', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { validateInitData } = await import('@/lib/telegram');
+
       const invalidInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=invalid_hash';
+      const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
 
-      const validateInitData = (initData: string, botToken: string): boolean => {
-        try {
-          const params = new URLSearchParams(initData);
-          const receivedHash = params.get('hash');
-          params.delete('hash');
-
-          const sortedParams = Array.from(params.entries())
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
-
-          const secretKey = crypto
-            .createHmac('sha256', 'WebAppData')
-            .update(botToken)
-            .digest();
-
-          const calculatedHash = crypto
-            .createHmac('sha256', secretKey)
-            .update(sortedParams)
-            .digest('hex');
-
-          return calculatedHash === receivedHash;
-        } catch (error) {
-          return false;
-        }
-      };
-
-      const isValid = validateInitData(invalidInitData, mockTelegramBotToken);
+      const isValid = validateInitData(invalidInitData, botToken);
       expect(isValid).toBe(false);
     });
 
-    test('should reject expired initData (older than 1 day)', () => {
-      // Create initData with old auth_date (more than 24 hours ago)
+    test('should reject expired initData (older than 1 day)', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { validateInitData } = await import('@/lib/telegram');
+
       const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60 + 1);
-      const userData = {
-        id: 123456789,
-        first_name: 'John'
-      };
+      const expiredInitData = `user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=${oneDayAgo}&hash=abcdef123456`;
+      const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
 
-      const dataToCheck = `auth_date=${oneDayAgo}&user=${JSON.stringify(userData)}`;
-
-      const secretKey = crypto
-        .createHmac('sha256', 'WebAppData')
-        .update(mockTelegramBotToken)
-        .digest();
-
-      const hash = crypto
-        .createHmac('sha256', secretKey)
-        .update(dataToCheck)
-        .digest('hex');
-
-      const expiredInitData = `${dataToCheck}&hash=${hash}`;
-
-      const validateInitDataWithExpiry = (initData: string, botToken: string): boolean => {
-        try {
-          const params = new URLSearchParams(initData);
-          const authDate = parseInt(params.get('auth_date') || '0');
-          const currentTime = Math.floor(Date.now() / 1000);
-
-          // Check if auth_date is older than 24 hours
-          if (currentTime - authDate > 24 * 60 * 60) {
-            return false;
-          }
-
-          const receivedHash = params.get('hash');
-          params.delete('hash');
-
-          const sortedParams = Array.from(params.entries())
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
-
-          const secretKey = crypto
-            .createHmac('sha256', 'WebAppData')
-            .update(botToken)
-            .digest();
-
-          const calculatedHash = crypto
-            .createHmac('sha256', secretKey)
-            .update(sortedParams)
-            .digest('hex');
-
-          return calculatedHash === receivedHash;
-        } catch (error) {
-          return false;
-        }
-      };
-
-      const isValid = validateInitDataWithExpiry(expiredInitData, mockTelegramBotToken);
+      const isValid = validateInitData(expiredInitData, botToken);
       expect(isValid).toBe(false);
     });
+  });
 
-    test('should extract user data correctly from valid initData', () => {
+  describe('extractUserData function from src/lib/telegram.ts', () => {
+    test('should extract user data correctly from valid initData', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { extractUserData } = await import('@/lib/telegram');
+
       const userData = {
         id: 123456789,
         first_name: 'John',
@@ -171,115 +53,44 @@ describe('Telegram initData validation integration', () => {
         language_code: 'en'
       };
 
-      const authDate = Math.floor(Date.now() / 1000);
       const userParam = encodeURIComponent(JSON.stringify(userData));
-      const dataToCheck = `auth_date=${authDate}&user=${userParam}`;
+      const initData = `auth_date=1234567890&user=${userParam}&hash=abcdef123456`;
 
-      const secretKey = crypto
-        .createHmac('sha256', 'WebAppData')
-        .update(mockTelegramBotToken)
-        .digest();
-
-      const hash = crypto
-        .createHmac('sha256', secretKey)
-        .update(dataToCheck)
-        .digest('hex');
-
-      const validInitData = `${dataToCheck}&hash=${hash}`;
-
-      const extractUserData = (initData: string): any => {
-        const params = new URLSearchParams(initData);
-        const userStr = params.get('user');
-        if (!userStr) return null;
-
-        try {
-          return JSON.parse(userStr);
-        } catch (error) {
-          return null;
-        }
-      };
-
-      const extractedUser = extractUserData(validInitData);
-      expect(extractedUser).toEqual(userData);
-      expect(extractedUser.id).toBe(123456789);
-      expect(extractedUser.first_name).toBe('John');
-      expect(extractedUser.username).toBe('john_doe');
+      const extractedUser = extractUserData(initData);
+      expect(extractedUser).toEqual({
+        id: 123456789,
+        firstName: 'John',
+        lastName: 'Doe',
+        username: 'john_doe',
+        languageCode: 'en'
+      });
     });
 
-    test('should handle missing user data in initData', () => {
-      const authDate = Math.floor(Date.now() / 1000);
-      const dataToCheck = `auth_date=${authDate}`;
+    test('should handle missing user data in initData', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { extractUserData } = await import('@/lib/telegram');
 
-      const secretKey = crypto
-        .createHmac('sha256', 'WebAppData')
-        .update(mockTelegramBotToken)
-        .digest();
-
-      const hash = crypto
-        .createHmac('sha256', secretKey)
-        .update(dataToCheck)
-        .digest('hex');
-
-      const initDataWithoutUser = `${dataToCheck}&hash=${hash}`;
-
-      const extractUserData = (initData: string): any => {
-        const params = new URLSearchParams(initData);
-        const userStr = params.get('user');
-        if (!userStr) return null;
-
-        try {
-          return JSON.parse(userStr);
-        } catch (error) {
-          return null;
-        }
-      };
+      const initDataWithoutUser = 'auth_date=1234567890&hash=abcdef123456';
 
       const extractedUser = extractUserData(initDataWithoutUser);
       expect(extractedUser).toBeNull();
     });
 
-    test('should handle malformed user JSON in initData', () => {
-      const authDate = Math.floor(Date.now() / 1000);
-      const malformedUserData = 'invalid_json_string';
-      const dataToCheck = `auth_date=${authDate}&user=${malformedUserData}`;
+    test('should handle malformed user JSON in initData', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { extractUserData } = await import('@/lib/telegram');
 
-      const secretKey = crypto
-        .createHmac('sha256', 'WebAppData')
-        .update(mockTelegramBotToken)
-        .digest();
-
-      const hash = crypto
-        .createHmac('sha256', secretKey)
-        .update(dataToCheck)
-        .digest('hex');
-
-      const initDataWithMalformedUser = `${dataToCheck}&hash=${hash}`;
-
-      const extractUserData = (initData: string): any => {
-        const params = new URLSearchParams(initData);
-        const userStr = params.get('user');
-        if (!userStr) return null;
-
-        try {
-          return JSON.parse(userStr);
-        } catch (error) {
-          return null;
-        }
-      };
+      const initDataWithMalformedUser = 'auth_date=1234567890&user=invalid_json_string&hash=abcdef123456';
 
       const extractedUser = extractUserData(initDataWithMalformedUser);
       expect(extractedUser).toBeNull();
     });
   });
 
-  describe('user data validation', () => {
-    test('should validate required user fields', () => {
-      const validateUserData = (userData: any): boolean => {
-        if (!userData || typeof userData !== 'object') return false;
-        if (typeof userData.id !== 'number') return false;
-        if (typeof userData.first_name !== 'string' || userData.first_name.trim() === '') return false;
-        return true;
-      };
+  describe('validateUserData function from src/lib/telegram.ts', () => {
+    test('should validate required user fields', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { validateUserData } = await import('@/lib/telegram');
 
       // Valid user data
       expect(validateUserData({ id: 123456789, first_name: 'John' })).toBe(true);
@@ -292,20 +103,9 @@ describe('Telegram initData validation integration', () => {
       expect(validateUserData({ id: 123456789 })).toBe(false);
     });
 
-    test('should handle optional user fields correctly', () => {
-      const validateUserData = (userData: any): any => {
-        if (!userData || typeof userData !== 'object') return null;
-        if (typeof userData.id !== 'number') return null;
-        if (typeof userData.first_name !== 'string' || userData.first_name.trim() === '') return null;
-
-        return {
-          id: userData.id,
-          firstName: userData.first_name,
-          lastName: userData.last_name || null,
-          username: userData.username || null,
-          languageCode: userData.language_code || null
-        };
-      };
+    test('should handle optional user fields correctly', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { normalizeUserData } = await import('@/lib/telegram');
 
       const fullUserData = {
         id: 123456789,
@@ -320,7 +120,7 @@ describe('Telegram initData validation integration', () => {
         first_name: 'John'
       };
 
-      const processedFullUser = validateUserData(fullUserData);
+      const processedFullUser = normalizeUserData(fullUserData);
       expect(processedFullUser).toEqual({
         id: 123456789,
         firstName: 'John',
@@ -329,7 +129,7 @@ describe('Telegram initData validation integration', () => {
         languageCode: 'en'
       });
 
-      const processedMinimalUser = validateUserData(minimalUserData);
+      const processedMinimalUser = normalizeUserData(minimalUserData);
       expect(processedMinimalUser).toEqual({
         id: 123456789,
         firstName: 'John',
@@ -337,6 +137,40 @@ describe('Telegram initData validation integration', () => {
         username: null,
         languageCode: null
       });
+    });
+  });
+
+  describe('createAuthToken function from src/lib/telegram.ts', () => {
+    test('should create JWT token for authenticated user', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { createAuthToken } = await import('@/lib/telegram');
+
+      const userData = {
+        id: 123456789,
+        firstName: 'John',
+        username: 'john_doe'
+      };
+
+      const token = createAuthToken(userData);
+      expect(typeof token).toBe('string');
+      expect(token.split('.')).toHaveLength(3); // JWT has 3 parts
+    });
+
+    test('should verify JWT token correctly', async () => {
+      // This will FAIL until src/lib/telegram.ts is implemented
+      const { createAuthToken, verifyAuthToken } = await import('@/lib/telegram');
+
+      const userData = {
+        id: 123456789,
+        firstName: 'John',
+        username: 'john_doe'
+      };
+
+      const token = createAuthToken(userData);
+      const decoded = verifyAuthToken(token);
+
+      expect(decoded).toHaveProperty('id', 123456789);
+      expect(decoded).toHaveProperty('firstName', 'John');
     });
   });
 });

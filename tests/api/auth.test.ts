@@ -1,14 +1,10 @@
-import { describe, test, expect, beforeEach } from '@jest/globals';
+import { describe, test, expect } from '@jest/globals';
 
 // T006: Contract test POST /api/auth/validate
+// This test MUST FAIL until the actual API endpoint is implemented
 describe('POST /api/auth/validate', () => {
   const baseUrl = 'http://localhost:3000';
   const endpoint = '/api/auth/validate';
-
-  beforeEach(() => {
-    // Reset fetch mock before each test
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockReset();
-  });
 
   test('should return 200 with valid auth response when given valid initData', async () => {
     const validInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
@@ -19,26 +15,7 @@ describe('POST /api/auth/validate', () => {
       tonWalletAddress: tonWalletAddress
     };
 
-    // Mock successful response
-    const mockResponse = {
-      user: {
-        id: 123456789,
-        firstName: 'John',
-        telegramUsername: null,
-        tonWalletAddress: tonWalletAddress,
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z'
-      },
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      isNewUser: false
-    };
-
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => mockResponse,
-    } as Response);
-
+    // This will FAIL until the actual endpoint is implemented
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -68,18 +45,7 @@ describe('POST /api/auth/validate', () => {
       initData: invalidInitData
     };
 
-    // Mock error response
-    const mockErrorResponse = {
-      error: 'INVALID_AUTH',
-      message: 'Invalid Telegram authentication data'
-    };
-
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-      json: async () => mockErrorResponse,
-    } as Response);
-
+    // This will FAIL until the actual endpoint is implemented
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -102,18 +68,7 @@ describe('POST /api/auth/validate', () => {
       tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-'
     };
 
-    // Mock validation error response
-    const mockErrorResponse = {
-      error: 'VALIDATION_ERROR',
-      message: 'Missing required field: initData'
-    };
-
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
-      ok: false,
-      status: 400,
-      json: async () => mockErrorResponse,
-    } as Response);
-
+    // This will FAIL until the actual endpoint is implemented
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -137,26 +92,7 @@ describe('POST /api/auth/validate', () => {
       initData: validInitData
     };
 
-    // Mock new user response
-    const mockResponse = {
-      user: {
-        id: 987654321,
-        firstName: 'Jane',
-        telegramUsername: null,
-        tonWalletAddress: null,
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z'
-      },
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      isNewUser: true
-    };
-
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => mockResponse,
-    } as Response);
-
+    // This will FAIL until the actual endpoint is implemented
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -182,18 +118,7 @@ describe('POST /api/auth/validate', () => {
       initData: validInitData
     };
 
-    // Mock server error response
-    const mockErrorResponse = {
-      error: 'INTERNAL_ERROR',
-      message: 'Internal server error'
-    };
-
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-      json: async () => mockErrorResponse,
-    } as Response);
-
+    // This will FAIL until the actual endpoint is implemented
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -202,7 +127,8 @@ describe('POST /api/auth/validate', () => {
       body: JSON.stringify(requestBody),
     });
 
-    expect(response.ok).toBe(false);
+    // We expect this to fail with 404 (not found) until endpoint exists
+    // When implemented, we'll adjust this test for actual server error scenarios
     expect(response.status).toBe(500);
 
     const data = await response.json();
