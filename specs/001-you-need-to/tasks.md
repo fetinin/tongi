@@ -53,12 +53,12 @@
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
 ### Database Models
-- [ ] T029 [P] User model in src/models/User.ts
-- [ ] T030 [P] BuddyPair model in src/models/BuddyPair.ts
-- [ ] T031 [P] CorgiSighting model in src/models/CorgiSighting.ts
-- [ ] T032 [P] Wish model in src/models/Wish.ts
-- [ ] T033 [P] Transaction model in src/models/Transaction.ts
-- [ ] T034 [P] BankWallet model in src/models/BankWallet.ts
+- [x] T029 [P] User model in src/models/User.ts
+- [x] T030 [P] BuddyPair model in src/models/BuddyPair.ts
+- [x] T031 [P] CorgiSighting model in src/models/CorgiSighting.ts
+- [x] T032 [P] Wish model in src/models/Wish.ts
+- [x] T033 [P] Transaction model in src/models/Transaction.ts
+- [x] T034 [P] BankWallet model in src/models/BankWallet.ts
 
 ### Database Setup
 - [ ] T035 Database migration script in scripts/migrate.ts
