@@ -38,9 +38,9 @@
 - [ ] T021 [P] Integration test wish creation and approval flow in tests/integration/wish-flow.test.ts
 
 ### Marketplace Tests
-- [ ] T022 [P] Contract test GET /api/marketplace in tests/api/marketplace.test.ts
-- [ ] T023 [P] Contract test POST /api/marketplace/[id]/purchase in tests/api/marketplace-purchase.test.ts
-- [ ] T024 [P] Integration test wish purchase flow in tests/integration/marketplace-flow.test.ts
+- [x] T022 [P] Contract test GET /api/marketplace in tests/api/marketplace.test.ts
+- [x] T023 [P] Contract test POST /api/marketplace/[id]/purchase in tests/api/marketplace-purchase.test.ts
+- [x] T024 [P] Integration test wish purchase flow in tests/integration/marketplace-flow.test.ts
 
 ### Transaction Tests
 - [ ] T025 [P] Contract test GET /api/transactions in tests/api/transactions.test.ts
