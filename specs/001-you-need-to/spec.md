@@ -72,7 +72,7 @@ A user opens the Telegram mini-app for the first time and must establish a "budd
 **Buddy System**
 - **FR-001**: System MUST allow users to connect with another user by entering their Telegram username
 - **FR-002**: System MUST validate that entered usernames exist on Telegram before allowing buddy connections
-- **FR-003**: System MUST enforce that each user can only have one active buddy relationship at a time [NEEDS CLARIFICATION: Can users change buddies or is this permanent?]
+- **FR-003**: System MUST enforce that each user can only have one active buddy relationship at a time. Buddy can not be changed
 - **FR-004**: System MUST notify both users when a buddy connection is established
 
 **Authentication & Wallet Integration**

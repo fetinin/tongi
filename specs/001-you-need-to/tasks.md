@@ -7,8 +7,8 @@
 - [x] T001 Create project structure per research.md architecture patterns
 - [x] T002 Initialize Next.js 15 project with TypeScript and pnpm dependencies
 - [x] T003 [P] Configure ESLint, Prettier, and TypeScript strict mode
-- [ ] T004 [P] Setup SQLite database with schema from data-model.md
-- [ ] T005 [P] Configure environment variables for Telegram Bot, TON Connect, and database
+- [x] T004 [P] Setup SQLite database with schema from data-model.md
+- [x] T005 [P] Configure environment variables for Telegram Bot, TON Connect, and database
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
