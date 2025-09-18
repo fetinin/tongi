@@ -48,7 +48,7 @@
 - [x] T027 [P] Integration test transaction confirmation flow in tests/integration/transaction-flow.test.ts
 
 ### Bank Wallet Tests
-- [ ] T028 [P] Contract test GET /api/bank/status in tests/api/bank-status.test.ts
+- [x] T028 [P] Contract test GET /api/bank/status in tests/api/bank-status.test.ts
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
