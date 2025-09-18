@@ -43,9 +43,9 @@
 - [x] T024 [P] Integration test wish purchase flow in tests/integration/marketplace-flow.test.ts
 
 ### Transaction Tests
-- [ ] T025 [P] Contract test GET /api/transactions in tests/api/transactions.test.ts
-- [ ] T026 [P] Contract test POST /api/transactions/[id]/confirm in tests/api/transactions-confirm.test.ts
-- [ ] T027 [P] Integration test transaction confirmation flow in tests/integration/transaction-flow.test.ts
+- [x] T025 [P] Contract test GET /api/transactions in tests/api/transactions.test.ts
+- [x] T026 [P] Contract test POST /api/transactions/[id]/confirm in tests/api/transactions-confirm.test.ts
+- [x] T027 [P] Integration test transaction confirmation flow in tests/integration/transaction-flow.test.ts
 
 ### Bank Wallet Tests
 - [ ] T028 [P] Contract test GET /api/bank/status in tests/api/bank-status.test.ts
