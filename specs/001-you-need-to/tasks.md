@@ -18,10 +18,10 @@
 - [x] T007 [P] Integration test Telegram initData validation in tests/integration/auth.test.ts
 
 ### Buddy Management Tests
-- [ ] T008 [P] Contract test GET /api/buddy/search in tests/api/buddy-search.test.ts
-- [ ] T009 [P] Contract test POST /api/buddy/request in tests/api/buddy-request.test.ts
-- [ ] T010 [P] Contract test GET /api/buddy/status in tests/api/buddy-status.test.ts
-- [ ] T011 [P] Integration test buddy pairing flow in tests/integration/buddy-pairing.test.ts
+- [x] T008 [P] Contract test GET /api/buddy/search in tests/api/buddy-search.test.ts
+- [x] T009 [P] Contract test POST /api/buddy/request in tests/api/buddy-request.test.ts
+- [x] T010 [P] Contract test GET /api/buddy/status in tests/api/buddy-status.test.ts
+- [x] T011 [P] Integration test buddy pairing flow in tests/integration/buddy-pairing.test.ts
 
 ### Corgi Sighting Tests
 - [x] T012 [P] Contract test POST /api/corgi/sightings in tests/api/corgi-sightings.test.ts
