@@ -31,11 +31,11 @@
 - [x] T016 [P] Integration test corgi sighting confirmation flow in tests/integration/corgi-flow.test.ts
 
 ### Wish Management Tests
-- [ ] T017 [P] Contract test POST /api/wishes in tests/api/wishes-create.test.ts
-- [ ] T018 [P] Contract test GET /api/wishes in tests/api/wishes-get.test.ts
-- [ ] T019 [P] Contract test GET /api/wishes/pending in tests/api/wishes-pending.test.ts
-- [ ] T020 [P] Contract test POST /api/wishes/[id]/respond in tests/api/wishes-respond.test.ts
-- [ ] T021 [P] Integration test wish creation and approval flow in tests/integration/wish-flow.test.ts
+- [x] T017 [P] Contract test POST /api/wishes in tests/api/wishes-create.test.ts
+- [x] T018 [P] Contract test GET /api/wishes in tests/api/wishes-get.test.ts
+- [x] T019 [P] Contract test GET /api/wishes/pending in tests/api/wishes-pending.test.ts
+- [x] T020 [P] Contract test POST /api/wishes/[id]/respond in tests/api/wishes-respond.test.ts
+- [x] T021 [P] Integration test wish creation and approval flow in tests/integration/wish-flow.test.ts
 
 ### Marketplace Tests
 - [x] T022 [P] Contract test GET /api/marketplace in tests/api/marketplace.test.ts
