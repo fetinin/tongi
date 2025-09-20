@@ -13,7 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "db:migrate": "node scripts/migrate.js",
+    "db:migrate": "npx tsx scripts/migrate.ts",
     "db:seed": "node scripts/seed.js"
   },
   "dependencies": {
@@ -43,6 +43,7 @@
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.3",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }

@@ -61,7 +61,7 @@
 - [x] T034 [P] BankWallet model in src/models/BankWallet.ts
 
 ### Database Setup
-- [ ] T035 Database migration script in scripts/migrate.ts
+- [x] T035 Database migration script in scripts/migrate.ts
 - [ ] T036 Database seed script in scripts/seed.ts
 - [ ] T037 Database connection utility in src/lib/database.ts
 
