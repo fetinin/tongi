@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "db:migrate": "npx tsx scripts/migrate.ts",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "npx tsx scripts/seed.ts"
   },
   "dependencies": {
     "@telegram-apps/sdk-react": "^3.3.7",

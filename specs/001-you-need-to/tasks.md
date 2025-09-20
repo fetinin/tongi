@@ -1,3 +1,5 @@
+After each task is done. YOU MUST mark it as complete in this file and commit changes.
+
 # Tasks: Corgi Buddy TON Cryptocurrency Mini-App
 
 **Input**: Design documents from `/specs/001-you-need-to/`
@@ -62,7 +64,7 @@
 
 ### Database Setup
 - [x] T035 Database migration script in scripts/migrate.ts
-- [ ] T036 Database seed script in scripts/seed.ts
+- [x] T036 Database seed script in scripts/seed.ts
 - [ ] T037 Database connection utility in src/lib/database.ts
 
 ### Services Layer
