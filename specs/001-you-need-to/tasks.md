@@ -72,8 +72,8 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T039 [P] BuddyService relationship management in src/services/BuddyService.ts
 - [x] T040 [P] CorgiService sighting operations in src/services/CorgiService.ts
 - [x] T041 [P] WishService wish management in src/services/WishService.ts
-- [ ] T042 [P] TransactionService TON operations in src/services/TransactionService.ts
-- [ ] T043 [P] BankService wallet operations in src/services/BankService.ts
+- [x] T042 [P] TransactionService TON operations in src/services/TransactionService.ts
+- [x] T043 [P] BankService wallet operations in src/services/BankService.ts
 
 ### Core Utilities
 - [ ] T044 [P] Telegram initData validation utility in src/lib/telegram.ts
