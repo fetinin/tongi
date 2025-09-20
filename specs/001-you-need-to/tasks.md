@@ -68,7 +68,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T037 Database connection utility in src/lib/database.ts
 
 ### Services Layer
-- [ ] T038 [P] UserService CRUD operations in src/services/UserService.ts
+- [x] T038 [P] UserService CRUD operations in src/services/UserService.ts
 - [ ] T039 [P] BuddyService relationship management in src/services/BuddyService.ts
 - [ ] T040 [P] CorgiService sighting operations in src/services/CorgiService.ts
 - [ ] T041 [P] WishService wish management in src/services/WishService.ts
