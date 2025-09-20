@@ -65,7 +65,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Database Setup
 - [x] T035 Database migration script in scripts/migrate.ts
 - [x] T036 Database seed script in scripts/seed.ts
-- [ ] T037 Database connection utility in src/lib/database.ts
+- [x] T037 Database connection utility in src/lib/database.ts
 
 ### Services Layer
 - [ ] T038 [P] UserService CRUD operations in src/services/UserService.ts
