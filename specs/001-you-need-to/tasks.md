@@ -1,4 +1,4 @@
-After each task is done. YOU MUST mark it as complete in this file and commit changes.
+After each task is done. YOU MUST mark it as complete in this file and commit changes in git.
 
 # Tasks: Corgi Buddy TON Cryptocurrency Mini-App
 
@@ -70,7 +70,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Services Layer
 - [x] T038 [P] UserService CRUD operations in src/services/UserService.ts
 - [x] T039 [P] BuddyService relationship management in src/services/BuddyService.ts
-- [ ] T040 [P] CorgiService sighting operations in src/services/CorgiService.ts
+- [x] T040 [P] CorgiService sighting operations in src/services/CorgiService.ts
 - [ ] T041 [P] WishService wish management in src/services/WishService.ts
 - [ ] T042 [P] TransactionService TON operations in src/services/TransactionService.ts
 - [ ] T043 [P] BankService wallet operations in src/services/BankService.ts
