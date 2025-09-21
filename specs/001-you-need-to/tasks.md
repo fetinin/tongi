@@ -89,10 +89,10 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T050 GET /api/buddy/status endpoint in src/app/api/buddy/status/route.ts
 
 ### API Endpoints - Corgi Sightings
-- [ ] T051 POST /api/corgi/sightings endpoint in src/app/api/corgi/sightings/route.ts
-- [ ] T052 GET /api/corgi/sightings endpoint (same file as T051)
-- [ ] T053 GET /api/corgi/confirmations endpoint in src/app/api/corgi/confirmations/route.ts
-- [ ] T054 POST /api/corgi/confirm/[id] endpoint in src/app/api/corgi/confirm/[id]/route.ts
+- [x] T051 POST /api/corgi/sightings endpoint in src/app/api/corgi/sightings/route.ts
+- [x] T052 GET /api/corgi/sightings endpoint (same file as T051)
+- [x] T053 GET /api/corgi/confirmations endpoint in src/app/api/corgi/confirmations/route.ts
+- [x] T054 POST /api/corgi/confirm/[id] endpoint in src/app/api/corgi/confirm/[id]/route.ts
 
 ### API Endpoints - Wish Management
 - [ ] T055 POST /api/wishes endpoint in src/app/api/wishes/route.ts
