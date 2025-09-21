@@ -86,7 +86,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### API Endpoints - Buddy Management
 - [x] T048 GET /api/buddy/search endpoint in src/app/api/buddy/search/route.ts
 - [x] T049 POST /api/buddy/request endpoint in src/app/api/buddy/request/route.ts
-- [ ] T050 GET /api/buddy/status endpoint in src/app/api/buddy/status/route.ts
+- [x] T050 GET /api/buddy/status endpoint in src/app/api/buddy/status/route.ts
 
 ### API Endpoints - Corgi Sightings
 - [ ] T051 POST /api/corgi/sightings endpoint in src/app/api/corgi/sightings/route.ts
