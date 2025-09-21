@@ -81,7 +81,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T046 [P] JWT authentication middleware in src/middleware/auth.ts
 
 ### API Endpoints - Authentication
-- [ ] T047 POST /api/auth/validate endpoint in src/app/api/auth/validate/route.ts
+- [x] T047 POST /api/auth/validate endpoint in src/app/api/auth/validate/route.ts
 
 ### API Endpoints - Buddy Management
 - [ ] T048 GET /api/buddy/search endpoint in src/app/api/buddy/search/route.ts
