@@ -7,10 +7,11 @@ describe('Telegram initData validation integration', () => {
   describe('validateInitData function from src/lib/telegram.ts', () => {
     test('should validate correctly signed initData', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { validateInitData } = await import('@/lib/telegram');
+      const { validateInitData, createTestInitData } = await import('@/lib/telegram');
 
-      const validInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
       const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
+      const userData = { id: 123456789, first_name: 'John' };
+      const validInitData = createTestInitData(userData, botToken);
 
       const isValid = validateInitData(validInitData, botToken);
       expect(isValid).toBe(true);
@@ -29,11 +30,12 @@ describe('Telegram initData validation integration', () => {
 
     test('should reject expired initData (older than 1 day)', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { validateInitData } = await import('@/lib/telegram');
+      const { validateInitData, createTestInitData } = await import('@/lib/telegram');
 
-      const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60 + 1);
-      const expiredInitData = `user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=${oneDayAgo}&hash=abcdef123456`;
       const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
+      const userData = { id: 123456789, first_name: 'John' };
+      const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60 + 1);
+      const expiredInitData = createTestInitData(userData, botToken, oneDayAgo);
 
       const isValid = validateInitData(expiredInitData, botToken);
       expect(isValid).toBe(false);
@@ -43,7 +45,7 @@ describe('Telegram initData validation integration', () => {
   describe('extractUserData function from src/lib/telegram.ts', () => {
     test('should extract user data correctly from valid initData', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { extractUserData } = await import('@/lib/telegram');
+      const { extractUserData, createTestInitData } = await import('@/lib/telegram');
 
       const userData = {
         id: 123456789,
@@ -53,8 +55,8 @@ describe('Telegram initData validation integration', () => {
         language_code: 'en'
       };
 
-      const userParam = encodeURIComponent(JSON.stringify(userData));
-      const initData = `auth_date=1234567890&user=${userParam}&hash=abcdef123456`;
+      const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
+      const initData = createTestInitData(userData, botToken);
 
       const extractedUser = extractUserData(initData);
       expect(extractedUser).toEqual({

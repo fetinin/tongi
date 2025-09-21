@@ -76,7 +76,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T043 [P] BankService wallet operations in src/services/BankService.ts
 
 ### Core Utilities
-- [ ] T044 [P] Telegram initData validation utility in src/lib/telegram.ts
+- [x] T044 [P] Telegram initData validation utility in src/lib/telegram.ts
 - [ ] T045 [P] TON Connect integration utility in src/lib/ton.ts
 - [ ] T046 [P] JWT authentication middleware in src/middleware/auth.ts
 
