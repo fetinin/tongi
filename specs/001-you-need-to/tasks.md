@@ -84,7 +84,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T047 POST /api/auth/validate endpoint in src/app/api/auth/validate/route.ts
 
 ### API Endpoints - Buddy Management
-- [ ] T048 GET /api/buddy/search endpoint in src/app/api/buddy/search/route.ts
+- [x] T048 GET /api/buddy/search endpoint in src/app/api/buddy/search/route.ts
 - [ ] T049 POST /api/buddy/request endpoint in src/app/api/buddy/request/route.ts
 - [ ] T050 GET /api/buddy/status endpoint in src/app/api/buddy/status/route.ts
 
