@@ -14,6 +14,9 @@ importers:
       '@telegram-apps/telegram-ui':
         specifier: ^2.1.9
         version: 2.1.9(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tonconnect/sdk':
+        specifier: ^3.3.1
+        version: 3.3.1(encoding@0.1.13)
       '@tonconnect/ui-react':
         specifier: ^2.3.0
         version: 2.3.0(encoding@0.1.13)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1176,6 +1179,9 @@ packages:
 
   '@tonconnect/sdk@3.3.0':
     resolution: {integrity: sha512-jwO23Uwy13Wht96Xp4euSG3I5fk9rd+3MFk/eXIzI68aznZUiXlDKBHP5l+/w5PJQhULyCkaHB9/UIXZL3DNTg==}
+
+  '@tonconnect/sdk@3.3.1':
+    resolution: {integrity: sha512-lhXJu95VvbD36u5mMPg2sg+w4GQwkrYnHeJ8rVveu2N7UPwt0jvrEqKlvf7Ss1gh5RDtzs35SS3GbJlaIOAJNA==}
 
   '@tonconnect/ui-react@2.3.0':
     resolution: {integrity: sha512-Gh25xASc2nmexmCEWWiJKmccgk5MvAym215f/nevB/KMGh7t9COaKZs3dnOs3r3AE4l18asN0kuVAQG4Fcyfaw==}
@@ -4920,6 +4926,14 @@ snapshots:
       tweetnacl-util: 0.15.1
 
   '@tonconnect/sdk@3.3.0(encoding@0.1.13)':
+    dependencies:
+      '@tonconnect/isomorphic-eventsource': 0.0.2
+      '@tonconnect/isomorphic-fetch': 0.0.3(encoding@0.1.13)
+      '@tonconnect/protocol': 2.3.0
+    transitivePeerDependencies:
+      - encoding
+
+  '@tonconnect/sdk@3.3.1(encoding@0.1.13)':
     dependencies:
       '@tonconnect/isomorphic-eventsource': 0.0.2
       '@tonconnect/isomorphic-fetch': 0.0.3(encoding@0.1.13)

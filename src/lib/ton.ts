@@ -8,7 +8,7 @@
  * Based on @tonconnect/ui-react and TON Connect protocol specifications.
  */
 
-import { toUserFriendlyAddress } from '@tonconnect/sdk';
+import { toUserFriendlyAddress, type Wallet } from '@tonconnect/sdk';
 
 /**
  * TON network configuration
@@ -67,7 +67,7 @@ export class NetworkError extends TonConnectError {
 /**
  * TON transaction message interface
  */
-export interface TonTransactionMessage {
+export interface CorgiTonTransactionMessage {
   address: string;
   amount: string; // in nanotons
   payload?: string;
@@ -77,9 +77,9 @@ export interface TonTransactionMessage {
 /**
  * TON transaction parameters
  */
-export interface TonTransaction {
+export interface CorgiTonTransaction {
   validUntil: number;
-  messages: TonTransactionMessage[];
+  messages: CorgiTonTransactionMessage[];
 }
 
 /**
@@ -240,7 +240,7 @@ export function nanotonsToCorgiCoins(nanotons: string | number): number {
  * @param options Transaction creation options
  * @returns TON transaction object
  */
-export function createTonTransaction(options: CreateTransactionOptions): TonTransaction {
+export function createTonTransaction(options: CreateTransactionOptions): CorgiTonTransaction {
   const { recipientAddress, corgiCoinAmount, memo, validitySeconds = TON_CONFIG.TRANSACTION_VALIDITY_SECONDS } = options;
 
   // Validate recipient address
@@ -261,7 +261,7 @@ export function createTonTransaction(options: CreateTransactionOptions): TonTran
   // Calculate validity timestamp
   const validUntil = Math.floor(Date.now() / 1000) + validitySeconds;
 
-  const transaction: TonTransaction = {
+  const transaction: CorgiTonTransaction = {
     validUntil,
     messages: [
       {
@@ -280,7 +280,7 @@ export function createTonTransaction(options: CreateTransactionOptions): TonTran
  * @param options Purchase transaction options
  * @returns TON transaction object
  */
-export function createPurchaseTransaction(options: CreatePurchaseTransactionOptions): TonTransaction {
+export function createPurchaseTransaction(options: CreatePurchaseTransactionOptions): CorgiTonTransaction {
   const { sellerAddress, corgiCoinAmount, wishId, validitySeconds = TON_CONFIG.TRANSACTION_VALIDITY_SECONDS } = options;
 
   const memo = `Wish purchase #${wishId}`;
@@ -304,7 +304,7 @@ export function createRewardTransaction(
   recipientAddress: string,
   corgiCoinAmount: number,
   sightingId: number
-): TonTransaction {
+): CorgiTonTransaction {
   const memo = `Corgi sighting reward #${sightingId}`;
 
   return createTonTransaction({
@@ -319,7 +319,7 @@ export function createRewardTransaction(
  * @param transaction TON transaction to validate
  * @returns Validation errors array (empty if valid)
  */
-export function validateTransactionParams(transaction: TonTransaction): string[] {
+export function validateTransactionParams(transaction: CorgiTonTransaction): string[] {
   const errors: string[] = [];
 
   // Check validity timestamp
@@ -333,7 +333,9 @@ export function validateTransactionParams(transaction: TonTransaction): string[]
     errors.push('Transaction must have at least one message');
   }
 
-  for (const [index, message] of transaction.messages.entries()) {
+  for (let i = 0; i < transaction.messages.length; i++) {
+    const message = transaction.messages[i];
+    const index = i;
     if (!validateTonAddress(message.address)) {
       errors.push(`Invalid recipient address in message ${index + 1}`);
     }
@@ -360,7 +362,7 @@ export function validateTransactionParams(transaction: TonTransaction): string[]
  * @param transaction TON transaction
  * @returns Estimated fee in nanotons
  */
-export function estimateTransactionFee(transaction: TonTransaction): number {
+export function estimateTransactionFee(transaction: CorgiTonTransaction): number {
   // Basic fee calculation (in production, use actual TON fee calculation)
   const baseFee = 1_000_000; // 0.001 TON base fee
   const messageFee = 500_000; // 0.0005 TON per message
@@ -377,7 +379,7 @@ export function estimateTransactionFee(transaction: TonTransaction): number {
  * @param wallet TON Connect wallet object
  * @returns Normalized wallet information
  */
-export function extractWalletInfo(wallet: any): WalletInfo | null {
+export function extractWalletInfo(wallet: Wallet): WalletInfo | null {
   try {
     if (!wallet || !wallet.account) {
       return null;
@@ -472,7 +474,7 @@ export function serviceTransactionToTonTransaction(
   toWallet: string,
   amount: number,
   memo?: string
-): TonTransaction {
+): CorgiTonTransaction {
   return createTonTransaction({
     recipientAddress: toWallet,
     corgiCoinAmount: amount,
@@ -502,7 +504,7 @@ export function formatTransactionHash(hash: string): string {
  * @param overrides Optional overrides for transaction properties
  * @returns Mock TON transaction
  */
-export function createMockTransaction(overrides: Partial<TonTransaction> = {}): TonTransaction {
+export function createMockTransaction(overrides: Partial<CorgiTonTransaction> = {}): CorgiTonTransaction {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Mock transactions not allowed in production');
   }
@@ -524,13 +526,4 @@ export function createMockTransaction(overrides: Partial<TonTransaction> = {}): 
  */
 export { TON_CONFIG as default };
 
-/**
- * Type exports for external use
- */
-export type {
-  TonTransaction,
-  TonTransactionMessage,
-  WalletInfo,
-  CreateTransactionOptions,
-  CreatePurchaseTransactionOptions,
-};
+// Types are already exported via their interface declarations

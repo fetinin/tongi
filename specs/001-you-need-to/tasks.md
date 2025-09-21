@@ -77,7 +77,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 
 ### Core Utilities
 - [x] T044 [P] Telegram initData validation utility in src/lib/telegram.ts
-- [ ] T045 [P] TON Connect integration utility in src/lib/ton.ts
+- [x] T045 [P] TON Connect integration utility in src/lib/ton.ts
 - [ ] T046 [P] JWT authentication middleware in src/middleware/auth.ts
 
 ### API Endpoints - Authentication
