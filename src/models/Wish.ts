@@ -243,7 +243,7 @@ export class WishValidator {
 /**
  * Type guard to check if an object is a valid Wish
  */
-export function isWish(obj: any): obj is Wish {
+export function isWish(obj: unknown): obj is Wish {
   return (
     typeof obj === 'object' &&
     obj !== null &&

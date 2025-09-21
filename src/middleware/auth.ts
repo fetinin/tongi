@@ -46,7 +46,7 @@ export function authenticateRequest(request: NextRequest): AuthenticationResult 
  * @param handler The API route handler function
  * @returns Wrapped handler that requires authentication
  */
-export function withAuth<T extends any[]>(
+export function withAuth<T extends unknown[]>(
   handler: (request: AuthenticatedRequest, ...args: T) => Promise<NextResponse> | NextResponse
 ) {
   return async (request: NextRequest, ...args: T): Promise<NextResponse> => {

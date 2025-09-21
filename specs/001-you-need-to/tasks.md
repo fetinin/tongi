@@ -105,7 +105,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T060 POST /api/marketplace/[id]/purchase endpoint in src/app/api/marketplace/[id]/purchase/route.ts
 
 ### API Endpoints - Transactions
-- [ ] T061 GET /api/transactions endpoint in src/app/api/transactions/route.ts
+- [x] T061 GET /api/transactions endpoint in src/app/api/transactions/route.ts
 - [ ] T062 POST /api/transactions/[id]/confirm endpoint in src/app/api/transactions/[id]/confirm/route.ts
 
 ### API Endpoints - Bank Management

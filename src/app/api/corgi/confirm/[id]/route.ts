@@ -24,7 +24,7 @@ interface ErrorResponse {
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<CorgiSightingResponse | ErrorResponse>> {
   try {
     // Authenticate the request
@@ -41,8 +41,11 @@ export async function POST(
 
     const currentUserId = authResult.user!.id;
 
+    // Await params since they're now async in Next.js 15
+    const resolvedParams = await params;
+
     // Parse and validate sighting ID
-    const sightingId = parseInt(params.id, 10);
+    const sightingId = parseInt(resolvedParams.id, 10);
     if (isNaN(sightingId) || sightingId <= 0) {
       return NextResponse.json(
         {
