@@ -106,10 +106,10 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 
 ### API Endpoints - Transactions
 - [x] T061 GET /api/transactions endpoint in src/app/api/transactions/route.ts
-- [ ] T062 POST /api/transactions/[id]/confirm endpoint in src/app/api/transactions/[id]/confirm/route.ts
+- [x] T062 POST /api/transactions/[id]/confirm endpoint in src/app/api/transactions/[id]/confirm/route.ts
 
 ### API Endpoints - Bank Management
-- [ ] T063 GET /api/bank/status endpoint in src/app/api/bank/status/route.ts
+- [x] T063 GET /api/bank/status endpoint in src/app/api/bank/status/route.ts
 
 ## Phase 3.4: Frontend Components
 
