@@ -18,6 +18,9 @@ cd telegram_webapp_example/
 # Install dependencies (must use pnpm)
 pnpm install
 
+# Install required UI library
+pnpm add @telegram-apps/telegram-ui
+
 # Copy environment template
 cp .env.local.example .env.local
 ```
@@ -93,6 +96,9 @@ pnpm run dev:https
 
 **Verification Steps:**
 - [ ] App loads within 3 seconds
+- [ ] @telegram-apps/telegram-ui styles are properly loaded
+- [ ] App is wrapped with AppRoot component from telegram-ui
+- [ ] All UI components use telegram-ui library (List, Section, Cell, etc.)
 - [ ] Telegram user data is received correctly
 - [ ] TON Connect wallet connection works
 - [ ] User profile is created in database
@@ -120,10 +126,12 @@ SELECT * FROM users WHERE telegram_username = 'test_user_a';
 ```
 
 **Verification Steps:**
+- [ ] Buddy search UI uses telegram-ui List/Cell components
+- [ ] Buddy status display uses telegram-ui Section components
 - [ ] Buddy pair record created with status 'pending'
 - [ ] User B receives Telegram notification via bot
 - [ ] User A sees "Request sent" status
-- [ ] User B can accept/decline in app
+- [ ] User B can accept/decline in app using telegram-ui components
 
 **Database Check:**
 ```sql
@@ -155,6 +163,8 @@ SELECT * FROM buddy_pairs WHERE status = 'pending';
 ```
 
 **Verification Steps:**
+- [ ] Corgi sighting form uses telegram-ui form components
+- [ ] Sighting history displays using telegram-ui List/Cell layout
 - [ ] Corgi sighting record created with status 'pending'
 - [ ] User B receives confirmation request notification
 - [ ] User A sees pending sighting in history
@@ -193,6 +203,8 @@ SELECT * FROM corgi_sightings WHERE status = 'pending';
 ```
 
 **Verification Steps:**
+- [ ] Wish creation form uses telegram-ui form components
+- [ ] Wish list displays using telegram-ui List/Section layout
 - [ ] Wish record created with status 'pending'
 - [ ] User B receives wish approval notification
 - [ ] User A sees pending wish in their list
@@ -222,6 +234,8 @@ SELECT * FROM corgi_sightings WHERE status = 'pending';
 ```
 
 **Verification Steps:**
+- [ ] Marketplace uses telegram-ui List/Section/Cell for wish display
+- [ ] Purchase modal uses telegram-ui modal components
 - [ ] Purchase transaction created
 - [ ] TON wallet opens with transaction details
 - [ ] User confirms transaction in wallet
@@ -413,6 +427,9 @@ pnpm run db:status
 # Validate environment configuration
 pnpm run config:check
 
+# Validate telegram-ui integration
+pnpm run test:ui-components
+
 # Run integration tests
 pnpm run test:integration
 
@@ -424,6 +441,12 @@ pnpm run test:api
 
 After completing this quickstart:
 
+- [ ] All UI components use @telegram-apps/telegram-ui library
+- [ ] @telegram-apps/telegram-ui/dist/styles.css is properly imported
+- [ ] App is wrapped with AppRoot component from telegram-ui
+- [ ] Lists use telegram-ui List/Section/Cell components
+- [ ] Forms use telegram-ui form components
+- [ ] Developers can get telegram-ui docs via context7 "telegramui" search
 - [ ] Two users can establish buddy relationships
 - [ ] Corgi sightings can be reported and confirmed
 - [ ] Corgi coins are distributed correctly upon confirmation

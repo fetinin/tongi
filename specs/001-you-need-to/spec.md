@@ -101,11 +101,18 @@ A user opens the Telegram mini-app for the first time and must establish a "budd
 - **FR-022**: System MUST track bank wallet balance and Corgi coin distribution. When bank wallet is depleted, write error to logs.
 - **FR-023**: System MUST maintain transaction logs for all Corgi coin transfers
 
+**User Interface Requirements**
+- **FR-024**: System MUST use @telegram-apps/telegram-ui components for all user interface elements
+- **FR-025**: System MUST import @telegram-apps/telegram-ui/dist/styles.css for consistent Telegram styling
+- **FR-026**: System MUST wrap the application with AppRoot component from @telegram-apps/telegram-ui
+- **FR-027**: System MUST use List, Section, Cell, and other telegram-ui components for structured layouts
+- **FR-028**: Developers MUST obtain @telegram-apps/telegram-ui documentation via context7 by searching for "telegramui"
+
 **General Requirements**
-- **FR-024**: System MUST operate as a Telegram Mini App accessible through mobile devices
-- **FR-025**: System MUST integrate with TON blockchain for all cryptocurrency transactions
-- **FR-026**: System MUST provide real-time notifications for buddy interactions
-- **FR-027**: System MUST maintain user session state across app interactions by using Ton Connect and telegam account.
+- **FR-029**: System MUST operate as a Telegram Mini App accessible through mobile devices
+- **FR-030**: System MUST integrate with TON blockchain for all cryptocurrency transactions
+- **FR-031**: System MUST provide real-time notifications for buddy interactions
+- **FR-032**: System MUST maintain user session state across app interactions by using Ton Connect and telegam account.
 
 ### Key Entities *(include if feature involves data)*
 - **User**: Represents an individual app user with Telegram identity, TON wallet connection, and buddy relationship status

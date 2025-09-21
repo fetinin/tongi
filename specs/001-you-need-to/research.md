@@ -30,6 +30,12 @@
 - **Rationale**: Simple deployment; adequate for initial scale (1k-10k users); familiar ORM patterns
 - **Alternatives considered**: PostgreSQL rejected (over-engineering for scale); Firebase rejected (vendor lock-in concerns)
 
+### **User Interface Components**
+- **Decision**: @telegram-apps/telegram-ui for all UI components
+- **Rationale**: Provides native Telegram Mini App styling; ensures consistency with Telegram design system; includes AppRoot, List, Section, Cell components
+- **Alternatives considered**: Custom UI rejected (inconsistent styling); Material-UI rejected (not Telegram-native); Chakra UI rejected (wrong design language)
+- **Documentation**: Developers MUST use context7 to search for "telegramui" to get up-to-date component documentation
+
 ### **State Management**
 - **Decision**: React state + Telegram storage APIs
 - **Rationale**: Leverages Telegram's built-in persistence; React handles UI state reactively
@@ -41,15 +47,18 @@
 ```
 src/
 ├── components/
-│   ├── buddy/           # Buddy selection and management
-│   ├── corgi/           # Corgi spotting and confirmation
-│   ├── wish/            # Wish creation and marketplace
-│   └── wallet/          # TON Connect integration
-├── app/api/
-│   ├── buddy/           # Buddy relationship endpoints
-│   ├── corgi/           # Corgi sighting endpoints
-│   ├── wish/            # Wish marketplace endpoints
-│   └── wallet/          # Bank wallet operations
+│   ├── buddy/           # Buddy components using telegram-ui List/Cell
+│   ├── corgi/           # Corgi components using telegram-ui Section/Cell
+│   ├── wish/            # Wish components using telegram-ui List/Section
+│   └── wallet/          # TON Connect with telegram-ui styling
+├── app/
+│   ├── layout.tsx       # Must import @telegram-apps/telegram-ui/dist/styles.css
+│   ├── page.tsx         # Must use AppRoot wrapper from telegram-ui
+│   └── api/
+│       ├── buddy/       # Buddy relationship endpoints
+│       ├── corgi/       # Corgi sighting endpoints
+│       ├── wish/        # Wish marketplace endpoints
+│       └── wallet/      # Bank wallet operations
 └── core/
     ├── telegram/        # Telegram SDK utilities
     ├── ton/             # TON Connect utilities
@@ -73,9 +82,14 @@ src/
 
 ### **Telegram Mini Apps SDK**
 - Initialize with `@telegram-apps/sdk-react`
+- Use `@telegram-apps/telegram-ui` for all UI components
+- Import `@telegram-apps/telegram-ui/dist/styles.css` globally
+- Wrap app with AppRoot component from telegram-ui
+- Use List, Section, Cell, Placeholder components from telegram-ui
 - Handle viewport changes for mobile responsiveness
-- Implement theme binding for light/dark modes
+- Implement theme binding for light/dark modes (telegram-ui provides built-in theme support)
 - Mock environment for development/testing
+- Get telegram-ui documentation via context7 by searching "telegramui"
 
 ### **TON Connect Integration**
 - User wallet connection via `@tonconnect/ui-react`

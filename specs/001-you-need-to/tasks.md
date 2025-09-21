@@ -114,40 +114,54 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ## Phase 3.4: Frontend Components
 
 ### Core Components
-- [ ] T064 [P] Root app wrapper with Telegram SDK in src/components/Root/Root.tsx
-- [ ] T065 [P] Authentication provider in src/components/Auth/AuthProvider.tsx
-- [ ] T066 [P] TON Connect provider in src/components/Wallet/TonProvider.tsx
+**IMPORTANT**: All components MUST use @telegram-apps/telegram-ui. Get documentation via context7 by searching for "telegramui".
+
+- [ ] T064 [P] Root app wrapper with Telegram SDK using AppRoot from @telegram-apps/telegram-ui in src/components/Root/Root.tsx
+- [ ] T065 [P] Authentication provider using telegram-ui components in src/components/Auth/AuthProvider.tsx
+- [ ] T066 [P] TON Connect provider using telegram-ui components in src/components/Wallet/TonProvider.tsx
 
 ### Buddy Components
-- [ ] T067 [P] Buddy search component in src/components/buddy/BuddySearch.tsx
-- [ ] T068 [P] Buddy status display in src/components/buddy/BuddyStatus.tsx
-- [ ] T069 [P] Buddy request handler in src/components/buddy/BuddyRequest.tsx
+**IMPORTANT**: Use @telegram-apps/telegram-ui components (List, Section, Cell, etc.). Get docs via context7 "telegramui".
+
+- [ ] T067 [P] Buddy search component using telegram-ui List/Cell in src/components/buddy/BuddySearch.tsx
+- [ ] T068 [P] Buddy status display using telegram-ui Section/Cell in src/components/buddy/BuddyStatus.tsx
+- [ ] T069 [P] Buddy request handler using telegram-ui components in src/components/buddy/BuddyRequest.tsx
 
 ### Corgi Components
-- [ ] T070 [P] Corgi sighting form in src/components/corgi/SightingForm.tsx
-- [ ] T071 [P] Corgi confirmation interface in src/components/corgi/ConfirmationList.tsx
-- [ ] T072 [P] Sighting history display in src/components/corgi/SightingHistory.tsx
+**IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
+
+- [ ] T070 [P] Corgi sighting form using telegram-ui form components in src/components/corgi/SightingForm.tsx
+- [ ] T071 [P] Corgi confirmation interface using telegram-ui List/Section in src/components/corgi/ConfirmationList.tsx
+- [ ] T072 [P] Sighting history display using telegram-ui List/Cell in src/components/corgi/SightingHistory.tsx
 
 ### Wish Components
-- [ ] T073 [P] Wish creation form in src/components/wish/WishForm.tsx
-- [ ] T074 [P] Wish approval interface in src/components/wish/WishApproval.tsx
-- [ ] T075 [P] User wish list in src/components/wish/WishList.tsx
+**IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
+
+- [ ] T073 [P] Wish creation form using telegram-ui form components in src/components/wish/WishForm.tsx
+- [ ] T074 [P] Wish approval interface using telegram-ui List/Section in src/components/wish/WishApproval.tsx
+- [ ] T075 [P] User wish list using telegram-ui List/Cell in src/components/wish/WishList.tsx
 
 ### Marketplace Components
-- [ ] T076 [P] Marketplace wish grid in src/components/marketplace/MarketplaceGrid.tsx
-- [ ] T077 [P] Wish purchase modal in src/components/marketplace/PurchaseModal.tsx
+**IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
+
+- [ ] T076 [P] Marketplace wish grid using telegram-ui List/Section/Cell in src/components/marketplace/MarketplaceGrid.tsx
+- [ ] T077 [P] Wish purchase modal using telegram-ui modal components in src/components/marketplace/PurchaseModal.tsx
 
 ### Transaction Components
-- [ ] T078 [P] Transaction history in src/components/transactions/TransactionHistory.tsx
-- [ ] T079 [P] Transaction status display in src/components/transactions/TransactionStatus.tsx
+**IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
+
+- [ ] T078 [P] Transaction history using telegram-ui List/Cell in src/components/transactions/TransactionHistory.tsx
+- [ ] T079 [P] Transaction status display using telegram-ui components in src/components/transactions/TransactionStatus.tsx
 
 ## Phase 3.5: Page Implementation
-- [ ] T080 Main app page in src/app/page.tsx
-- [ ] T081 Buddy management page in src/app/buddy/page.tsx
-- [ ] T082 Corgi sighting page in src/app/corgi/page.tsx
-- [ ] T083 Wish management page in src/app/wishes/page.tsx
-- [ ] T084 Marketplace page in src/app/marketplace/page.tsx
-- [ ] T085 Transaction history page in src/app/transactions/page.tsx
+**IMPORTANT**: All pages MUST import '@telegram-apps/telegram-ui/dist/styles.css' and use telegram-ui components.
+
+- [ ] T080 Main app page using telegram-ui AppRoot wrapper in src/app/page.tsx
+- [ ] T081 Buddy management page using telegram-ui components in src/app/buddy/page.tsx
+- [ ] T082 Corgi sighting page using telegram-ui components in src/app/corgi/page.tsx
+- [ ] T083 Wish management page using telegram-ui components in src/app/wishes/page.tsx
+- [ ] T084 Marketplace page using telegram-ui components in src/app/marketplace/page.tsx
+- [ ] T085 Transaction history page using telegram-ui components in src/app/transactions/page.tsx
 
 ## Phase 3.6: Integration
 - [ ] T086 Connect services to database models
