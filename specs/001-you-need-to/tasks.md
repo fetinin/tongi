@@ -130,7 +130,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Corgi Components
 **IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
 
-- [ ] T070 [P] Corgi sighting form using telegram-ui form components in src/components/corgi/SightingForm.tsx
+- [x] T070 [P] Corgi sighting form using telegram-ui form components in src/components/corgi/SightingForm.tsx
 - [ ] T071 [P] Corgi confirmation interface using telegram-ui List/Section in src/components/corgi/ConfirmationList.tsx
 - [ ] T072 [P] Sighting history display using telegram-ui List/Cell in src/components/corgi/SightingHistory.tsx
 
