@@ -1,0 +1,392 @@
+'use client';
+
+import React, { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
+import {
+  initData,
+  useLaunchParams,
+  useSignal,
+  cloudStorage,
+  secureStorage
+} from '@telegram-apps/sdk-react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
+import { Placeholder, Spinner } from '@telegram-apps/telegram-ui';
+
+// Types for authentication state
+interface User {
+  id: number;
+  firstName: string;
+  username: string | null;
+  tonWalletAddress: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isNewUser: boolean;
+}
+
+interface AuthContextValue extends AuthState {
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  updateWalletAddress: (address: string | null) => Promise<void>;
+}
+
+// Create authentication context
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+// Custom hook to use authentication context
+export function useAuth(): AuthContextValue {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+// Storage keys for three-tier storage strategy
+const STORAGE_KEYS = {
+  SECURE: {
+    AUTH_TOKEN: 'auth_token', // Sensitive authentication token
+  },
+  DEVICE: {
+    USER_PREFERENCES: 'user_preferences', // Local app state
+  },
+  CLOUD: {
+    USER_DATA: 'user_data', // Cross-device user information
+  }
+} as const;
+
+interface AuthProviderProps extends PropsWithChildren {
+  /** Optional loading component to show during authentication */
+  loadingComponent?: React.ReactNode;
+}
+
+export function AuthProvider({ children, loadingComponent }: AuthProviderProps) {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    token: null,
+    isAuthenticated: false,
+    isLoading: true,
+    isNewUser: false,
+  });
+
+  const lp = useLaunchParams();
+  const initDataState = useSignal(initData.state);
+  const initDataUser = useSignal(initData.user);
+  const [tonConnectUI] = useTonConnectUI();
+
+  // Initialize authentication on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initDataState, initDataUser]);
+
+  // Monitor TON Connect wallet changes
+  useEffect(() => {
+    const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+      if (wallet && authState.user) {
+        // Update wallet address when TON Connect wallet changes
+        updateWalletAddress(wallet.account.address);
+      } else if (!wallet && authState.user?.tonWalletAddress) {
+        // Clear wallet address when disconnected
+        updateWalletAddress(null);
+      }
+    });
+
+    return unsubscribe;
+  }, [tonConnectUI, authState.user]);
+
+  /**
+   * Initialize authentication by checking stored credentials and Telegram data
+   */
+  async function initializeAuth(): Promise<void> {
+    try {
+      setAuthState(prev => ({ ...prev, isLoading: true }));
+
+      // Check if we have a stored auth token
+      const storedToken = await getStoredToken();
+      const storedUserData = await getStoredUserData();
+
+      if (storedToken && storedUserData) {
+        // Verify stored credentials are still valid
+        const isValid = await verifyStoredCredentials(storedToken);
+        if (isValid) {
+          setAuthState({
+            user: storedUserData,
+            token: storedToken,
+            isAuthenticated: true,
+            isLoading: false,
+            isNewUser: false,
+          });
+          return;
+        }
+      }
+
+      // No valid stored credentials, attempt fresh authentication
+      if (initDataState === 'ready' && initDataUser) {
+        await performAuthentication();
+      } else {
+        // No Telegram data available
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      setAuthState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+        isNewUser: false,
+      });
+    }
+  }
+
+  /**
+   * Perform authentication with Telegram initData
+   */
+  async function performAuthentication(): Promise<void> {
+    try {
+      if (!initData.raw) {
+        throw new Error('No Telegram initData available');
+      }
+
+      // Get TON wallet address if connected
+      const tonWalletAddress = tonConnectUI.wallet?.account.address || undefined;
+
+      // Call authentication API
+      const response = await fetch('/api/auth/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          initData: initData.raw,
+          tonWalletAddress,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Authentication failed');
+      }
+
+      const authResponse = await response.json();
+      const { user, token, isNewUser } = authResponse;
+
+      // Store credentials using three-tier storage strategy
+      await storeCredentials(token, user);
+
+      setAuthState({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+        isNewUser,
+      });
+    } catch (error) {
+      console.error('Authentication error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Manually trigger login process
+   */
+  async function login(): Promise<void> {
+    if (authState.isLoading) {
+      return;
+    }
+
+    setAuthState(prev => ({ ...prev, isLoading: true }));
+    try {
+      await performAuthentication();
+    } catch (error) {
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+      throw error;
+    }
+  }
+
+  /**
+   * Logout and clear stored credentials
+   */
+  async function logout(): Promise<void> {
+    try {
+      // Clear stored credentials
+      await clearStoredCredentials();
+
+      // Disconnect TON wallet if connected
+      if (tonConnectUI.wallet) {
+        await tonConnectUI.disconnect();
+      }
+
+      setAuthState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+        isNewUser: false,
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }
+
+  /**
+   * Update user's TON wallet address
+   */
+  async function updateWalletAddress(address: string | null): Promise<void> {
+    if (!authState.user || !authState.token) {
+      return;
+    }
+
+    try {
+      // Update via API if different from current
+      if (address !== authState.user.tonWalletAddress) {
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authState.token}`,
+          },
+          body: JSON.stringify({
+            initData: initData.raw,
+            tonWalletAddress: address,
+          }),
+        });
+
+        if (response.ok) {
+          const authResponse = await response.json();
+          const updatedUser = authResponse.user;
+
+          // Update stored user data
+          await storeUserData(updatedUser);
+
+          setAuthState(prev => ({
+            ...prev,
+            user: updatedUser,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error updating wallet address:', error);
+    }
+  }
+
+  /**
+   * Get stored authentication token from secure storage
+   */
+  async function getStoredToken(): Promise<string | null> {
+    try {
+      return await secureStorage.getItem(STORAGE_KEYS.SECURE.AUTH_TOKEN);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Get stored user data from cloud storage
+   */
+  async function getStoredUserData(): Promise<User | null> {
+    try {
+      const userData = await cloudStorage.getItem(STORAGE_KEYS.CLOUD.USER_DATA);
+      return userData ? JSON.parse(userData) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Store authentication credentials using three-tier strategy
+   */
+  async function storeCredentials(token: string, user: User): Promise<void> {
+    try {
+      // Store sensitive token in secure storage
+      await secureStorage.setItem(STORAGE_KEYS.SECURE.AUTH_TOKEN, token);
+
+      // Store user data in cloud storage for cross-device sync
+      await storeUserData(user);
+    } catch (error) {
+      console.error('Error storing credentials:', error);
+    }
+  }
+
+  /**
+   * Store user data in cloud storage
+   */
+  async function storeUserData(user: User): Promise<void> {
+    try {
+      await cloudStorage.setItem(STORAGE_KEYS.CLOUD.USER_DATA, JSON.stringify(user));
+    } catch (error) {
+      console.error('Error storing user data:', error);
+    }
+  }
+
+  /**
+   * Clear all stored credentials
+   */
+  async function clearStoredCredentials(): Promise<void> {
+    try {
+      await Promise.allSettled([
+        secureStorage.deleteItem(STORAGE_KEYS.SECURE.AUTH_TOKEN),
+        cloudStorage.deleteItem(STORAGE_KEYS.CLOUD.USER_DATA),
+      ]);
+    } catch (error) {
+      console.error('Error clearing credentials:', error);
+    }
+  }
+
+  /**
+   * Verify that stored credentials are still valid
+   */
+  async function verifyStoredCredentials(token: string): Promise<boolean> {
+    try {
+      // Simple token validation - in a real app, you might want to call an API endpoint
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return false;
+      }
+
+      // Decode JWT payload to check expiration
+      const payload = JSON.parse(atob(parts[1]));
+      const now = Math.floor(Date.now() / 1000);
+
+      return payload.exp > now;
+    } catch {
+      return false;
+    }
+  }
+
+  // Provide context value
+  const contextValue: AuthContextValue = {
+    ...authState,
+    login,
+    logout,
+    updateWalletAddress,
+  };
+
+  // Show loading state with telegram-ui components
+  if (authState.isLoading) {
+    const loadingElement = loadingComponent || (
+      <Placeholder
+        header="Authenticating"
+        description="Please wait while we verify your Telegram identity..."
+      >
+        <Spinner size="l" />
+      </Placeholder>
+    );
+
+    return <>{loadingElement}</>;
+  }
+
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// Export AuthContext for advanced usage
+export { AuthContext };

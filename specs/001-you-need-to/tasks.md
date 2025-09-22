@@ -117,7 +117,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 **IMPORTANT**: All components MUST use @telegram-apps/telegram-ui. Get documentation via context7 by searching for "telegramui".
 
 - [x] T064 [P] Root app wrapper with Telegram SDK using AppRoot from @telegram-apps/telegram-ui in src/components/Root/Root.tsx
-- [ ] T065 [P] Authentication provider using telegram-ui components in src/components/Auth/AuthProvider.tsx
+- [x] T065 [P] Authentication provider using telegram-ui components in src/components/Auth/AuthProvider.tsx
 - [ ] T066 [P] TON Connect provider using telegram-ui components in src/components/Wallet/TonProvider.tsx
 
 ### Buddy Components
