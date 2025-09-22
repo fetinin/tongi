@@ -197,9 +197,9 @@ export function BuddyRequest({
                 }
                 after={
                   targetUser.tonWalletAddress ? (
-                    <Badge type="primary">TON Ready</Badge>
+                    <Badge type="number">TON Ready</Badge>
                   ) : (
-                    <Badge type="secondary">No Wallet</Badge>
+                    <Badge type="dot">No Wallet</Badge>
                   )
                 }
               >
@@ -211,13 +211,13 @@ export function BuddyRequest({
           {/* Request Information */}
           <Section header="About Buddy Relationships" className="mt-4">
             <Caption level="1" className="px-4 py-2 text-gray-600">
-              When you become buddies, you'll be able to:
+              When you become buddies, you&apos;ll be able to:
             </Caption>
             <ul className="px-4 text-sm text-gray-600 space-y-1">
-              <li>• Confirm each other's corgi sightings</li>
+              <li>• Confirm each other&apos;s corgi sightings</li>
               <li>• Earn Corgi coins together</li>
               <li>• Create and approve wishes for the marketplace</li>
-              <li>• Support each other's TON transactions</li>
+              <li>• Support each other&apos;s TON transactions</li>
             </ul>
           </Section>
 
@@ -225,7 +225,7 @@ export function BuddyRequest({
           {!targetUser.tonWalletAddress && (
             <Section className="mt-4">
               <Caption level="1" className="px-4 py-2 text-orange-600">
-                ⚠️ This user hasn't connected a TON wallet yet. They'll need to connect one to participate in Corgi coin transactions.
+                ⚠️ This user hasn&apos;t connected a TON wallet yet. They&apos;ll need to connect one to participate in Corgi coin transactions.
               </Caption>
             </Section>
           )}

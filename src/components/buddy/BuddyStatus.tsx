@@ -143,22 +143,22 @@ export function BuddyStatus({
     switch (status) {
       case 'pending':
         return {
-          type: 'secondary' as const,
+          type: 'dot' as const,
           text: isInitiatedByCurrentUser ? 'Request Sent' : 'Pending Your Response',
         };
       case 'active':
         return {
-          type: 'primary' as const,
+          type: 'number' as const,
           text: 'Active Buddy',
         };
       case 'dissolved':
         return {
-          type: 'secondary' as const,
+          type: 'dot' as const,
           text: 'Dissolved',
         };
       default:
         return {
-          type: 'secondary' as const,
+          type: 'dot' as const,
           text: status,
         };
     }
@@ -275,9 +275,9 @@ export function BuddyStatus({
             }
             after={
               buddyStatus.buddy.tonWalletAddress ? (
-                <Badge type="primary">TON Connected</Badge>
+                <Badge type="number">TON Connected</Badge>
               ) : (
-                <Badge type="secondary">No Wallet</Badge>
+                <Badge type="dot">No Wallet</Badge>
               )
             }
           >

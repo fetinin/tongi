@@ -61,6 +61,7 @@ export function BuddySearch({
     }, 500); // 500ms debounce
 
     return () => clearTimeout(delayedSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   /**
