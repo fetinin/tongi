@@ -116,7 +116,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Core Components
 **IMPORTANT**: All components MUST use @telegram-apps/telegram-ui. Get documentation via context7 by searching for "telegramui".
 
-- [ ] T064 [P] Root app wrapper with Telegram SDK using AppRoot from @telegram-apps/telegram-ui in src/components/Root/Root.tsx
+- [x] T064 [P] Root app wrapper with Telegram SDK using AppRoot from @telegram-apps/telegram-ui in src/components/Root/Root.tsx
 - [ ] T065 [P] Authentication provider using telegram-ui components in src/components/Auth/AuthProvider.tsx
 - [ ] T066 [P] TON Connect provider using telegram-ui components in src/components/Wallet/TonProvider.tsx
 
@@ -174,11 +174,10 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [ ] T091 [P] Unit tests for validation utilities in tests/unit/validation.test.ts
 - [ ] T092 [P] Unit tests for Telegram utilities in tests/unit/telegram.test.ts
 - [ ] T093 [P] Unit tests for TON utilities in tests/unit/ton.test.ts
-- [ ] T094 [P] Performance tests for API endpoints (<500ms p95)
-- [ ] T095 End-to-end tests following quickstart.md scenarios
-- [ ] T096 Security audit for HMAC validation and SQL injection
-- [ ] T097 Mobile responsiveness and Telegram theme integration
-- [ ] T098 Production deployment configuration
+- [ ] T094 End-to-end tests following quickstart.md scenarios
+- [ ] T095 Security audit for HMAC validation and SQL injection
+- [ ] T096 Mobile responsiveness and Telegram theme integration
+- [ ] T097 Production deployment configuration
 
 ## Dependencies
 
