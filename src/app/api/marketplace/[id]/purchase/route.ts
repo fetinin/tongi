@@ -25,7 +25,7 @@ interface ErrorResponse {
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<PurchaseResponse | ErrorResponse>> {
   try {
     // Authenticate the request
@@ -42,8 +42,11 @@ export async function POST(
 
     const purchaserId = authResult.user!.id;
 
+    // Await params in Next.js 15+
+    const resolvedParams = await params;
+
     // Validate and parse wish ID from path parameters
-    const wishId = parseInt(params.id, 10);
+    const wishId = parseInt(resolvedParams.id, 10);
     if (isNaN(wishId) || wishId <= 0) {
       return NextResponse.json(
         {

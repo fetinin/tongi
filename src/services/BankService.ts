@@ -204,7 +204,7 @@ export class BankService {
   public async getBankWalletStatus(): Promise<BankWallet | null> {
     try {
       const row = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
-      return row ? this.mapRowToBankWallet(row) : null;
+      return row ? this.mapRowToBankWallet(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new BankServiceError(
         `Failed to retrieve bank wallet status: ${error}`,
@@ -240,7 +240,7 @@ export class BankService {
           walletData.last_transaction_hash || null
         );
 
-        return this.mapRowToBankWallet(row);
+        return this.mapRowToBankWallet(row as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof BankServiceError) {
@@ -298,7 +298,7 @@ export class BankService {
           BankWalletConstraints.SINGLETON_ID
         );
 
-        return this.mapRowToBankWallet(updatedRow);
+        return this.mapRowToBankWallet(updatedRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof BankServiceError) {
@@ -327,7 +327,7 @@ export class BankService {
           throw new BankWalletNotFoundError();
         }
 
-        const bankWallet = this.mapRowToBankWallet(existingWallet);
+        const bankWallet = this.mapRowToBankWallet(existingWallet as Record<string, unknown>);
         const previousBalance = bankWallet.current_balance;
         const newBalance = previousBalance + operation.amount;
 
@@ -339,7 +339,7 @@ export class BankService {
           BankWalletConstraints.SINGLETON_ID
         );
 
-        const updatedWallet = this.mapRowToBankWallet(updatedRow);
+        const updatedWallet = this.mapRowToBankWallet(updatedRow as Record<string, unknown>);
 
         return {
           bankWallet: updatedWallet,
@@ -374,7 +374,7 @@ export class BankService {
           throw new BankWalletNotFoundError();
         }
 
-        const bankWallet = this.mapRowToBankWallet(existingWallet);
+        const bankWallet = this.mapRowToBankWallet(existingWallet as Record<string, unknown>);
         const previousBalance = bankWallet.current_balance;
 
         // Check if sufficient funds
@@ -393,7 +393,7 @@ export class BankService {
           BankWalletConstraints.SINGLETON_ID
         );
 
-        const updatedWallet = this.mapRowToBankWallet(updatedRow);
+        const updatedWallet = this.mapRowToBankWallet(updatedRow as Record<string, unknown>);
 
         return {
           bankWallet: updatedWallet,
@@ -433,7 +433,7 @@ export class BankService {
           BankWalletConstraints.SINGLETON_ID
         );
 
-        return this.mapRowToBankWallet(updatedRow);
+        return this.mapRowToBankWallet(updatedRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof BankServiceError) {

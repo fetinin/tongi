@@ -206,7 +206,7 @@ export class CorgiService {
           throw new CorgiServiceError('Failed to retrieve created sighting', 'DATABASE_ERROR');
         }
 
-        const sighting = this.mapRowToSighting(row);
+        const sighting = this.mapRowToSighting(row as Record<string, unknown>);
 
         return {
           sighting,
@@ -234,7 +234,7 @@ export class CorgiService {
       }
 
       const rows = this.statements.getPendingForBuddy!.all(buddyId);
-      const confirmations = rows.map(row => this.mapRowToSighting(row));
+      const confirmations = rows.map(row => this.mapRowToSighting(row as Record<string, unknown>));
 
       return {
         confirmations,
@@ -262,7 +262,7 @@ export class CorgiService {
           throw new CorgiNotFoundError('Corgi sighting not found');
         }
 
-        const sighting = this.mapRowToSighting(row);
+        const sighting = this.mapRowToSighting(row as Record<string, unknown>);
 
         // Verify the buddy is authorized to confirm this sighting
         if (sighting.buddy_id !== buddyId) {
@@ -296,7 +296,7 @@ export class CorgiService {
           throw new CorgiServiceError('Failed to retrieve updated sighting', 'DATABASE_ERROR');
         }
 
-        const updatedSighting = this.mapRowToSighting(updatedRow);
+        const updatedSighting = this.mapRowToSighting(updatedRow as Record<string, unknown>);
 
         // Calculate reward if confirmed
         let rewardEarned: number | undefined;
@@ -338,7 +338,7 @@ export class CorgiService {
         rows = this.statements.getByReporter!.all(reporterId);
       }
 
-      const sightings = rows.map(row => this.mapRowToSighting(row));
+      const sightings = rows.map(row => this.mapRowToSighting(row as Record<string, unknown>));
 
       // Calculate total rewards from confirmed sightings
       const confirmedSightings = sightings.filter(s => s.status === 'confirmed');
@@ -373,7 +373,7 @@ export class CorgiService {
       }
 
       const rows = this.statements.getPendingForReporter!.all(reporterId);
-      return rows.map(row => this.mapRowToSighting(row));
+      return rows.map(row => this.mapRowToSighting(row as Record<string, unknown>));
     } catch (error) {
       if (error instanceof CorgiServiceError || error instanceof UserNotFoundError) {
         throw error;
@@ -391,7 +391,7 @@ export class CorgiService {
   public async getSightingById(sightingId: number): Promise<CorgiSighting | null> {
     try {
       const row = this.statements.getSightingById!.get(sightingId);
-      return row ? this.mapRowToSighting(row) : null;
+      return row ? this.mapRowToSighting(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new CorgiServiceError(
         `Failed to get sighting: ${error}`,
@@ -411,7 +411,7 @@ export class CorgiService {
       }
 
       const rows = this.statements.getConfirmedForReporter!.all(reporterId);
-      return rows.map(row => this.mapRowToSighting(row));
+      return rows.map(row => this.mapRowToSighting(row as Record<string, unknown>));
     } catch (error) {
       if (error instanceof CorgiServiceError || error instanceof UserNotFoundError) {
         throw error;
@@ -464,7 +464,7 @@ export class CorgiService {
     try {
       const buddyStatus = await buddyService.getBuddyStatus(userId);
       return buddyStatus.status === 'active';
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

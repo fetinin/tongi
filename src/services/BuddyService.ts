@@ -12,14 +12,12 @@ import {
   BuddyPair,
   BuddyPairStatus,
   CreateBuddyPairInput,
-  UpdateBuddyPairInput,
-  BuddyPairFilters,
   BuddyPairValidator,
   BuddyPairUtils,
   rowToBuddyPair,
   BuddyPairRow,
 } from '@/models/BuddyPair';
-import { UserProfile } from '@/models/User';
+import { UserProfile, UserUtils } from '@/models/User';
 import { userService, UserNotFoundError } from '@/services/UserService';
 import type Database from 'better-sqlite3';
 
@@ -186,7 +184,7 @@ export class BuddyService {
    * Convert database row to BuddyPair with proper type conversion
    */
   private mapRowToBuddyPair(row: Record<string, unknown>): BuddyPair {
-    return rowToBuddyPair(row as BuddyPairRow);
+    return rowToBuddyPair(row as unknown as BuddyPairRow);
   }
 
   /**
@@ -208,6 +206,12 @@ export class BuddyService {
     }
 
     try {
+      // Get the target user's profile outside transaction
+      const targetUser = await userService.getUserById(targetUserId);
+      if (!targetUser) {
+        throw new UserNotFoundError(targetUserId);
+      }
+
       return withTransaction(() => {
         // Check if both users exist
         if (!userService.userExists(requesterId)) {
@@ -245,22 +249,10 @@ export class BuddyService {
           BuddyPairStatus.PENDING
         );
 
-        const buddyPair = this.mapRowToBuddyPair(row);
+        const buddyPair = this.mapRowToBuddyPair(row as Record<string, unknown>);
 
-        // Get the target user's profile
-        const targetUser = userService.getUserById(targetUserId);
-        if (!targetUser) {
-          throw new UserNotFoundError(targetUserId);
-        }
-
-        // Convert to profile and return result
-        const buddyProfile: UserProfile = {
-          id: targetUser.id,
-          telegramUsername: targetUser.telegram_username,
-          firstName: targetUser.first_name,
-          tonWalletAddress: targetUser.ton_wallet_address,
-          createdAt: targetUser.created_at.toISOString(),
-        };
+        // Convert target user to profile
+        const buddyProfile: UserProfile = UserUtils.toProfile(targetUser);
 
         return {
           id: buddyPair.id,
@@ -301,19 +293,13 @@ export class BuddyService {
       // First check for active buddy
       const activeBuddy = this.statements.getUserActiveBuddy!.get(userId, userId);
       if (activeBuddy) {
-        const buddyPair = this.mapRowToBuddyPair(activeBuddy);
+        const buddyPair = this.mapRowToBuddyPair(activeBuddy as Record<string, unknown>);
         const buddyId = BuddyPairUtils.getBuddyId(buddyPair, userId);
 
         if (buddyId) {
           const buddyUser = await userService.getUserById(buddyId);
           if (buddyUser) {
-            const buddyProfile: UserProfile = {
-              id: buddyUser.id,
-              telegramUsername: buddyUser.telegram_username,
-              firstName: buddyUser.first_name,
-              tonWalletAddress: buddyUser.ton_wallet_address,
-              createdAt: buddyUser.created_at.toISOString(),
-            };
+            const buddyProfile: UserProfile = UserUtils.toProfile(buddyUser);
 
             return {
               status: buddyPair.status,
@@ -330,19 +316,13 @@ export class BuddyService {
       // Check for pending buddy
       const pendingBuddy = this.statements.getUserPendingBuddy!.get(userId, userId);
       if (pendingBuddy) {
-        const buddyPair = this.mapRowToBuddyPair(pendingBuddy);
+        const buddyPair = this.mapRowToBuddyPair(pendingBuddy as Record<string, unknown>);
         const buddyId = BuddyPairUtils.getBuddyId(buddyPair, userId);
 
         if (buddyId) {
           const buddyUser = await userService.getUserById(buddyId);
           if (buddyUser) {
-            const buddyProfile: UserProfile = {
-              id: buddyUser.id,
-              telegramUsername: buddyUser.telegram_username,
-              firstName: buddyUser.first_name,
-              tonWalletAddress: buddyUser.ton_wallet_address,
-              createdAt: buddyUser.created_at.toISOString(),
-            };
+            const buddyProfile: UserProfile = UserUtils.toProfile(buddyUser);
 
             return {
               status: buddyPair.status,
@@ -377,14 +357,32 @@ export class BuddyService {
    */
   public async confirmBuddyRequest(buddyPairId: number, confirmingUserId: number): Promise<BuddyPairWithProfile> {
     try {
+      // Get the buddy pair first to determine buddy user
+      const row = this.statements.getBuddyPairById!.get(buddyPairId);
+      if (!row) {
+        throw new BuddyNotFoundError('Buddy pair not found');
+      }
+
+      const buddyPair = this.mapRowToBuddyPair(row as Record<string, unknown>);
+      const buddyId = BuddyPairUtils.getBuddyId(buddyPair, confirmingUserId);
+      if (!buddyId) {
+        throw new BuddyServiceError('Could not determine buddy ID', 'INTERNAL_ERROR');
+      }
+
+      // Fetch buddy user before transaction
+      const buddyUser = await userService.getUserById(buddyId);
+      if (!buddyUser) {
+        throw new UserNotFoundError(buddyId);
+      }
+
       return withTransaction(() => {
-        // Get the buddy pair
+        // Re-get the buddy pair in case it changed
         const row = this.statements.getBuddyPairById!.get(buddyPairId);
         if (!row) {
           throw new BuddyNotFoundError('Buddy pair not found');
         }
 
-        const buddyPair = this.mapRowToBuddyPair(row);
+        const buddyPair = this.mapRowToBuddyPair(row as Record<string, unknown>);
 
         // Verify the confirming user is part of this relationship
         if (!BuddyPairUtils.isUserInPair(buddyPair, confirmingUserId)) {
@@ -409,26 +407,10 @@ export class BuddyService {
           buddyPairId
         );
 
-        const updatedBuddyPair = this.mapRowToBuddyPair(updatedRow);
+        const updatedBuddyPair = this.mapRowToBuddyPair(updatedRow as Record<string, unknown>);
 
-        // Get the other user's profile
-        const buddyId = BuddyPairUtils.getBuddyId(updatedBuddyPair, confirmingUserId);
-        if (!buddyId) {
-          throw new BuddyServiceError('Could not determine buddy ID', 'INTERNAL_ERROR');
-        }
-
-        const buddyUser = userService.getUserById(buddyId);
-        if (!buddyUser) {
-          throw new UserNotFoundError(buddyId);
-        }
-
-        const buddyProfile: UserProfile = {
-          id: buddyUser.id,
-          telegramUsername: buddyUser.telegram_username,
-          firstName: buddyUser.first_name,
-          tonWalletAddress: buddyUser.ton_wallet_address,
-          createdAt: buddyUser.created_at.toISOString(),
-        };
+        // Convert buddy user to profile (already fetched outside transaction)
+        const buddyProfile: UserProfile = UserUtils.toProfile(buddyUser);
 
         return {
           id: updatedBuddyPair.id,
@@ -462,7 +444,7 @@ export class BuddyService {
           throw new BuddyNotFoundError('Buddy pair not found');
         }
 
-        const buddyPair = this.mapRowToBuddyPair(row);
+        const buddyPair = this.mapRowToBuddyPair(row as Record<string, unknown>);
 
         // Verify the requesting user is part of this relationship
         if (!BuddyPairUtils.isUserInPair(buddyPair, requestingUserId)) {
@@ -525,7 +507,7 @@ export class BuddyService {
   public async getBuddyPairById(id: number): Promise<BuddyPair | null> {
     try {
       const row = this.statements.getBuddyPairById!.get(id);
-      return row ? this.mapRowToBuddyPair(row) : null;
+      return row ? this.mapRowToBuddyPair(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new BuddyServiceError(
         `Failed to get buddy pair: ${error}`,
@@ -543,7 +525,7 @@ export class BuddyService {
       const row = this.statements.getBuddyPairByUsers!.get(
         normalizedUser1, normalizedUser2, normalizedUser2, normalizedUser1
       );
-      return row ? this.mapRowToBuddyPair(row) : null;
+      return row ? this.mapRowToBuddyPair(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new BuddyServiceError(
         `Failed to get user relationship: ${error}`,

@@ -26,7 +26,7 @@ interface ErrorResponse {
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<WishResponse | ErrorResponse>> {
   try {
     // Authenticate the request
@@ -43,10 +43,13 @@ export async function POST(
 
     const currentUserId = authResult.user!.id;
 
+    // Await params in Next.js 15+
+    const resolvedParams = await params;
+
     // Validate and parse wish ID
     let wishId: number;
     try {
-      wishId = WishService.validateWishId(params.id);
+      wishId = WishService.validateWishId(resolvedParams.id);
     } catch (error) {
       return NextResponse.json(
         {

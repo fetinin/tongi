@@ -275,7 +275,7 @@ export class WishService {
    * Convert database row with user joins to WishWithUsers object
    */
   private mapRowToWishWithUsers(row: Record<string, unknown>): WishWithUsers {
-    const wish = this.mapRowToWish(row);
+    const wish = this.mapRowToWish(row as Record<string, unknown>);
 
     return {
       ...wish,
@@ -315,19 +315,19 @@ export class WishService {
     }
 
     try {
+      // Get user's active buddy outside transaction
+      const buddyStatus = await buddyService.getBuddyStatus(creatorId);
+      if (!buddyStatus || buddyStatus.status !== 'active' || !buddyStatus.buddy) {
+        throw new WishConflictError('User must have an active buddy relationship to create wishes');
+      }
+
       return withTransaction(() => {
         // Check if creator exists
         if (!userService.userExists(creatorId)) {
           throw new UserNotFoundError(creatorId);
         }
 
-        // Get user's active buddy
-        const buddyStatus = buddyService.getBuddyStatus(creatorId);
-        if (!buddyStatus || buddyStatus.status !== 'active' || !buddyStatus.buddy) {
-          throw new WishConflictError('User must have an active buddy relationship to create wishes');
-        }
-
-        const buddyId = buddyStatus.buddy.id;
+        const buddyId = buddyStatus.buddy!.id;
         createInput.buddy_id = buddyId;
 
         // Create the wish
@@ -339,11 +339,11 @@ export class WishService {
           WishDefaults.status
         );
 
-        const wish = this.mapRowToWish(row);
+        const wish = this.mapRowToWish(row as Record<string, unknown>);
 
         // Get the wish with user information
         const wishWithUsersRow = this.statements.getWishWithUsers!.get(wish.id);
-        return this.mapRowToWishWithUsers(wishWithUsersRow);
+        return this.mapRowToWishWithUsers(wishWithUsersRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof WishServiceError || error instanceof UserNotFoundError || error instanceof BuddyServiceError) {
@@ -363,7 +363,7 @@ export class WishService {
   public async getWishById(wishId: number): Promise<Wish | null> {
     try {
       const row = this.statements.getWishById!.get(wishId);
-      return row ? this.mapRowToWish(row) : null;
+      return row ? this.mapRowToWish(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new WishServiceError(
         `Failed to get wish by ID: ${error}`,
@@ -378,7 +378,7 @@ export class WishService {
   public async getWishWithUsersById(wishId: number): Promise<WishWithUsers | null> {
     try {
       const row = this.statements.getWishWithUsers!.get(wishId);
-      return row ? this.mapRowToWishWithUsers(row) : null;
+      return row ? this.mapRowToWishWithUsers(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new WishServiceError(
         `Failed to get wish with users: ${error}`,
@@ -398,12 +398,13 @@ export class WishService {
     }
 
     try {
+      // Get the wish outside transaction
+      const wish = await this.getWishById(wishId);
+      if (!wish) {
+        throw new WishNotFoundError(wishId);
+      }
+
       return withTransaction(() => {
-        // Get the wish
-        const wish = this.getWishById(wishId);
-        if (!wish) {
-          throw new WishNotFoundError(wishId);
-        }
 
         // Verify the user is the buddy for this wish
         if (wish.buddy_id !== userId) {
@@ -438,11 +439,11 @@ export class WishService {
           wishId
         );
 
-        this.mapRowToWish(updatedRow);
+        this.mapRowToWish(updatedRow as Record<string, unknown>);
 
         // Get the updated wish with user information
         const wishWithUsersRow = this.statements.getWishWithUsers!.get(wishId);
-        return this.mapRowToWishWithUsers(wishWithUsersRow);
+        return this.mapRowToWishWithUsers(wishWithUsersRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof WishServiceError) {
@@ -472,15 +473,15 @@ export class WishService {
 
       if (params.status) {
         // Filter by status
-        rows = this.statements.getUserWishesWithFilters!.all(userId, params.status, limit, offset);
-        countResult = this.statements.countUserWishesWithFilters!.get(userId, params.status);
+        rows = this.statements.getUserWishesWithFilters!.all(userId, params.status, limit, offset) as Record<string, unknown>[];
+        countResult = this.statements.countUserWishesWithFilters!.get(userId, params.status) as { count: number };
       } else {
         // Get all wishes for user
-        rows = this.statements.getUserWishes!.all(userId, limit, offset);
-        countResult = this.statements.countUserWishes!.get(userId);
+        rows = this.statements.getUserWishes!.all(userId, limit, offset) as Record<string, unknown>[];
+        countResult = this.statements.countUserWishes!.get(userId) as { count: number };
       }
 
-      const wishes = rows.map(row => this.mapRowToWishWithUsers(row));
+      const wishes = rows.map(row => this.mapRowToWishWithUsers(row as Record<string, unknown>));
       const total = countResult.count;
       const hasMore = offset + limit < total;
 
@@ -508,10 +509,10 @@ export class WishService {
       const limit = Math.min(params.limit || 50, 100);
       const offset = params.offset || 0;
 
-      const rows = this.statements.getPendingWishes!.all(buddyId, limit, offset);
-      const countResult = this.statements.countPendingWishes!.get(buddyId);
+      const rows = this.statements.getPendingWishes!.all(buddyId, limit, offset) as Record<string, unknown>[];
+      const countResult = this.statements.countPendingWishes!.get(buddyId) as { count: number };
 
-      const wishes = rows.map(row => this.mapRowToWishWithUsers(row));
+      const wishes = rows.map(row => this.mapRowToWishWithUsers(row as Record<string, unknown>));
       const total = countResult.count;
       const hasMore = offset + limit < total;
 
@@ -538,10 +539,10 @@ export class WishService {
       const limit = Math.min(params.limit || 50, 100);
       const offset = params.offset || 0;
 
-      const rows = this.statements.getMarketplaceWishes!.all(limit, offset);
-      const countResult = this.statements.countMarketplaceWishes!.get();
+      const rows = this.statements.getMarketplaceWishes!.all(limit, offset) as Record<string, unknown>[];
+      const countResult = this.statements.countMarketplaceWishes!.get() as { count: number };
 
-      const wishes = rows.map(row => this.mapRowToWishWithUsers(row));
+      const wishes = rows.map(row => this.mapRowToWishWithUsers(row as Record<string, unknown>));
       const total = countResult.count;
       const hasMore = offset + limit < total;
 
@@ -563,12 +564,13 @@ export class WishService {
    */
   public async purchaseWish(wishId: number, purchaserId: number): Promise<WishWithUsers> {
     try {
+      // Get the wish outside transaction
+      const wish = await this.getWishById(wishId);
+      if (!wish) {
+        throw new WishNotFoundError(wishId);
+      }
+
       return withTransaction(() => {
-        // Get the wish
-        const wish = this.getWishById(wishId);
-        if (!wish) {
-          throw new WishNotFoundError(wishId);
-        }
 
         // Verify the wish is in accepted status
         if (wish.status !== 'accepted') {
@@ -607,11 +609,11 @@ export class WishService {
           wishId
         );
 
-        this.mapRowToWish(updatedRow);
+        this.mapRowToWish(updatedRow as Record<string, unknown>);
 
         // Get the updated wish with user information
         const wishWithUsersRow = this.statements.getWishWithUsers!.get(wishId);
-        return this.mapRowToWishWithUsers(wishWithUsersRow);
+        return this.mapRowToWishWithUsers(wishWithUsersRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof WishServiceError || error instanceof UserNotFoundError) {

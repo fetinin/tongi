@@ -32,7 +32,7 @@ interface ErrorResponse {
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<TransactionResponse | ErrorResponse>> {
   try {
     // Authenticate the request
@@ -47,8 +47,11 @@ export async function POST(
       );
     }
 
+    // Await params in Next.js 15+
+    const resolvedParams = await params;
+
     // Parse and validate transaction ID
-    const transactionId = parseInt(params.id, 10);
+    const transactionId = parseInt(resolvedParams.id, 10);
     if (isNaN(transactionId) || transactionId <= 0) {
       return NextResponse.json(
         {
@@ -63,7 +66,7 @@ export async function POST(
     let requestBody: TransactionConfirmRequest;
     try {
       requestBody = await request.json();
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',

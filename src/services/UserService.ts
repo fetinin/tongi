@@ -189,7 +189,7 @@ export class UserService {
   public async getUserById(id: number): Promise<User | null> {
     try {
       const row = this.statements.getUserById!.get(id);
-      return row ? this.mapRowToUser(row) : null;
+      return row ? this.mapRowToUser(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new UserServiceError(
         `Failed to retrieve user by ID: ${error}`,
@@ -206,7 +206,7 @@ export class UserService {
       // Remove @ symbol if present
       const cleanUsername = username.replace(/^@/, '');
       const row = this.statements.getUserByUsername!.get(cleanUsername);
-      return row ? this.mapRowToUser(row) : null;
+      return row ? this.mapRowToUser(row as Record<string, unknown>) : null;
     } catch (error) {
       throw new UserServiceError(
         `Failed to retrieve user by username: ${error}`,
@@ -237,7 +237,7 @@ export class UserService {
           userData.ton_wallet_address || null
         );
 
-        return this.mapRowToUser(row);
+        return this.mapRowToUser(row as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof UserServiceError) {
@@ -265,10 +265,12 @@ export class UserService {
     try {
       return withTransaction(() => {
         // Check if user exists
-        const existingUser = this.statements.getUserById!.get(userData.id);
-        if (!existingUser) {
+        const existingUserRow = this.statements.getUserById!.get(userData.id);
+        if (!existingUserRow) {
           throw new UserNotFoundError(userData.id);
         }
+
+        const existingUser = existingUserRow as Record<string, unknown>;
 
         // Update with provided values or keep existing ones
         const updatedRow = this.statements.updateUser!.get(
@@ -278,7 +280,7 @@ export class UserService {
           userData.id
         );
 
-        return this.mapRowToUser(updatedRow);
+        return this.mapRowToUser(updatedRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof UserServiceError) {
@@ -374,7 +376,7 @@ export class UserService {
           userId
         );
 
-        return this.mapRowToUser(updatedRow);
+        return this.mapRowToUser(updatedRow as Record<string, unknown>);
       });
     } catch (error) {
       if (error instanceof UserServiceError) {
@@ -432,7 +434,7 @@ export class UserService {
       const rows = this.statements.searchUsers!.all(searchPattern);
 
       return rows.map((row) => {
-        const user = this.mapRowToUser(row);
+        const user = this.mapRowToUser(row as Record<string, unknown>);
         return UserUtils.toProfile(user);
       });
     } catch (error) {

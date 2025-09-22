@@ -244,16 +244,17 @@ export class WishValidator {
  * Type guard to check if an object is a valid Wish
  */
 export function isWish(obj: unknown): obj is Wish {
+  const candidate = obj as Record<string, unknown>;
   return (
     typeof obj === 'object' &&
     obj !== null &&
-    typeof obj.id === 'number' &&
-    typeof obj.creator_id === 'number' &&
-    typeof obj.buddy_id === 'number' &&
-    typeof obj.description === 'string' &&
-    typeof obj.proposed_amount === 'number' &&
-    ['pending', 'accepted', 'rejected', 'purchased'].includes(obj.status) &&
-    typeof obj.created_at === 'string'
+    typeof candidate.id === 'number' &&
+    typeof candidate.creator_id === 'number' &&
+    typeof candidate.buddy_id === 'number' &&
+    typeof candidate.description === 'string' &&
+    typeof candidate.proposed_amount === 'number' &&
+    ['pending', 'accepted', 'rejected', 'purchased'].includes(candidate.status as string) &&
+    typeof candidate.created_at === 'string'
   );
 }
 

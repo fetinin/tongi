@@ -36,7 +36,7 @@ interface ErrorResponse {
  * Helper function to calculate time remaining until wish expiration
  * For now, returns a placeholder as expiration logic is not yet implemented
  */
-function calculateTimeRemaining(acceptedAt: string): string {
+function calculateTimeRemaining(_acceptedAt: string): string {
   // TODO: Implement actual expiration logic based on business requirements
   // For now, return a placeholder indicating no expiration
   return 'No expiration';
