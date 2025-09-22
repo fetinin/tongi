@@ -123,9 +123,9 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Buddy Components
 **IMPORTANT**: Use @telegram-apps/telegram-ui components (List, Section, Cell, etc.). Get docs via context7 "telegramui".
 
-- [ ] T067 [P] Buddy search component using telegram-ui List/Cell in src/components/buddy/BuddySearch.tsx
-- [ ] T068 [P] Buddy status display using telegram-ui Section/Cell in src/components/buddy/BuddyStatus.tsx
-- [ ] T069 [P] Buddy request handler using telegram-ui components in src/components/buddy/BuddyRequest.tsx
+- [x] T067 [P] Buddy search component using telegram-ui List/Cell in src/components/buddy/BuddySearch.tsx
+- [x] T068 [P] Buddy status display using telegram-ui Section/Cell in src/components/buddy/BuddyStatus.tsx
+- [x] T069 [P] Buddy request handler using telegram-ui components in src/components/buddy/BuddyRequest.tsx
 
 ### Corgi Components
 **IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
