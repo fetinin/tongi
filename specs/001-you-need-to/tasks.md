@@ -144,8 +144,8 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Marketplace Components
 **IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
 
-- [ ] T076 [P] Marketplace wish grid using telegram-ui List/Section/Cell in src/components/marketplace/MarketplaceGrid.tsx
-- [ ] T077 [P] Wish purchase modal using telegram-ui modal components in src/components/marketplace/PurchaseModal.tsx
+- [x] T076 [P] Marketplace wish grid using telegram-ui List/Section/Cell in src/components/marketplace/MarketplaceGrid.tsx
+- [x] T077 [P] Wish purchase modal using telegram-ui modal components in src/components/marketplace/PurchaseModal.tsx
 
 ### Transaction Components
 **IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
