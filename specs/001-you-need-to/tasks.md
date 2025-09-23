@@ -138,7 +138,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 **IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
 
 - [x] T073 [P] Wish creation form using telegram-ui form components in src/components/wish/WishForm.tsx
-- [ ] T074 [P] Wish approval interface using telegram-ui List/Section in src/components/wish/WishApproval.tsx
+- [x] T074 [P] Wish approval interface using telegram-ui List/Section in src/components/wish/WishApproval.tsx
 - [ ] T075 [P] User wish list using telegram-ui List/Cell in src/components/wish/WishList.tsx
 
 ### Marketplace Components
