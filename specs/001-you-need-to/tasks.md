@@ -150,7 +150,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Transaction Components
 **IMPORTANT**: Use @telegram-apps/telegram-ui components. Get docs via context7 "telegramui".
 
-- [ ] T078 [P] Transaction history using telegram-ui List/Cell in src/components/transactions/TransactionHistory.tsx
+- [x] T078 [P] Transaction history using telegram-ui List/Cell in src/components/transactions/TransactionHistory.tsx
 - [ ] T079 [P] Transaction status display using telegram-ui components in src/components/transactions/TransactionStatus.tsx
 
 ## Phase 3.5: Page Implementation
