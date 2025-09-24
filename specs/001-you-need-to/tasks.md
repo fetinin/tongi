@@ -156,7 +156,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ## Phase 3.5: Page Implementation
 **IMPORTANT**: All pages MUST import '@telegram-apps/telegram-ui/dist/styles.css' and use telegram-ui components.
 
-- [ ] T080 Main app page using telegram-ui AppRoot wrapper in src/app/page.tsx
+- [x] T080 Main app page using telegram-ui AppRoot wrapper in src/app/page.tsx
 - [ ] T081 Buddy management page using telegram-ui components in src/app/buddy/page.tsx
 - [ ] T082 Corgi sighting page using telegram-ui components in src/app/corgi/page.tsx
 - [ ] T083 Wish management page using telegram-ui components in src/app/wishes/page.tsx
