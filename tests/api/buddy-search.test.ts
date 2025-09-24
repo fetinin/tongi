@@ -144,7 +144,7 @@ describe('GET /api/buddy/search', () => {
     expect(Array.isArray(data.users)).toBe(true);
 
     // All users should have required fields
-    data.users.forEach((user: any) => {
+    data.users.forEach((user: { id: number; firstName: string; createdAt: string; telegramUsername?: string | null; tonWalletAddress?: string | null; updatedAt?: string }) => {
       expect(user).toHaveProperty('id');
       expect(user).toHaveProperty('firstName');
       expect(user).toHaveProperty('createdAt');

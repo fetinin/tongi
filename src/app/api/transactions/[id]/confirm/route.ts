@@ -66,11 +66,11 @@ export async function POST(
     let requestBody: TransactionConfirmRequest;
     try {
       requestBody = await request.json();
-    } catch (_error) {
+    } catch (error) {
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Invalid JSON in request body',
+          message: `Invalid JSON in request body: ${error instanceof Error ? error.message : 'Unknown error'}`,
         },
         { status: 400 }
       );

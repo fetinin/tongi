@@ -498,7 +498,10 @@ export function TransactionStatus({
 /**
  * Hook to manage transaction status state and actions
  */
-export function useTransactionStatus(_transactionId?: number) {
+export function useTransactionStatus(transactionId?: number) {
+  // TODO: Use transactionId to filter or fetch specific transaction data
+  void transactionId; // Explicitly mark as unused until specific transaction tracking is implemented
+
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [autoRefresh, setAutoRefresh] = useState(true);
 

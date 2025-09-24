@@ -148,9 +148,12 @@ export function PurchaseModal({
    * Simulate TON transaction (in real implementation, this would use TON Connect)
    */
   const simulateTonTransaction = async (
-    _tonTransaction: PurchaseResponse['tonTransaction']
+    tonTransaction: PurchaseResponse['tonTransaction']
   ): Promise<void> => {
     return new Promise((resolve, reject) => {
+      // TODO: Use tonTransaction parameter for actual TON Connect transaction
+      void tonTransaction; // Explicitly mark as unused until real implementation
+
       // Simulate transaction processing time
       setTimeout(() => {
         // Simulate 90% success rate

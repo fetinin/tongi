@@ -32,7 +32,9 @@ describe('Buddy Pairing Flow Integration', () => {
 
     expect(userBAuthResponse.ok).toBe(true);
     const userBAuth = await userBAuthResponse.json();
+    // TODO: Use userBToken for future User B perspective tests
     const _userBToken = userBAuth.token;
+    void _userBToken; // Mark as intentionally unused for now
 
     // Step 3: User A checks initial buddy status (should be no_buddy)
     const initialStatusResponse = await fetch(`${baseUrl}/api/buddy/status`, {
@@ -139,7 +141,9 @@ describe('Buddy Pairing Flow Integration', () => {
     });
 
     const userBAuth = await userBAuthResponse.json();
+    // TODO: Use userBToken for future User B perspective tests
     const _userBToken = userBAuth.token;
+    void _userBToken; // Mark as intentionally unused for now
 
     // First buddy request
     const firstRequestResponse = await fetch(`${baseUrl}/api/buddy/request`, {

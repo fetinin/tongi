@@ -84,7 +84,7 @@ describe('GET /api/corgi/confirmations', () => {
     expect(Array.isArray(data.confirmations)).toBe(true);
 
     // All confirmations should have pending status
-    data.confirmations.forEach((confirmation: any) => {
+    data.confirmations.forEach((confirmation: { status: string; respondedAt: string | null }) => {
       expect(confirmation.status).toBe('pending');
       expect(confirmation.respondedAt).toBeNull();
     });
