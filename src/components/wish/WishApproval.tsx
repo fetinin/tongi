@@ -321,7 +321,7 @@ export function WishApproval({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          When you accept a wish, it will appear in the marketplace where anyone can purchase it. Only accept wishes you're comfortable with others seeing.
+          When you accept a wish, it will appear in the marketplace where anyone can purchase it. Only accept wishes you&apos;re comfortable with others seeing.
         </Caption>
       </Section>
     </List>

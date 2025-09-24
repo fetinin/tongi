@@ -9,9 +9,7 @@ import {
   Badge,
   Placeholder,
   Spinner,
-  Caption,
-  Segmented,
-  SegmentedItem
+  Caption
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -273,7 +271,7 @@ export function SightingHistory({
         <div className="p-4">
           <Placeholder
             header="No Sightings Yet"
-            description="You haven't reported any corgi sightings yet. Start spotting corgis and building your history!"
+            description="You haven&apos;t reported any corgi sightings yet. Start spotting corgis and building your history!"
           >
             <div className="flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full">
               <span className="text-2xl">🐕</span>
@@ -312,32 +310,36 @@ export function SightingHistory({
       {/* Filter Section */}
       <Section header="Filter by Status">
         <div className="p-4">
-          <Segmented>
-            <SegmentedItem
-              selected={statusFilter === 'all'}
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              size="s"
+              mode={statusFilter === 'all' ? 'filled' : 'outline'}
               onClick={() => setStatusFilter('all')}
             >
               All ({stats.total})
-            </SegmentedItem>
-            <SegmentedItem
-              selected={statusFilter === 'confirmed'}
+            </Button>
+            <Button
+              size="s"
+              mode={statusFilter === 'confirmed' ? 'filled' : 'outline'}
               onClick={() => setStatusFilter('confirmed')}
             >
               Confirmed ({stats.confirmed})
-            </SegmentedItem>
-            <SegmentedItem
-              selected={statusFilter === 'pending'}
+            </Button>
+            <Button
+              size="s"
+              mode={statusFilter === 'pending' ? 'filled' : 'outline'}
               onClick={() => setStatusFilter('pending')}
             >
               Pending ({stats.pending})
-            </SegmentedItem>
-            <SegmentedItem
-              selected={statusFilter === 'denied'}
+            </Button>
+            <Button
+              size="s"
+              mode={statusFilter === 'denied' ? 'filled' : 'outline'}
               onClick={() => setStatusFilter('denied')}
             >
               Denied ({stats.denied})
-            </SegmentedItem>
-          </Segmented>
+            </Button>
+          </div>
         </div>
       </Section>
 
@@ -350,7 +352,7 @@ export function SightingHistory({
           <div className="p-4">
             <Placeholder
               header={`No ${statusFilter === 'all' ? '' : statusFilter} Sightings`}
-              description={`You don't have any ${statusFilter === 'all' ? '' : statusFilter + ' '}sightings to display.`}
+              description={`You don&apos;t have any ${statusFilter === 'all' ? '' : statusFilter + ' '}sightings to display.`}
             >
               <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full">
                 <span className="text-lg">🔍</span>
@@ -407,7 +409,7 @@ export function SightingHistory({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          Your sighting history shows all corgi reports you've made. Confirmed sightings earn you Corgi coins, which can be used in the marketplace.
+          Your sighting history shows all corgi reports you&apos;ve made. Confirmed sightings earn you Corgi coins, which can be used in the marketplace.
         </Caption>
       </Section>
     </List>

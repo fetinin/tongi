@@ -6,8 +6,7 @@ import {
   Spinner,
   Text,
   Caption,
-  Badge,
-  Placeholder
+  Badge
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -138,7 +137,7 @@ export function PurchaseModal({
   /**
    * Simulate TON transaction (in real implementation, this would use TON Connect)
    */
-  const simulateTonTransaction = async (tonTransaction: PurchaseResponse['tonTransaction']): Promise<void> => {
+  const simulateTonTransaction = async (_tonTransaction: PurchaseResponse['tonTransaction']): Promise<void> => {
     return new Promise((resolve, reject) => {
       // Simulate transaction processing time
       setTimeout(() => {
@@ -357,7 +356,7 @@ export function PurchaseModal({
               </Caption>
 
               <Caption level="1" className="text-gray-600 mb-6">
-                You have successfully purchased "{truncateDescription(wish.description, 50)}" from {wish.creator.firstName}. The Corgi coins have been transferred!
+                You have successfully purchased &quot;{truncateDescription(wish.description, 50)}&quot; from {wish.creator.firstName}. The Corgi coins have been transferred!
               </Caption>
 
               <Button

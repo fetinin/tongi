@@ -178,7 +178,7 @@ export const UserUtils = {
   /**
    * Create user profile from user data
    */
-  toProfile: (user: User, _hasBuddy: boolean = false): UserProfile => ({
+  toProfile: (user: User): UserProfile => ({
     id: user.id,
     displayName: UserUtils.getDisplayName(user),
     username: user.telegram_username,

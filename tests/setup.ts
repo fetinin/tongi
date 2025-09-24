@@ -9,9 +9,12 @@ process.env.DATABASE_URL = ':memory:';
 
 // Extend expect for custom matchers if needed
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
-    interface Matchers<R> {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface Matchers<R = unknown> {
       // Add custom matchers here if needed
+      // This interface is intentionally empty for future custom matcher extensions
     }
   }
 }

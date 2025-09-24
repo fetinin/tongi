@@ -144,7 +144,7 @@ export function MarketplaceGrid({
       const interval = setInterval(() => fetchWishes(), refreshInterval);
       return () => clearInterval(interval);
     }
-  }, []); // Only run on mount
+  }, [fetchWishes, refreshInterval]); // Dependencies for fetchWishes and refreshInterval
 
   // Load more wishes (pagination)
   const loadMoreWishes = useCallback(() => {
@@ -383,7 +383,7 @@ export function MarketplaceGrid({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          Browse wishes that have been accepted by their creators' buddies. Purchase any wish to help someone and support the Corgi Buddy community!
+          Browse wishes that have been accepted by their creators&apos; buddies. Purchase any wish to help someone and support the Corgi Buddy community!
         </Caption>
       </Section>
     </List>

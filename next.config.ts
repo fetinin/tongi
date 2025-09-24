@@ -3,8 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
-  // Exclude telegram_webapp_example from compilation
-  webpack: (config, { isServer: _isServer }) => {
+  webpack: (config, {}) => {
     config.resolve.alias = {
       ...config.resolve.alias,
     };

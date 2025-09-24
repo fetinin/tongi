@@ -29,7 +29,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     };
 
     // Step 2: User views their pending transactions
-    const { req: getReq, res: getRes } = createMocks({
+    const { req: _getReq, res: getRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': userId
@@ -50,7 +50,7 @@ describe('Transaction Confirmation Flow Integration', () => {
 
     // Step 3: User confirms transaction with TON blockchain hash
     const tonTxHash = '0xabcdef1234567890confirmedtransaction';
-    const { req: confirmReq, res: confirmRes } = createMocks({
+    const { req: _confirmReq, res: confirmRes } = createMocks({
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
@@ -72,7 +72,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     });
 
     // Step 4: Verify transaction appears as confirmed in subsequent queries
-    const { req: verifyReq, res: verifyRes } = createMocks({
+    const { req: _verifyReq, res: verifyRes } = createMocks({
       method: 'GET',
       query: {
         status: 'confirmed'
@@ -112,7 +112,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     };
 
     // Step 2: Buyer views their pending transactions
-    const { req: buyerGetReq, res: buyerGetRes } = createMocks({
+    const { req: _buyerGetReq, res: buyerGetRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': buyerId
@@ -131,7 +131,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     );
 
     // Step 3: Seller views their pending transactions
-    const { req: sellerGetReq, res: sellerGetRes } = createMocks({
+    const { req: _sellerGetReq, res: sellerGetRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': sellerId
@@ -151,7 +151,7 @@ describe('Transaction Confirmation Flow Integration', () => {
 
     // Step 4: Buyer confirms transaction with TON blockchain hash
     const tonTxHash = '0xfedcba0987654321purchaseconfirmed';
-    const { req: confirmReq, res: confirmRes } = createMocks({
+    const { req: _confirmReq, res: confirmRes } = createMocks({
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
@@ -172,14 +172,14 @@ describe('Transaction Confirmation Flow Integration', () => {
     });
 
     // Step 5: Both parties can see the confirmed transaction
-    const { req: buyerVerifyReq, res: buyerVerifyRes } = createMocks({
+    const { req: _buyerVerifyReq, res: buyerVerifyRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': buyerId
       }
     });
 
-    const { req: sellerVerifyReq, res: sellerVerifyRes } = createMocks({
+    const { req: _sellerVerifyReq, res: sellerVerifyRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': sellerId
@@ -221,7 +221,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     };
 
     // Attempt to confirm with invalid TON hash
-    const { req: confirmReq, res: confirmRes } = createMocks({
+    const { req: _confirmReq, res: confirmRes } = createMocks({
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
@@ -238,7 +238,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     });
 
     // Verify transaction remains pending
-    const { req: verifyReq, res: verifyRes } = createMocks({
+    const { req: _verifyReq, res: verifyRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': userId
@@ -267,7 +267,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     };
 
     // Other user attempts to confirm transaction
-    const { req: confirmReq, res: confirmRes } = createMocks({
+    const { req: _confirmReq, res: confirmRes } = createMocks({
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
@@ -284,7 +284,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     });
 
     // Verify transaction remains pending and unchanged
-    const { req: verifyReq, res: verifyRes } = createMocks({
+    const { req: _verifyReq, res: verifyRes } = createMocks({
       method: 'GET',
       headers: {
         'x-telegram-user-id': userId
@@ -302,7 +302,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     const userId = '123456789';
 
     // Test pagination with multiple transactions
-    const { req: page1Req, res: page1Res } = createMocks({
+    const { req: _page1Req, res: page1Res } = createMocks({
       method: 'GET',
       query: {
         page: '1',
@@ -318,7 +318,7 @@ describe('Transaction Confirmation Flow Integration', () => {
     expect(page1Data.transactions.length).toBeLessThanOrEqual(5);
 
     // Test second page
-    const { req: page2Req, res: page2Res } = createMocks({
+    const { req: _page2Req, res: page2Res } = createMocks({
       method: 'GET',
       query: {
         page: '2',

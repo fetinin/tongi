@@ -142,7 +142,7 @@ export function WishList({
       const interval = setInterval(() => fetchWishes(), refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [statusFilter]); // Re-fetch when status filter changes
+  }, [fetchWishes, refreshInterval, statusFilter]); // Re-fetch when dependencies change
 
   // Load more wishes (pagination)
   const loadMoreWishes = useCallback(() => {
