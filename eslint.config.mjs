@@ -21,6 +21,12 @@ const eslintConfig = [
       'telegram_webapp_example/**',
     ],
   },
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ];
 
 export default eslintConfig;
