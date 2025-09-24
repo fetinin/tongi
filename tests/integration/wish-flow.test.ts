@@ -11,7 +11,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -24,7 +25,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -38,10 +40,10 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        targetUserId: 987654321
+        targetUserId: 987654321,
       }),
     });
 
@@ -53,10 +55,10 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
+        Authorization: `Bearer ${userBToken}`,
       },
       body: JSON.stringify({
-        requesterId: 123456789
+        requesterId: 123456789,
       }),
     });
 
@@ -65,14 +67,14 @@ describe('Wish Creation and Approval Flow Integration', () => {
     // Step 4: User A creates a wish
     const wishData = {
       description: "Please walk my dog while I'm at work today",
-      proposedAmount: 5.50
+      proposedAmount: 5.5,
     };
 
     const createWishResponse = await fetch(`${baseUrl}/api/wishes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify(wishData),
     });
@@ -95,7 +97,7 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const userWishesResponse = await fetch(`${baseUrl}/api/wishes`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
@@ -104,7 +106,9 @@ describe('Wish Creation and Approval Flow Integration', () => {
     expect(userWishes).toHaveProperty('wishes');
     expect(Array.isArray(userWishes.wishes)).toBe(true);
 
-    const userCreatedWish = userWishes.wishes.find((wish: any) => wish.id === wishId);
+    const userCreatedWish = userWishes.wishes.find(
+      (wish: any) => wish.id === wishId
+    );
     expect(userCreatedWish).toBeDefined();
     expect(userCreatedWish.status).toBe('pending');
 
@@ -112,7 +116,7 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const pendingWishesResponse = await fetch(`${baseUrl}/api/wishes/pending`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${userBToken}`
+        Authorization: `Bearer ${userBToken}`,
       },
     });
 
@@ -122,7 +126,9 @@ describe('Wish Creation and Approval Flow Integration', () => {
     expect(Array.isArray(pendingWishes.wishes)).toBe(true);
 
     // Find the wish that was just created
-    const pendingWish = pendingWishes.wishes.find((wish: any) => wish.id === wishId);
+    const pendingWish = pendingWishes.wishes.find(
+      (wish: any) => wish.id === wishId
+    );
     expect(pendingWish).toBeDefined();
     expect(pendingWish.description).toBe(wishData.description);
     expect(pendingWish.proposedAmount).toBe(wishData.proposedAmount);
@@ -130,16 +136,19 @@ describe('Wish Creation and Approval Flow Integration', () => {
     expect(pendingWish.creatorId).toBe(123456789);
 
     // Step 7: User B accepts the wish
-    const acceptWishResponse = await fetch(`${baseUrl}/api/wishes/${wishId}/respond`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({
-        accepted: true
-      }),
-    });
+    const acceptWishResponse = await fetch(
+      `${baseUrl}/api/wishes/${wishId}/respond`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({
+          accepted: true,
+        }),
+      }
+    );
 
     expect(acceptWishResponse.ok).toBe(true);
     expect(acceptWishResponse.status).toBe(200);
@@ -154,14 +163,16 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const updatedUserWishesResponse = await fetch(`${baseUrl}/api/wishes`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
     expect(updatedUserWishesResponse.ok).toBe(true);
     const updatedUserWishes = await updatedUserWishesResponse.json();
 
-    const acceptedUserWish = updatedUserWishes.wishes.find((wish: any) => wish.id === wishId);
+    const acceptedUserWish = updatedUserWishes.wishes.find(
+      (wish: any) => wish.id === wishId
+    );
     expect(acceptedUserWish).toBeDefined();
     expect(acceptedUserWish.status).toBe('accepted');
     expect(acceptedUserWish.acceptedAt).not.toBeNull();
@@ -170,7 +181,7 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const marketplaceResponse = await fetch(`${baseUrl}/api/marketplace`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
@@ -179,7 +190,9 @@ describe('Wish Creation and Approval Flow Integration', () => {
     expect(marketplace).toHaveProperty('wishes');
     expect(Array.isArray(marketplace.wishes)).toBe(true);
 
-    const marketplaceWish = marketplace.wishes.find((wish: any) => wish.id === wishId);
+    const marketplaceWish = marketplace.wishes.find(
+      (wish: any) => wish.id === wishId
+    );
     expect(marketplaceWish).toBeDefined();
     expect(marketplaceWish.status).toBe('accepted');
     expect(marketplaceWish).toHaveProperty('creator');
@@ -192,7 +205,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22Charlie%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22Charlie%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -205,7 +219,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22David%22%2C%22username%22%3A%22david_user%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22David%22%2C%22username%22%3A%22david_user%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -218,10 +233,10 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        targetUserId: 444555666
+        targetUserId: 444555666,
       }),
     });
 
@@ -231,10 +246,10 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
+        Authorization: `Bearer ${userBToken}`,
       },
       body: JSON.stringify({
-        requesterId: 111222333
+        requesterId: 111222333,
       }),
     });
 
@@ -242,15 +257,15 @@ describe('Wish Creation and Approval Flow Integration', () => {
 
     // Step 4: User A creates a wish
     const wishData = {
-      description: "Please clean my apartment this weekend",
-      proposedAmount: 25.00
+      description: 'Please clean my apartment this weekend',
+      proposedAmount: 25.0,
     };
 
     const createWishResponse = await fetch(`${baseUrl}/api/wishes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify(wishData),
     });
@@ -260,16 +275,19 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const wishId = createdWish.id;
 
     // Step 5: User B rejects the wish
-    const rejectWishResponse = await fetch(`${baseUrl}/api/wishes/${wishId}/respond`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({
-        accepted: false
-      }),
-    });
+    const rejectWishResponse = await fetch(
+      `${baseUrl}/api/wishes/${wishId}/respond`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({
+          accepted: false,
+        }),
+      }
+    );
 
     expect(rejectWishResponse.ok).toBe(true);
     expect(rejectWishResponse.status).toBe(200);
@@ -283,28 +301,35 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const marketplaceResponse = await fetch(`${baseUrl}/api/marketplace`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
     expect(marketplaceResponse.ok).toBe(true);
     const marketplace = await marketplaceResponse.json();
 
-    const marketplaceWish = marketplace.wishes.find((wish: any) => wish.id === wishId);
+    const marketplaceWish = marketplace.wishes.find(
+      (wish: any) => wish.id === wishId
+    );
     expect(marketplaceWish).toBeUndefined(); // Rejected wishes should not appear in marketplace
 
     // Step 7: User A can see their rejected wish in their personal list
-    const userWishesResponse = await fetch(`${baseUrl}/api/wishes?status=rejected`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userAToken}`
-      },
-    });
+    const userWishesResponse = await fetch(
+      `${baseUrl}/api/wishes?status=rejected`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userAToken}`,
+        },
+      }
+    );
 
     expect(userWishesResponse.ok).toBe(true);
     const userWishes = await userWishesResponse.json();
 
-    const rejectedUserWish = userWishes.wishes.find((wish: any) => wish.id === wishId);
+    const rejectedUserWish = userWishes.wishes.find(
+      (wish: any) => wish.id === wishId
+    );
     expect(rejectedUserWish).toBeDefined();
     expect(rejectedUserWish.status).toBe('rejected');
   });
@@ -315,7 +340,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Eve%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Eve%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -323,15 +349,15 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const loneUserToken = loneUserAuth.token;
 
     const wishData = {
-      description: "This should fail because I have no buddy",
-      proposedAmount: 10.00
+      description: 'This should fail because I have no buddy',
+      proposedAmount: 10.0,
     };
 
     const createWishResponse = await fetch(`${baseUrl}/api/wishes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${loneUserToken}`
+        Authorization: `Bearer ${loneUserToken}`,
       },
       body: JSON.stringify(wishData),
     });
@@ -349,7 +375,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -361,10 +388,10 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        proposedAmount: 5.00
+        proposedAmount: 5.0,
       }),
     });
 
@@ -376,10 +403,10 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        description: "Valid description"
+        description: 'Valid description',
       }),
     });
 
@@ -391,11 +418,11 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        description: "Valid description",
-        proposedAmount: 1001.00 // Above maximum of 1000
+        description: 'Valid description',
+        proposedAmount: 1001.0, // Above maximum of 1000
       }),
     });
 
@@ -407,11 +434,11 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        description: "Valid description",
-        proposedAmount: 0.00 // Below minimum of 0.01
+        description: 'Valid description',
+        proposedAmount: 0.0, // Below minimum of 0.01
       }),
     });
 
@@ -419,16 +446,16 @@ describe('Wish Creation and Approval Flow Integration', () => {
     expect(invalidWish4Response.status).toBe(400);
 
     // Test description too long
-    const longDescription = "a".repeat(501); // Above maximum of 500 characters
+    const longDescription = 'a'.repeat(501); // Above maximum of 500 characters
     const invalidWish5Response = await fetch(`${baseUrl}/api/wishes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         description: longDescription,
-        proposedAmount: 5.00
+        proposedAmount: 5.0,
       }),
     });
 
@@ -442,8 +469,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        description: "Unauthorized wish",
-        proposedAmount: 5.00
+        description: 'Unauthorized wish',
+        proposedAmount: 5.0,
       }),
     });
     expect(createWishResponse.status).toBe(401);
@@ -477,7 +504,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A400500600%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A400500600%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -485,16 +513,19 @@ describe('Wish Creation and Approval Flow Integration', () => {
     const token = auth.token;
 
     // Try to respond to non-existent wish
-    const respondResponse = await fetch(`${baseUrl}/api/wishes/999999/respond`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        accepted: true
-      }),
-    });
+    const respondResponse = await fetch(
+      `${baseUrl}/api/wishes/999999/respond`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accepted: true,
+        }),
+      }
+    );
 
     expect(respondResponse.ok).toBe(false);
     expect(respondResponse.status).toBe(404);
@@ -509,7 +540,8 @@ describe('Wish Creation and Approval Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A500600700%2C%22first_name%22%3A%22Henry%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A500600700%2C%22first_name%22%3A%22Henry%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -518,16 +550,19 @@ describe('Wish Creation and Approval Flow Integration', () => {
 
     // User would somehow try to respond to their own wish
     // (This scenario would require more complex setup but demonstrates the expected validation)
-    const selfRespondResponse = await fetch(`${baseUrl}/api/wishes/123/respond`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        accepted: true
-      }),
-    });
+    const selfRespondResponse = await fetch(
+      `${baseUrl}/api/wishes/123/respond`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accepted: true,
+        }),
+      }
+    );
 
     // This should fail with appropriate error (exact status depends on implementation)
     expect(selfRespondResponse.ok).toBe(false);

@@ -154,17 +154,33 @@ export class UserService {
     }
 
     // Validate first name
-    if ('first_name' in userData && userData.first_name && !UserValidation.isValidFirstName(userData.first_name)) {
-      throw new UserValidationError('Invalid first name: must be 1-64 characters');
+    if (
+      'first_name' in userData &&
+      userData.first_name &&
+      !UserValidation.isValidFirstName(userData.first_name)
+    ) {
+      throw new UserValidationError(
+        'Invalid first name: must be 1-64 characters'
+      );
     }
 
     // Validate username if provided
-    if ('telegram_username' in userData && userData.telegram_username && !UserValidation.isValidUsername(userData.telegram_username)) {
-      throw new UserValidationError('Invalid username: must be 5-32 alphanumeric characters or underscores');
+    if (
+      'telegram_username' in userData &&
+      userData.telegram_username &&
+      !UserValidation.isValidUsername(userData.telegram_username)
+    ) {
+      throw new UserValidationError(
+        'Invalid username: must be 5-32 alphanumeric characters or underscores'
+      );
     }
 
     // Validate TON wallet address if provided
-    if ('ton_wallet_address' in userData && userData.ton_wallet_address && !UserValidation.isValidTonAddress(userData.ton_wallet_address)) {
+    if (
+      'ton_wallet_address' in userData &&
+      userData.ton_wallet_address &&
+      !UserValidation.isValidTonAddress(userData.ton_wallet_address)
+    ) {
       throw new UserValidationError('Invalid TON wallet address format');
     }
   }
@@ -226,7 +242,9 @@ export class UserService {
         // Check if user already exists
         const existingUser = this.statements.checkUserExists!.get(userData.id);
         if (existingUser) {
-          throw new UserConflictError(`User with ID ${userData.id} already exists`);
+          throw new UserConflictError(
+            `User with ID ${userData.id} already exists`
+          );
         }
 
         // Create the user
@@ -245,7 +263,12 @@ export class UserService {
       }
 
       // Handle database constraint violations
-      if (error && typeof error === 'object' && 'code' in error && error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === 'SQLITE_CONSTRAINT_UNIQUE'
+      ) {
         throw new UserConflictError('Username already taken');
       }
 
@@ -274,9 +297,15 @@ export class UserService {
 
         // Update with provided values or keep existing ones
         const updatedRow = this.statements.updateUser!.get(
-          userData.telegram_username !== undefined ? userData.telegram_username : existingUser.telegram_username,
-          userData.first_name !== undefined ? userData.first_name : existingUser.first_name,
-          userData.ton_wallet_address !== undefined ? userData.ton_wallet_address : existingUser.ton_wallet_address,
+          userData.telegram_username !== undefined
+            ? userData.telegram_username
+            : existingUser.telegram_username,
+          userData.first_name !== undefined
+            ? userData.first_name
+            : existingUser.first_name,
+          userData.ton_wallet_address !== undefined
+            ? userData.ton_wallet_address
+            : existingUser.ton_wallet_address,
           userData.id
         );
 
@@ -288,7 +317,12 @@ export class UserService {
       }
 
       // Handle database constraint violations
-      if (error && typeof error === 'object' && 'code' in error && error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === 'SQLITE_CONSTRAINT_UNIQUE'
+      ) {
         throw new UserConflictError('Username already taken');
       }
 
@@ -320,7 +354,9 @@ export class UserService {
    * Find existing user or create new one from Telegram data
    * This is the main method for user authentication/registration
    */
-  public async findOrCreateUser(telegramUser: TelegramUser): Promise<FindOrCreateResult> {
+  public async findOrCreateUser(
+    telegramUser: TelegramUser
+  ): Promise<FindOrCreateResult> {
     try {
       // First, try to find existing user
       const existingUser = await this.getUserById(telegramUser.id);
@@ -342,7 +378,6 @@ export class UserService {
       const createData = UserUtils.fromTelegramUser(telegramUser);
       const newUser = await this.createUser(createData);
       return { user: newUser, isNewUser: true };
-
     } catch (error) {
       if (error instanceof UserServiceError) {
         throw error;
@@ -357,7 +392,10 @@ export class UserService {
   /**
    * Update user's TON wallet address
    */
-  public async updateWalletAddress(userId: number, walletAddress: string): Promise<User> {
+  public async updateWalletAddress(
+    userId: number,
+    walletAddress: string
+  ): Promise<User> {
     // Validate wallet address
     if (!UserValidation.isValidTonAddress(walletAddress)) {
       throw new UserValidationError('Invalid TON wallet address format');
@@ -422,12 +460,16 @@ export class UserService {
   /**
    * Search users by username pattern (for buddy finding)
    */
-  public async searchUsersByUsername(usernameQuery: string): Promise<UserProfile[]> {
+  public async searchUsersByUsername(
+    usernameQuery: string
+  ): Promise<UserProfile[]> {
     try {
       // Clean and validate search query
       const cleanQuery = usernameQuery.replace(/^@/, '').trim();
       if (cleanQuery.length < 2) {
-        throw new UserValidationError('Search query must be at least 2 characters');
+        throw new UserValidationError(
+          'Search query must be at least 2 characters'
+        );
       }
 
       const searchPattern = `%${cleanQuery}%`;

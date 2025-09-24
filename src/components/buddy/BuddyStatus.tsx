@@ -9,7 +9,7 @@ import {
   Button,
   Placeholder,
   Spinner,
-  Caption
+  Caption,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -50,7 +50,7 @@ interface BuddyStatusProps {
 export function BuddyStatus({
   onFindBuddy,
   onDissolveBuddy,
-  refreshInterval = 30000
+  refreshInterval = 30000,
 }: BuddyStatusProps) {
   const { token, isAuthenticated, user } = useAuth();
   const [buddyStatus, setBuddyStatus] = useState<BuddyStatusData | null>(null);
@@ -68,7 +68,7 @@ export function BuddyStatus({
     try {
       const response = await fetch('/api/buddy/status', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -82,7 +82,9 @@ export function BuddyStatus({
       setError(null);
     } catch (err) {
       console.error('Buddy status error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load buddy status');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load buddy status'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -100,13 +102,16 @@ export function BuddyStatus({
   /**
    * Handle buddy dissolution
    */
-  const handleDissolveBuddy = useCallback(async (buddyId: number) => {
-    if (onDissolveBuddy) {
-      await onDissolveBuddy(buddyId);
-      // Refresh status after dissolution
-      fetchBuddyStatus();
-    }
-  }, [onDissolveBuddy, fetchBuddyStatus]);
+  const handleDissolveBuddy = useCallback(
+    async (buddyId: number) => {
+      if (onDissolveBuddy) {
+        await onDissolveBuddy(buddyId);
+        // Refresh status after dissolution
+        fetchBuddyStatus();
+      }
+    },
+    [onDissolveBuddy, fetchBuddyStatus]
+  );
 
   /**
    * Format username display
@@ -144,7 +149,9 @@ export function BuddyStatus({
       case 'pending':
         return {
           type: 'dot' as const,
-          text: isInitiatedByCurrentUser ? 'Request Sent' : 'Pending Your Response',
+          text: isInitiatedByCurrentUser
+            ? 'Request Sent'
+            : 'Pending Your Response',
         };
       case 'active':
         return {
@@ -200,15 +207,8 @@ export function BuddyStatus({
     return (
       <Section header="Buddy Status">
         <div className="p-4">
-          <Placeholder
-            header="Error Loading Status"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={fetchBuddyStatus}
-            >
+          <Placeholder header="Error Loading Status" description={error}>
+            <Button size="s" mode="outline" onClick={fetchBuddyStatus}>
               Retry
             </Button>
           </Placeholder>
@@ -226,10 +226,7 @@ export function BuddyStatus({
             header="No Buddy Yet"
             description="You don't have a buddy relationship yet. Find someone to be your corgi-spotting partner!"
           >
-            <Button
-              size="m"
-              onClick={onFindBuddy}
-            >
+            <Button size="m" onClick={onFindBuddy}>
               Find a Buddy
             </Button>
           </Placeholder>
@@ -240,7 +237,10 @@ export function BuddyStatus({
 
   // Buddy relationship exists
   if (buddyStatus && 'buddy' in buddyStatus) {
-    const badgeConfig = getStatusBadge(buddyStatus.status, buddyStatus.initiatedBy);
+    const badgeConfig = getStatusBadge(
+      buddyStatus.status,
+      buddyStatus.initiatedBy
+    );
 
     return (
       <List>
@@ -252,17 +252,15 @@ export function BuddyStatus({
                 <span className="text-lg">🤝</span>
               </div>
             }
-            after={
-              <Badge type={badgeConfig.type}>
-                {badgeConfig.text}
-              </Badge>
-            }
+            after={<Badge type={badgeConfig.type}>{badgeConfig.text}</Badge>}
           >
             {formatUsername(buddyStatus.buddy)}
           </Cell>
 
           {/* Relationship Details */}
-          <Cell subtitle={`Partnership since ${formatCreationDate(buddyStatus.createdAt)}`}>
+          <Cell
+            subtitle={`Partnership since ${formatCreationDate(buddyStatus.createdAt)}`}
+          >
             Relationship Details
           </Cell>
 
@@ -296,11 +294,7 @@ export function BuddyStatus({
                   End Partnership
                 </Button>
                 {onFindBuddy && (
-                  <Button
-                    size="s"
-                    mode="outline"
-                    onClick={onFindBuddy}
-                  >
+                  <Button size="s" mode="outline" onClick={onFindBuddy}>
                     Find New Buddy
                   </Button>
                 )}
@@ -312,13 +306,14 @@ export function BuddyStatus({
         {/* Status Information */}
         <Section>
           <Caption level="1" className="px-4 py-2 text-gray-600">
-            {buddyStatus.status === 'pending' && user?.id === buddyStatus.initiatedBy
+            {buddyStatus.status === 'pending' &&
+            user?.id === buddyStatus.initiatedBy
               ? 'Waiting for your buddy to accept the request.'
               : buddyStatus.status === 'pending'
-              ? 'You have a pending buddy request to respond to.'
-              : buddyStatus.status === 'active'
-              ? 'You can now report corgi sightings and create wishes together!'
-              : 'This buddy relationship has been dissolved.'}
+                ? 'You have a pending buddy request to respond to.'
+                : buddyStatus.status === 'active'
+                  ? 'You can now report corgi sightings and create wishes together!'
+                  : 'This buddy relationship has been dissolved.'}
           </Caption>
         </Section>
       </List>
@@ -332,11 +327,7 @@ export function BuddyStatus({
           header="Unable to Load Status"
           description="Something went wrong loading your buddy status."
         >
-          <Button
-            size="s"
-            mode="outline"
-            onClick={fetchBuddyStatus}
-          >
+          <Button size="s" mode="outline" onClick={fetchBuddyStatus}>
             Retry
           </Button>
         </Placeholder>

@@ -14,7 +14,7 @@ describe('GET /api/wishes', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -46,7 +46,9 @@ describe('GET /api/wishes', () => {
       expect(typeof wish.createdAt).toBe('string');
 
       // Validate status enum
-      expect(['pending', 'accepted', 'rejected', 'purchased']).toContain(wish.status);
+      expect(['pending', 'accepted', 'rejected', 'purchased']).toContain(
+        wish.status
+      );
 
       // Validate description length constraint
       expect(wish.description.length).toBeLessThanOrEqual(500);
@@ -76,7 +78,7 @@ describe('GET /api/wishes', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -94,13 +96,16 @@ describe('GET /api/wishes', () => {
     const statusFilter = 'pending';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=${statusFilter}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=${statusFilter}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     expect(response.ok).toBe(true);
     expect(response.status).toBe(200);
@@ -120,13 +125,16 @@ describe('GET /api/wishes', () => {
     const statusFilter = 'accepted';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=${statusFilter}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=${statusFilter}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     expect(response.ok).toBe(true);
     expect(response.status).toBe(200);
@@ -146,13 +154,16 @@ describe('GET /api/wishes', () => {
     const statusFilter = 'rejected';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=${statusFilter}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=${statusFilter}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     expect(response.ok).toBe(true);
     expect(response.status).toBe(200);
@@ -172,13 +183,16 @@ describe('GET /api/wishes', () => {
     const statusFilter = 'purchased';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=${statusFilter}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=${statusFilter}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     expect(response.ok).toBe(true);
     expect(response.status).toBe(200);
@@ -201,13 +215,16 @@ describe('GET /api/wishes', () => {
     const invalidStatus = 'invalid_status';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=${invalidStatus}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=${invalidStatus}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(400);
@@ -245,7 +262,7 @@ describe('GET /api/wishes', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
     });
 
@@ -266,7 +283,7 @@ describe('GET /api/wishes', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': malformedToken
+        Authorization: malformedToken,
       },
     });
 
@@ -283,13 +300,16 @@ describe('GET /api/wishes', () => {
 
     // Test with multiple status parameters (should handle gracefully)
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=pending&status=accepted`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=pending&status=accepted`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     // Should either return 400 for invalid query or handle first status parameter
     if (response.status === 400) {
@@ -312,7 +332,7 @@ describe('GET /api/wishes', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -332,7 +352,9 @@ describe('GET /api/wishes', () => {
         const currentDate = new Date(currentWish.createdAt);
         const nextDate = new Date(nextWish.createdAt);
 
-        expect(currentDate.getTime()).toBeGreaterThanOrEqual(nextDate.getTime());
+        expect(currentDate.getTime()).toBeGreaterThanOrEqual(
+          nextDate.getTime()
+        );
       }
     }
   });
@@ -345,7 +367,7 @@ describe('GET /api/wishes', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 

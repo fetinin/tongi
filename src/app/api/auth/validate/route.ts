@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateInitData, extractUserData, createAuthToken } from '@/lib/telegram';
+import {
+  validateInitData,
+  extractUserData,
+  createAuthToken,
+} from '@/lib/telegram';
 import { userService } from '@/services/UserService';
 
 interface AuthValidateRequest {
@@ -29,7 +33,9 @@ interface ErrorResponse {
  * POST /api/auth/validate
  * Validates Telegram user authentication and creates/updates user record
  */
-export async function POST(request: NextRequest): Promise<NextResponse<AuthResponse | ErrorResponse>> {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<AuthResponse | ErrorResponse>> {
   try {
     // Parse request body
     const body: AuthValidateRequest = await request.json();
@@ -38,7 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Missing required field: initData'
+          message: 'Missing required field: initData',
         },
         { status: 400 }
       );
@@ -51,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
       return NextResponse.json(
         {
           error: 'SERVER_ERROR',
-          message: 'Authentication service not properly configured'
+          message: 'Authentication service not properly configured',
         },
         { status: 500 }
       );
@@ -63,7 +69,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
       return NextResponse.json(
         {
           error: 'INVALID_AUTH',
-          message: 'Invalid or expired Telegram authentication data'
+          message: 'Invalid or expired Telegram authentication data',
         },
         { status: 401 }
       );
@@ -75,7 +81,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
       return NextResponse.json(
         {
           error: 'INVALID_USER_DATA',
-          message: 'Could not extract valid user data from initData'
+          message: 'Could not extract valid user data from initData',
         },
         { status: 401 }
       );
@@ -91,12 +97,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
     };
 
     // Find or create user in database
-    const { user, isNewUser } = await userService.findOrCreateUser(telegramUser);
+    const { user, isNewUser } =
+      await userService.findOrCreateUser(telegramUser);
 
     // Update wallet address if provided
     let finalUser = user;
-    if (body.tonWalletAddress && body.tonWalletAddress !== user.ton_wallet_address) {
-      finalUser = await userService.updateWalletAddress(user.id, body.tonWalletAddress);
+    if (
+      body.tonWalletAddress &&
+      body.tonWalletAddress !== user.ton_wallet_address
+    ) {
+      finalUser = await userService.updateWalletAddress(
+        user.id,
+        body.tonWalletAddress
+      );
     }
 
     // Generate JWT token
@@ -121,18 +134,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Authentication error:', error);
 
     // Handle specific UserService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -142,7 +158,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred during authentication'
+        message: 'An unexpected error occurred during authentication',
       },
       { status: 500 }
     );

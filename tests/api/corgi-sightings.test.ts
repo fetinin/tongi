@@ -10,7 +10,7 @@ describe('POST /api/corgi/sightings', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      corgiCount: 3
+      corgiCount: 3,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -18,7 +18,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -49,7 +49,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -67,7 +67,7 @@ describe('POST /api/corgi/sightings', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      corgiCount: 0
+      corgiCount: 0,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -75,7 +75,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -93,7 +93,7 @@ describe('POST /api/corgi/sightings', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      corgiCount: 101
+      corgiCount: 101,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -101,7 +101,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -119,7 +119,7 @@ describe('POST /api/corgi/sightings', () => {
     const validTokenNoBuddy = 'mock-jwt-token-no-buddy';
 
     const requestBody = {
-      corgiCount: 2
+      corgiCount: 2,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -127,7 +127,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validTokenNoBuddy}`
+        Authorization: `Bearer ${validTokenNoBuddy}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -143,7 +143,7 @@ describe('POST /api/corgi/sightings', () => {
 
   test('should return 401 when no authorization token provided', async () => {
     const requestBody = {
-      corgiCount: 1
+      corgiCount: 1,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -167,7 +167,7 @@ describe('POST /api/corgi/sightings', () => {
     const invalidToken = 'invalid-jwt-token';
 
     const requestBody = {
-      corgiCount: 1
+      corgiCount: 1,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -175,7 +175,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -192,7 +192,7 @@ describe('POST /api/corgi/sightings', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      corgiCount: 100
+      corgiCount: 100,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -200,7 +200,7 @@ describe('POST /api/corgi/sightings', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });

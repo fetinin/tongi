@@ -13,8 +13,8 @@ const nextConfig: NextConfig = {
       ...config.watchOptions,
       ignored: [
         ...((config.watchOptions?.ignored as string[]) || []),
-        '**/telegram_webapp_example/**'
-      ]
+        '**/telegram_webapp_example/**',
+      ],
     };
 
     return config;

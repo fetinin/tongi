@@ -20,7 +20,7 @@ describe('/api/transactions GET', () => {
 
     expect(res._getStatusCode()).toBe(401);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Unauthorized'
+      error: 'Unauthorized',
     });
   });
 
@@ -28,8 +28,8 @@ describe('/api/transactions GET', () => {
     const { req, res } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': '123456789'
-      }
+        'x-telegram-user-id': '123456789',
+      },
     });
 
     await handler(req, res);
@@ -38,7 +38,7 @@ describe('/api/transactions GET', () => {
     const data = JSON.parse(res._getData());
     expect(data).toEqual({
       transactions: [],
-      total: 0
+      total: 0,
     });
   });
 
@@ -47,11 +47,11 @@ describe('/api/transactions GET', () => {
       method: 'GET',
       query: {
         page: '1',
-        limit: '10'
+        limit: '10',
       },
       headers: {
-        'x-telegram-user-id': '123456789'
-      }
+        'x-telegram-user-id': '123456789',
+      },
     });
 
     await handler(req, res);
@@ -68,8 +68,8 @@ describe('/api/transactions GET', () => {
     const { req, res } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': '123456789'
-      }
+        'x-telegram-user-id': '123456789',
+      },
     });
 
     await handler(req, res);
@@ -96,11 +96,11 @@ describe('/api/transactions GET', () => {
     const { req, res } = createMocks({
       method: 'GET',
       query: {
-        type: 'reward'
+        type: 'reward',
       },
       headers: {
-        'x-telegram-user-id': '123456789'
-      }
+        'x-telegram-user-id': '123456789',
+      },
     });
 
     await handler(req, res);
@@ -119,11 +119,11 @@ describe('/api/transactions GET', () => {
     const { req, res } = createMocks({
       method: 'GET',
       query: {
-        status: 'pending'
+        status: 'pending',
       },
       headers: {
-        'x-telegram-user-id': '123456789'
-      }
+        'x-telegram-user-id': '123456789',
+      },
     });
 
     await handler(req, res);
@@ -143,18 +143,18 @@ describe('/api/transactions GET', () => {
       method: 'GET',
       query: {
         page: '-1',
-        limit: 'invalid'
+        limit: 'invalid',
       },
       headers: {
-        'x-telegram-user-id': '123456789'
-      }
+        'x-telegram-user-id': '123456789',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Invalid pagination parameters'
+      error: 'Invalid pagination parameters',
     });
   });
 

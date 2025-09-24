@@ -30,7 +30,9 @@ interface ErrorResponse {
  * POST /api/buddy/request
  * Send buddy request to another user
  */
-export async function POST(request: NextRequest): Promise<NextResponse<BuddyPairResponse | ErrorResponse>> {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<BuddyPairResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -53,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Missing required field: targetUserId'
+          message: 'Missing required field: targetUserId',
         },
         { status: 400 }
       );
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'targetUserId must be a positive integer'
+          message: 'targetUserId must be a positive integer',
         },
         { status: 400 }
       );
@@ -76,14 +78,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
       return NextResponse.json(
         {
           error: 'INVALID_REQUEST',
-          message: 'Cannot send buddy request to yourself'
+          message: 'Cannot send buddy request to yourself',
         },
         { status: 400 }
       );
     }
 
     // Create buddy request using BuddyService
-    const buddyPairWithProfile = await buddyService.createBuddyRequest(requesterId, targetUserId);
+    const buddyPairWithProfile = await buddyService.createBuddyRequest(
+      requesterId,
+      targetUserId
+    );
 
     // Format response according to API spec
     const response: BuddyPairResponse = {
@@ -92,7 +97,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
         id: buddyPairWithProfile.buddy.id,
         telegramUsername: buddyPairWithProfile.buddy.username,
         firstName: buddyPairWithProfile.buddy.displayName,
-        tonWalletAddress: buddyPairWithProfile.buddy.hasWallet ? 'connected' : null,
+        tonWalletAddress: buddyPairWithProfile.buddy.hasWallet
+          ? 'connected'
+          : null,
         createdAt: buddyPairWithProfile.buddy.memberSince.toISOString(),
       },
       status: buddyPairWithProfile.status,
@@ -102,18 +109,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
     };
 
     return NextResponse.json(response, { status: 201 });
-
   } catch (error) {
     console.error('Buddy request error:', error);
 
     // Handle specific BuddyService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -123,7 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BuddyPair
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while processing buddy request'
+        message: 'An unexpected error occurred while processing buddy request',
       },
       { status: 500 }
     );

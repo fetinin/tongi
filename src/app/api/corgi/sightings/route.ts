@@ -25,7 +25,9 @@ interface ErrorResponse {
  * POST /api/corgi/sightings
  * Report a new corgi sighting
  */
-export async function POST(request: NextRequest): Promise<NextResponse<CorgiSightingResponse | ErrorResponse>> {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<CorgiSightingResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -33,7 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CorgiSigh
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CorgiSigh
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'corgiCount is required and must be a number'
+          message: 'corgiCount is required and must be a number',
         },
         { status: 400 }
       );
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CorgiSigh
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'corgiCount must be between 1 and 100'
+          message: 'corgiCount must be between 1 and 100',
         },
         { status: 400 }
       );
@@ -81,18 +83,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<CorgiSigh
     };
 
     return NextResponse.json(response, { status: 201 });
-
   } catch (error) {
     console.error('Corgi sighting creation error:', error);
 
     // Handle specific CorgiService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -102,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CorgiSigh
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while creating the sighting'
+        message: 'An unexpected error occurred while creating the sighting',
       },
       { status: 500 }
     );
@@ -113,7 +118,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<CorgiSigh
  * GET /api/corgi/sightings
  * Get user's corgi sightings with optional status filter
  */
-export async function GET(request: NextRequest): Promise<NextResponse<SightingsListResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<SightingsListResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -121,7 +128,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<SightingsL
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -134,11 +141,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<SightingsL
     const statusFilter = searchParams.get('status');
 
     // Validate status filter if provided
-    if (statusFilter && !['pending', 'confirmed', 'denied'].includes(statusFilter)) {
+    if (
+      statusFilter &&
+      !['pending', 'confirmed', 'denied'].includes(statusFilter)
+    ) {
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'status must be one of: pending, confirmed, denied'
+          message: 'status must be one of: pending, confirmed, denied',
         },
         { status: 400 }
       );
@@ -151,38 +161,43 @@ export async function GET(request: NextRequest): Promise<NextResponse<SightingsL
     } else {
       const history = await corgiService.getSightingHistory(currentUserId);
       sightings = statusFilter
-        ? history.sightings.filter(s => s.status === statusFilter)
+        ? history.sightings.filter((s) => s.status === statusFilter)
         : history.sightings;
     }
 
     // Map the response
-    const mappedSightings: CorgiSightingResponse[] = sightings.map(sighting => ({
-      id: sighting.id,
-      reporterId: sighting.reporter_id,
-      buddyId: sighting.buddy_id,
-      corgiCount: sighting.corgi_count,
-      status: sighting.status,
-      createdAt: sighting.created_at,
-      respondedAt: sighting.responded_at,
-    }));
+    const mappedSightings: CorgiSightingResponse[] = sightings.map(
+      (sighting) => ({
+        id: sighting.id,
+        reporterId: sighting.reporter_id,
+        buddyId: sighting.buddy_id,
+        corgiCount: sighting.corgi_count,
+        status: sighting.status,
+        createdAt: sighting.created_at,
+        respondedAt: sighting.responded_at,
+      })
+    );
 
     const response: SightingsListResponse = {
       sightings: mappedSightings,
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Corgi sightings retrieval error:', error);
 
     // Handle specific CorgiService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -192,7 +207,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<SightingsL
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving sightings'
+        message: 'An unexpected error occurred while retrieving sightings',
       },
       { status: 500 }
     );

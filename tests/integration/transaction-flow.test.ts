@@ -25,26 +25,28 @@ describe('Transaction Confirmation Flow Integration', () => {
       fromUserId: 'bank-wallet',
       toUserId: userId,
       tonAddress: 'UQTest123456789',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     // Step 2: User views their pending transactions
     const { req: _getReq, res: getRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': userId
-      }
+        'x-telegram-user-id': userId,
+      },
     });
 
     // Mock GET /api/transactions response
     expect(getRes._getStatusCode()).toBe(200);
-    const transactions = JSON.parse(getRes._getData() || '{"transactions": [], "total": 0}');
+    const transactions = JSON.parse(
+      getRes._getData() || '{"transactions": [], "total": 0}'
+    );
     expect(transactions.transactions).toContainEqual(
       expect.objectContaining({
         id: mockTransaction.id,
         status: 'pending',
         type: 'reward',
-        amount: rewardAmount
+        amount: rewardAmount,
       })
     );
 
@@ -54,11 +56,11 @@ describe('Transaction Confirmation Flow Integration', () => {
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
-        'x-telegram-user-id': userId
+        'x-telegram-user-id': userId,
       },
       body: {
-        tonTxHash: tonTxHash
-      }
+        tonTxHash: tonTxHash,
+      },
     });
 
     // Mock POST /api/transactions/[id]/confirm response
@@ -68,27 +70,29 @@ describe('Transaction Confirmation Flow Integration', () => {
       id: mockTransaction.id,
       status: 'confirmed',
       tonTxHash: tonTxHash,
-      confirmedAt: expect.any(String)
+      confirmedAt: expect.any(String),
     });
 
     // Step 4: Verify transaction appears as confirmed in subsequent queries
     const { req: _verifyReq, res: verifyRes } = createMocks({
       method: 'GET',
       query: {
-        status: 'confirmed'
+        status: 'confirmed',
       },
       headers: {
-        'x-telegram-user-id': userId
-      }
+        'x-telegram-user-id': userId,
+      },
     });
 
     expect(verifyRes._getStatusCode()).toBe(200);
-    const confirmedTransactions = JSON.parse(verifyRes._getData() || '{"transactions": [], "total": 0}');
+    const confirmedTransactions = JSON.parse(
+      verifyRes._getData() || '{"transactions": [], "total": 0}'
+    );
     expect(confirmedTransactions.transactions).toContainEqual(
       expect.objectContaining({
         id: mockTransaction.id,
         status: 'confirmed',
-        tonTxHash: tonTxHash
+        tonTxHash: tonTxHash,
       })
     );
   });
@@ -108,25 +112,27 @@ describe('Transaction Confirmation Flow Integration', () => {
       toUserId: sellerId,
       tonAddress: 'UQPurchase789456123',
       wishId: 'wish-123',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     // Step 2: Buyer views their pending transactions
     const { req: _buyerGetReq, res: buyerGetRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': buyerId
-      }
+        'x-telegram-user-id': buyerId,
+      },
     });
 
     expect(buyerGetRes._getStatusCode()).toBe(200);
-    const buyerTransactions = JSON.parse(buyerGetRes._getData() || '{"transactions": [], "total": 0}');
+    const buyerTransactions = JSON.parse(
+      buyerGetRes._getData() || '{"transactions": [], "total": 0}'
+    );
     expect(buyerTransactions.transactions).toContainEqual(
       expect.objectContaining({
         id: mockTransaction.id,
         status: 'pending',
         type: 'purchase',
-        fromUserId: buyerId
+        fromUserId: buyerId,
       })
     );
 
@@ -134,18 +140,20 @@ describe('Transaction Confirmation Flow Integration', () => {
     const { req: _sellerGetReq, res: sellerGetRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': sellerId
-      }
+        'x-telegram-user-id': sellerId,
+      },
     });
 
     expect(sellerGetRes._getStatusCode()).toBe(200);
-    const sellerTransactions = JSON.parse(sellerGetRes._getData() || '{"transactions": [], "total": 0}');
+    const sellerTransactions = JSON.parse(
+      sellerGetRes._getData() || '{"transactions": [], "total": 0}'
+    );
     expect(sellerTransactions.transactions).toContainEqual(
       expect.objectContaining({
         id: mockTransaction.id,
         status: 'pending',
         type: 'purchase',
-        toUserId: sellerId
+        toUserId: sellerId,
       })
     );
 
@@ -155,11 +163,11 @@ describe('Transaction Confirmation Flow Integration', () => {
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
-        'x-telegram-user-id': buyerId
+        'x-telegram-user-id': buyerId,
       },
       body: {
-        tonTxHash: tonTxHash
-      }
+        tonTxHash: tonTxHash,
+      },
     });
 
     expect(confirmRes._getStatusCode()).toBe(200);
@@ -168,41 +176,45 @@ describe('Transaction Confirmation Flow Integration', () => {
       id: mockTransaction.id,
       status: 'confirmed',
       tonTxHash: tonTxHash,
-      confirmedAt: expect.any(String)
+      confirmedAt: expect.any(String),
     });
 
     // Step 5: Both parties can see the confirmed transaction
     const { req: _buyerVerifyReq, res: buyerVerifyRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': buyerId
-      }
+        'x-telegram-user-id': buyerId,
+      },
     });
 
     const { req: _sellerVerifyReq, res: sellerVerifyRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': sellerId
-      }
+        'x-telegram-user-id': sellerId,
+      },
     });
 
     expect(buyerVerifyRes._getStatusCode()).toBe(200);
     expect(sellerVerifyRes._getStatusCode()).toBe(200);
 
-    const buyerConfirmedTransactions = JSON.parse(buyerVerifyRes._getData() || '{"transactions": [], "total": 0}');
-    const sellerConfirmedTransactions = JSON.parse(sellerVerifyRes._getData() || '{"transactions": [], "total": 0}');
+    const buyerConfirmedTransactions = JSON.parse(
+      buyerVerifyRes._getData() || '{"transactions": [], "total": 0}'
+    );
+    const sellerConfirmedTransactions = JSON.parse(
+      sellerVerifyRes._getData() || '{"transactions": [], "total": 0}'
+    );
 
     expect(buyerConfirmedTransactions.transactions).toContainEqual(
       expect.objectContaining({
         id: mockTransaction.id,
-        status: 'confirmed'
+        status: 'confirmed',
       })
     );
 
     expect(sellerConfirmedTransactions.transactions).toContainEqual(
       expect.objectContaining({
         id: mockTransaction.id,
-        status: 'confirmed'
+        status: 'confirmed',
       })
     );
   });
@@ -217,7 +229,7 @@ describe('Transaction Confirmation Flow Integration', () => {
       fromUserId: 'bank-wallet',
       toUserId: userId,
       tonAddress: 'UQInvalid123',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     // Attempt to confirm with invalid TON hash
@@ -225,29 +237,33 @@ describe('Transaction Confirmation Flow Integration', () => {
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
-        'x-telegram-user-id': userId
+        'x-telegram-user-id': userId,
       },
       body: {
-        tonTxHash: 'invalid-hash-format'
-      }
+        tonTxHash: 'invalid-hash-format',
+      },
     });
 
     expect(confirmRes._getStatusCode()).toBe(400);
     expect(JSON.parse(confirmRes._getData())).toEqual({
-      error: 'Invalid TON transaction hash format'
+      error: 'Invalid TON transaction hash format',
     });
 
     // Verify transaction remains pending
     const { req: _verifyReq, res: verifyRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': userId
-      }
+        'x-telegram-user-id': userId,
+      },
     });
 
     expect(verifyRes._getStatusCode()).toBe(200);
-    const transactions = JSON.parse(verifyRes._getData() || '{"transactions": [], "total": 0}');
-    const transaction = transactions.transactions.find((t: any) => t.id === mockTransaction.id);
+    const transactions = JSON.parse(
+      verifyRes._getData() || '{"transactions": [], "total": 0}'
+    );
+    const transaction = transactions.transactions.find(
+      (t: any) => t.id === mockTransaction.id
+    );
     expect(transaction?.status).toBe('pending');
   });
 
@@ -263,7 +279,7 @@ describe('Transaction Confirmation Flow Integration', () => {
       fromUserId: 'bank-wallet',
       toUserId: userId,
       tonAddress: 'UQUnauthorized456',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     // Other user attempts to confirm transaction
@@ -271,29 +287,33 @@ describe('Transaction Confirmation Flow Integration', () => {
       method: 'POST',
       query: { id: mockTransaction.id },
       headers: {
-        'x-telegram-user-id': otherUserId
+        'x-telegram-user-id': otherUserId,
       },
       body: {
-        tonTxHash: '0xvalidhashbutunauthorized123456'
-      }
+        tonTxHash: '0xvalidhashbutunauthorized123456',
+      },
     });
 
     expect(confirmRes._getStatusCode()).toBe(403);
     expect(JSON.parse(confirmRes._getData())).toEqual({
-      error: 'Not authorized to confirm this transaction'
+      error: 'Not authorized to confirm this transaction',
     });
 
     // Verify transaction remains pending and unchanged
     const { req: _verifyReq, res: verifyRes } = createMocks({
       method: 'GET',
       headers: {
-        'x-telegram-user-id': userId
-      }
+        'x-telegram-user-id': userId,
+      },
     });
 
     expect(verifyRes._getStatusCode()).toBe(200);
-    const transactions = JSON.parse(verifyRes._getData() || '{"transactions": [], "total": 0}');
-    const transaction = transactions.transactions.find((t: any) => t.id === mockTransaction.id);
+    const transactions = JSON.parse(
+      verifyRes._getData() || '{"transactions": [], "total": 0}'
+    );
+    const transaction = transactions.transactions.find(
+      (t: any) => t.id === mockTransaction.id
+    );
     expect(transaction?.status).toBe('pending');
     expect(transaction?.tonTxHash).toBeUndefined();
   });
@@ -306,15 +326,17 @@ describe('Transaction Confirmation Flow Integration', () => {
       method: 'GET',
       query: {
         page: '1',
-        limit: '5'
+        limit: '5',
       },
       headers: {
-        'x-telegram-user-id': userId
-      }
+        'x-telegram-user-id': userId,
+      },
     });
 
     expect(page1Res._getStatusCode()).toBe(200);
-    const page1Data = JSON.parse(page1Res._getData() || '{"transactions": [], "total": 0}');
+    const page1Data = JSON.parse(
+      page1Res._getData() || '{"transactions": [], "total": 0}'
+    );
     expect(page1Data.transactions.length).toBeLessThanOrEqual(5);
 
     // Test second page
@@ -322,15 +344,17 @@ describe('Transaction Confirmation Flow Integration', () => {
       method: 'GET',
       query: {
         page: '2',
-        limit: '5'
+        limit: '5',
       },
       headers: {
-        'x-telegram-user-id': userId
-      }
+        'x-telegram-user-id': userId,
+      },
     });
 
     expect(page2Res._getStatusCode()).toBe(200);
-    const page2Data = JSON.parse(page2Res._getData() || '{"transactions": [], "total": 0}');
+    const page2Data = JSON.parse(
+      page2Res._getData() || '{"transactions": [], "total": 0}'
+    );
     expect(page2Data.transactions.length).toBeLessThanOrEqual(5);
 
     // Verify no overlap between pages

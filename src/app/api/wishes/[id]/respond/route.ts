@@ -35,7 +35,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -54,7 +54,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: error instanceof Error ? error.message : 'Invalid wish ID'
+          message: error instanceof Error ? error.message : 'Invalid wish ID',
         },
         { status: 400 }
       );
@@ -69,7 +69,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'accepted is required and must be a boolean'
+          message: 'accepted is required and must be a boolean',
         },
         { status: 400 }
       );
@@ -97,18 +97,21 @@ export async function POST(
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Wish response error:', error);
 
     // Handle specific WishService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -118,7 +121,7 @@ export async function POST(
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while responding to the wish'
+        message: 'An unexpected error occurred while responding to the wish',
       },
       { status: 500 }
     );

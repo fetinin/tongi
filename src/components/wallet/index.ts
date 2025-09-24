@@ -1,1 +1,6 @@
-export { TonProvider, useTonWalletContext, WalletStatus, WalletButton } from './TonProvider';
+export {
+  TonProvider,
+  useTonWalletContext,
+  WalletStatus,
+  WalletButton,
+} from './TonProvider';

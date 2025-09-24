@@ -71,7 +71,7 @@ export function validateInitData(initData: string, botToken: string): boolean {
     // Create data check string by sorting keys alphabetically
     const dataCheckString = Object.keys(data)
       .sort()
-      .map(key => `${key}=${data[key]}`)
+      .map((key) => `${key}=${data[key]}`)
       .join('\n');
 
     // Generate secret key from bot token
@@ -112,7 +112,9 @@ export function extractUserData(initData: string): NormalizedUser | null {
       return null;
     }
 
-    const rawUserData = JSON.parse(decodeURIComponent(userParam)) as TelegramUser;
+    const rawUserData = JSON.parse(
+      decodeURIComponent(userParam)
+    ) as TelegramUser;
 
     // Validate the raw data first
     if (!validateUserData(rawUserData)) {
@@ -170,7 +172,10 @@ export function normalizeUserData(userData: TelegramUser): NormalizedUser {
  * @param userData User data (partial NormalizedUser accepted)
  * @returns JWT token string
  */
-export function createAuthToken(userData: Pick<NormalizedUser, 'id' | 'firstName'> & Partial<Pick<NormalizedUser, 'username'>>): string {
+export function createAuthToken(
+  userData: Pick<NormalizedUser, 'id' | 'firstName'> &
+    Partial<Pick<NormalizedUser, 'username'>>
+): string {
   const payload: AuthTokenPayload = {
     id: userData.id,
     firstName: userData.firstName,
@@ -201,7 +206,9 @@ export function verifyAuthToken(token: string): AuthTokenPayload | null {
  * @param authHeader Authorization header value
  * @returns User data or null if invalid
  */
-export function extractUserFromAuth(authHeader: string | null): AuthTokenPayload | null {
+export function extractUserFromAuth(
+  authHeader: string | null
+): AuthTokenPayload | null {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
@@ -217,7 +224,11 @@ export function extractUserFromAuth(authHeader: string | null): AuthTokenPayload
  * @param authDate Optional auth date (defaults to current time)
  * @returns Valid initData string
  */
-export function createTestInitData(userData: TelegramUser, botToken: string, authDate?: number): string {
+export function createTestInitData(
+  userData: TelegramUser,
+  botToken: string,
+  authDate?: number
+): string {
   const timestamp = authDate || Math.floor(Date.now() / 1000);
   const userParam = encodeURIComponent(JSON.stringify(userData));
 
@@ -229,7 +240,7 @@ export function createTestInitData(userData: TelegramUser, botToken: string, aut
   // Create data check string by sorting keys alphabetically
   const dataCheckString = Object.keys(data)
     .sort()
-    .map(key => `${key}=${data[key as keyof typeof data]}`)
+    .map((key) => `${key}=${data[key as keyof typeof data]}`)
     .join('\n');
 
   // console.log('Creating test data with dataCheckString:', dataCheckString);

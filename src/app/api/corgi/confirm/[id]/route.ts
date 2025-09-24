@@ -33,7 +33,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -50,7 +50,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Invalid sighting ID'
+          message: 'Invalid sighting ID',
         },
         { status: 400 }
       );
@@ -65,14 +65,18 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'confirmed field is required and must be a boolean'
+          message: 'confirmed field is required and must be a boolean',
         },
         { status: 400 }
       );
     }
 
     // Confirm the sighting using CorgiService
-    const result = await corgiService.confirmSighting(sightingId, currentUserId, confirmed);
+    const result = await corgiService.confirmSighting(
+      sightingId,
+      currentUserId,
+      confirmed
+    );
 
     // Map the response
     const response: CorgiSightingResponse = {
@@ -87,18 +91,21 @@ export async function POST(
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Corgi sighting confirmation error:', error);
 
     // Handle specific CorgiService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -108,7 +115,7 @@ export async function POST(
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while confirming the sighting'
+        message: 'An unexpected error occurred while confirming the sighting',
       },
       { status: 500 }
     );

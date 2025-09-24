@@ -9,7 +9,7 @@ import {
   Badge,
   Placeholder,
   Spinner,
-  Caption
+  Caption,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -57,14 +57,17 @@ export function TransactionHistory({
   refreshInterval = 30000,
   showEmptyState = true,
   limit = 20,
-  initialFilter = 'all'
+  initialFilter = 'all',
 }: TransactionHistoryProps) {
   const { token, isAuthenticated, user } = useAuth();
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<TransactionData[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    TransactionData[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>(initialFilter);
+  const [typeFilter, setTypeFilter] =
+    useState<TransactionTypeFilter>(initialFilter);
 
   // Fetch transaction history from API
   const fetchTransactionHistory = useCallback(async () => {
@@ -82,13 +85,15 @@ export function TransactionHistory({
 
       const response = await fetch(url.toString(), {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch transaction history');
+        throw new Error(
+          errorData.message || 'Failed to fetch transaction history'
+        );
       }
 
       const data: TransactionHistoryResponse = await response.json();
@@ -99,7 +104,11 @@ export function TransactionHistory({
       onHistoryUpdated?.(data.transactions);
     } catch (err) {
       console.error('Transaction history fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load transaction history');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to load transaction history'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +128,11 @@ export function TransactionHistory({
     if (typeFilter === 'all') {
       setFilteredTransactions(transactions);
     } else {
-      setFilteredTransactions(transactions.filter(transaction => transaction.transactionType === typeFilter));
+      setFilteredTransactions(
+        transactions.filter(
+          (transaction) => transaction.transactionType === typeFilter
+        )
+      );
     }
   }, [transactions, typeFilter]);
 
@@ -149,7 +162,8 @@ export function TransactionHistory({
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
-          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+          year:
+            date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
         });
       }
     }
@@ -189,7 +203,9 @@ export function TransactionHistory({
   /**
    * Get transaction type label
    */
-  const getTransactionTypeLabel = (type: TransactionData['transactionType']): string => {
+  const getTransactionTypeLabel = (
+    type: TransactionData['transactionType']
+  ): string => {
     switch (type) {
       case 'reward':
         return 'Corgi Reward';
@@ -203,9 +219,13 @@ export function TransactionHistory({
   /**
    * Get transaction direction label
    */
-  const getTransactionDirection = (transaction: TransactionData): 'incoming' | 'outgoing' => {
+  const getTransactionDirection = (
+    transaction: TransactionData
+  ): 'incoming' | 'outgoing' => {
     if (!user?.tonWalletAddress) return 'outgoing';
-    return transaction.toWallet === user.tonWalletAddress ? 'incoming' : 'outgoing';
+    return transaction.toWallet === user.tonWalletAddress
+      ? 'incoming'
+      : 'outgoing';
   };
 
   /**
@@ -220,12 +240,22 @@ export function TransactionHistory({
    * Calculate statistics from transactions
    */
   const getStatistics = () => {
-    const completedTransactions = transactions.filter(t => t.status === 'completed');
-    const pendingTransactions = transactions.filter(t => t.status === 'pending');
-    const failedTransactions = transactions.filter(t => t.status === 'failed');
+    const completedTransactions = transactions.filter(
+      (t) => t.status === 'completed'
+    );
+    const pendingTransactions = transactions.filter(
+      (t) => t.status === 'pending'
+    );
+    const failedTransactions = transactions.filter(
+      (t) => t.status === 'failed'
+    );
 
-    const rewardTransactions = completedTransactions.filter(t => t.transactionType === 'reward');
-    const purchaseTransactions = completedTransactions.filter(t => t.transactionType === 'purchase');
+    const rewardTransactions = completedTransactions.filter(
+      (t) => t.transactionType === 'reward'
+    );
+    const purchaseTransactions = completedTransactions.filter(
+      (t) => t.transactionType === 'purchase'
+    );
 
     const totalRewards = rewardTransactions.reduce((total, transaction) => {
       const direction = getTransactionDirection(transaction);
@@ -245,7 +275,7 @@ export function TransactionHistory({
       rewards: rewardTransactions.length,
       purchases: purchaseTransactions.length,
       totalRewards,
-      totalSpent
+      totalSpent,
     };
   };
 
@@ -273,15 +303,8 @@ export function TransactionHistory({
     return (
       <Section header="Transaction History">
         <div className="p-4">
-          <Placeholder
-            header="Error Loading History"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={fetchTransactionHistory}
-            >
+          <Placeholder header="Error Loading History" description={error}>
+            <Button size="s" mode="outline" onClick={fetchTransactionHistory}>
               Retry
             </Button>
           </Placeholder>
@@ -320,16 +343,26 @@ export function TransactionHistory({
       <Section header="Your Activity">
         <div className="p-4 space-y-2">
           <div className="flex justify-between items-center">
-            <Caption level="1" className="text-gray-600">Total Transactions</Caption>
+            <Caption level="1" className="text-gray-600">
+              Total Transactions
+            </Caption>
             <span className="font-medium">{stats.total}</span>
           </div>
           <div className="flex justify-between items-center">
-            <Caption level="1" className="text-gray-600">Corgi Coins Earned</Caption>
-            <span className="font-medium text-green-600">+{stats.totalRewards.toFixed(2)}</span>
+            <Caption level="1" className="text-gray-600">
+              Corgi Coins Earned
+            </Caption>
+            <span className="font-medium text-green-600">
+              +{stats.totalRewards.toFixed(2)}
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <Caption level="1" className="text-gray-600">Corgi Coins Spent</Caption>
-            <span className="font-medium text-red-600">-{stats.totalSpent.toFixed(2)}</span>
+            <Caption level="1" className="text-gray-600">
+              Corgi Coins Spent
+            </Caption>
+            <span className="font-medium text-red-600">
+              -{stats.totalSpent.toFixed(2)}
+            </span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-500">Completed: {stats.completed}</span>
@@ -395,11 +428,17 @@ export function TransactionHistory({
                 subtitle={
                   <div className="space-y-1">
                     <div>
-                      {isIncoming ? 'From' : 'To'}: {formatWalletAddress(isIncoming ? transaction.fromWallet : transaction.toWallet)}
+                      {isIncoming ? 'From' : 'To'}:{' '}
+                      {formatWalletAddress(
+                        isIncoming
+                          ? transaction.fromWallet
+                          : transaction.toWallet
+                      )}
                     </div>
                     <div className="text-xs text-gray-500">
                       {formatTimestamp(transaction.createdAt)}
-                      {transaction.completedAt && ` • Completed ${formatTimestamp(transaction.completedAt)}`}
+                      {transaction.completedAt &&
+                        ` • Completed ${formatTimestamp(transaction.completedAt)}`}
                     </div>
                     {transaction.transactionHash && (
                       <div className="text-xs text-gray-400">
@@ -410,13 +449,18 @@ export function TransactionHistory({
                 }
                 before={
                   <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                    <span className="text-lg">{getTransactionIcon(transaction)}</span>
+                    <span className="text-lg">
+                      {getTransactionIcon(transaction)}
+                    </span>
                   </div>
                 }
                 after={
                   <div className="text-right">
-                    <div className={`font-medium ${isIncoming ? 'text-green-600' : 'text-red-600'}`}>
-                      {isIncoming ? '+' : '-'}{transaction.amount.toFixed(2)}
+                    <div
+                      className={`font-medium ${isIncoming ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {isIncoming ? '+' : '-'}
+                      {transaction.amount.toFixed(2)}
                     </div>
                     <Badge {...statusBadge} />
                   </div>
@@ -424,7 +468,9 @@ export function TransactionHistory({
               >
                 <div className="flex flex-col gap-1">
                   <div>
-                    <strong>{getTransactionTypeLabel(transaction.transactionType)}</strong>
+                    <strong>
+                      {getTransactionTypeLabel(transaction.transactionType)}
+                    </strong>
                   </div>
                   {transaction.status === 'pending' && (
                     <div className="text-sm text-gray-500">
@@ -438,7 +484,8 @@ export function TransactionHistory({
                   )}
                   {isCompleted && (
                     <div className="text-sm text-gray-600">
-                      {isIncoming ? 'Received' : 'Sent'} {transaction.amount} Corgi Coin{transaction.amount !== 1 ? 's' : ''}
+                      {isIncoming ? 'Received' : 'Sent'} {transaction.amount}{' '}
+                      Corgi Coin{transaction.amount !== 1 ? 's' : ''}
                     </div>
                   )}
                 </div>
@@ -451,7 +498,9 @@ export function TransactionHistory({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          Your transaction history shows all Corgi coin transfers. Rewards come from confirmed corgi sightings, and purchases are for wishes from the marketplace.
+          Your transaction history shows all Corgi coin transfers. Rewards come
+          from confirmed corgi sightings, and purchases are for wishes from the
+          marketplace.
         </Caption>
       </Section>
     </List>
@@ -466,17 +515,20 @@ export function useTransactionHistory() {
   const [filter, setFilter] = useState<TransactionTypeFilter>('all');
 
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
   const setTypeFilter = useCallback((newFilter: TransactionTypeFilter) => {
     setFilter(newFilter);
   }, []);
 
-  const handleHistoryUpdated = useCallback((transactions: TransactionData[]) => {
-    console.log(`Loaded ${transactions.length} transactions from history`);
-    // Could trigger notifications or other side effects here
-  }, []);
+  const handleHistoryUpdated = useCallback(
+    (transactions: TransactionData[]) => {
+      console.log(`Loaded ${transactions.length} transactions from history`);
+      // Could trigger notifications or other side effects here
+    },
+    []
+  );
 
   return {
     refreshTrigger,

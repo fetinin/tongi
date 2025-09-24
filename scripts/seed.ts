@@ -11,7 +11,9 @@ db.pragma('foreign_keys = ON');
 
 try {
   // Check if bank wallet already exists
-  const existingBankWallet = db.prepare('SELECT id FROM bank_wallet WHERE id = 1').get() as { id: number } | undefined;
+  const existingBankWallet = db
+    .prepare('SELECT id FROM bank_wallet WHERE id = 1')
+    .get() as { id: number } | undefined;
 
   if (!existingBankWallet) {
     // Insert initial bank wallet record
@@ -21,7 +23,9 @@ try {
     `);
 
     // Use a placeholder address for now - this should be replaced with actual bank wallet address
-    const bankWalletAddress = process.env.TON_BANK_WALLET_ADDRESS || 'EQC_placeholder_bank_wallet_address';
+    const bankWalletAddress =
+      process.env.TON_BANK_WALLET_ADDRESS ||
+      'EQC_placeholder_bank_wallet_address';
     insertBankWallet.run(bankWalletAddress);
 
     console.log('✅ Bank wallet initialized with address:', bankWalletAddress);
@@ -35,7 +39,9 @@ try {
     console.log('🔧 Development mode: Adding test data');
 
     // Check if test users exist
-    const existingUser = db.prepare('SELECT id FROM users WHERE id = 123456789').get() as { id: number } | undefined;
+    const existingUser = db
+      .prepare('SELECT id FROM users WHERE id = 123456789')
+      .get() as { id: number } | undefined;
 
     if (!existingUser) {
       const insertUser = db.prepare(`
@@ -44,8 +50,18 @@ try {
       `);
 
       // Add test users
-      insertUser.run(123456789, 'testuser1', 'Test User 1', 'EQC_test_wallet_1');
-      insertUser.run(987654321, 'testuser2', 'Test User 2', 'EQC_test_wallet_2');
+      insertUser.run(
+        123456789,
+        'testuser1',
+        'Test User 1',
+        'EQC_test_wallet_1'
+      );
+      insertUser.run(
+        987654321,
+        'testuser2',
+        'Test User 2',
+        'EQC_test_wallet_2'
+      );
 
       console.log('✅ Test users added for development');
 
@@ -73,7 +89,12 @@ try {
         VALUES (?, ?, ?, ?, 'pending')
       `);
 
-      insertWish.run(123456789, 987654321, 'A delicious coffee and pastry', 5.50);
+      insertWish.run(
+        123456789,
+        987654321,
+        'A delicious coffee and pastry',
+        5.5
+      );
       console.log('✅ Test wish added for development');
     } else {
       console.log('ℹ️ Test users already exist, skipping test data creation');

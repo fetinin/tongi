@@ -12,7 +12,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_with_pending_wishes'
+        Authorization: 'Bearer mock_jwt_token_with_pending_wishes',
       },
     });
 
@@ -74,7 +74,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_no_pending_wishes'
+        Authorization: 'Bearer mock_jwt_token_no_pending_wishes',
       },
     });
 
@@ -93,7 +93,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_buddy_specific'
+        Authorization: 'Bearer mock_jwt_token_buddy_specific',
       },
     });
 
@@ -115,7 +115,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_mixed_wish_statuses'
+        Authorization: 'Bearer mock_jwt_token_mixed_wish_statuses',
       },
     });
 
@@ -134,7 +134,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_multiple_pending_wishes'
+        Authorization: 'Bearer mock_jwt_token_multiple_pending_wishes',
       },
     });
 
@@ -146,7 +146,9 @@ describe('GET /api/wishes/pending', () => {
       for (let i = 0; i < data.wishes.length - 1; i++) {
         const currentDate = new Date(data.wishes[i].createdAt);
         const nextDate = new Date(data.wishes[i + 1].createdAt);
-        expect(currentDate.getTime()).toBeGreaterThanOrEqual(nextDate.getTime());
+        expect(currentDate.getTime()).toBeGreaterThanOrEqual(
+          nextDate.getTime()
+        );
       }
     }
   });
@@ -157,7 +159,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_with_creator_info'
+        Authorization: 'Bearer mock_jwt_token_with_creator_info',
       },
     });
 
@@ -201,7 +203,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer invalid_token'
+        Authorization: 'Bearer invalid_token',
       },
     });
 
@@ -220,7 +222,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'InvalidFormat token'
+        Authorization: 'InvalidFormat token',
       },
     });
 
@@ -239,7 +241,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_no_buddy'
+        Authorization: 'Bearer mock_jwt_token_no_buddy',
       },
     });
 
@@ -259,7 +261,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer malformed.jwt.token'
+        Authorization: 'Bearer malformed.jwt.token',
       },
     });
 
@@ -277,7 +279,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_empty_pending'
+        Authorization: 'Bearer mock_jwt_token_empty_pending',
       },
     });
 
@@ -302,7 +304,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_date_validation'
+        Authorization: 'Bearer mock_jwt_token_date_validation',
       },
     });
 
@@ -312,7 +314,9 @@ describe('GET /api/wishes/pending', () => {
     if (data.wishes.length > 0) {
       data.wishes.forEach((wish: any) => {
         // Validate ISO 8601 date format
-        expect(wish.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/);
+        expect(wish.createdAt).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/
+        );
 
         // Should be a valid date
         const date = new Date(wish.createdAt);
@@ -320,10 +324,14 @@ describe('GET /api/wishes/pending', () => {
 
         // Optional fields should also follow ISO format if present
         if (wish.acceptedAt) {
-          expect(wish.acceptedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/);
+          expect(wish.acceptedAt).toMatch(
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/
+          );
         }
         if (wish.purchasedAt) {
-          expect(wish.purchasedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/);
+          expect(wish.purchasedAt).toMatch(
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/
+          );
         }
       });
     }
@@ -335,7 +343,7 @@ describe('GET /api/wishes/pending', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_server_error'
+        Authorization: 'Bearer mock_jwt_token_server_error',
       },
     });
 

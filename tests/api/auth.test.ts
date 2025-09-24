@@ -7,12 +7,13 @@ describe('POST /api/auth/validate', () => {
   const endpoint = '/api/auth/validate';
 
   test('should return 200 with valid auth response when given valid initData', async () => {
-    const validInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
+    const validInitData =
+      'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
     const tonWalletAddress = 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-';
 
     const requestBody = {
       initData: validInitData,
-      tonWalletAddress: tonWalletAddress
+      tonWalletAddress: tonWalletAddress,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -42,7 +43,7 @@ describe('POST /api/auth/validate', () => {
     const invalidInitData = 'invalid_init_data_string';
 
     const requestBody = {
-      initData: invalidInitData
+      initData: invalidInitData,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -65,7 +66,7 @@ describe('POST /api/auth/validate', () => {
 
   test('should return 400 when missing required initData field', async () => {
     const requestBody = {
-      tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-'
+      tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-',
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -86,10 +87,11 @@ describe('POST /api/auth/validate', () => {
   });
 
   test('should handle new user registration', async () => {
-    const validInitData = 'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Jane%22%7D&auth_date=1234567890&hash=abcdef123456';
+    const validInitData =
+      'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Jane%22%7D&auth_date=1234567890&hash=abcdef123456';
 
     const requestBody = {
-      initData: validInitData
+      initData: validInitData,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -112,10 +114,11 @@ describe('POST /api/auth/validate', () => {
   });
 
   test('should return 500 on server error', async () => {
-    const validInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
+    const validInitData =
+      'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=abcdef123456';
 
     const requestBody = {
-      initData: validInitData
+      initData: validInitData,
     };
 
     // This will FAIL until the actual endpoint is implemented

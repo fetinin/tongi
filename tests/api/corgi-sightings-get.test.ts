@@ -13,7 +13,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -47,7 +47,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}?status=pending`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -71,7 +71,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}?status=confirmed`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -96,7 +96,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}?status=denied`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -118,12 +118,15 @@ describe('GET /api/corgi/sightings', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?status=invalid_status`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${validToken}`
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?status=invalid_status`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${validToken}`,
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(400);
@@ -155,7 +158,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
     });
 
@@ -174,7 +177,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validTokenNoSightings}`
+        Authorization: `Bearer ${validTokenNoSightings}`,
       },
     });
 
@@ -194,7 +197,7 @@ describe('GET /api/corgi/sightings', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -210,7 +213,9 @@ describe('GET /api/corgi/sightings', () => {
       for (let i = 0; i < data.sightings.length - 1; i++) {
         const currentDate = new Date(data.sightings[i].createdAt);
         const nextDate = new Date(data.sightings[i + 1].createdAt);
-        expect(currentDate.getTime()).toBeGreaterThanOrEqual(nextDate.getTime());
+        expect(currentDate.getTime()).toBeGreaterThanOrEqual(
+          nextDate.getTime()
+        );
       }
     }
   });

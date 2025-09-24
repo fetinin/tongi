@@ -1,11 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, type PropsWithChildren } from 'react';
-import {
-  initData,
-  useSignal,
-  cloudStorage
-} from '@telegram-apps/sdk-react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  type PropsWithChildren,
+} from 'react';
+import { initData, useSignal, cloudStorage } from '@telegram-apps/sdk-react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Placeholder, Spinner } from '@telegram-apps/telegram-ui';
 
@@ -55,7 +58,7 @@ const STORAGE_KEYS = {
   },
   CLOUD: {
     USER_DATA: 'user_data', // Cross-device user information
-  }
+  },
 } as const;
 
 interface AuthProviderProps extends PropsWithChildren {
@@ -63,7 +66,10 @@ interface AuthProviderProps extends PropsWithChildren {
   loadingComponent?: React.ReactNode;
 }
 
-export function AuthProvider({ children, loadingComponent }: AuthProviderProps) {
+export function AuthProvider({
+  children,
+  loadingComponent,
+}: AuthProviderProps) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     token: null,
@@ -96,7 +102,7 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
    */
   const initializeAuth = useCallback(async (): Promise<void> => {
     try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
+      setAuthState((prev) => ({ ...prev, isLoading: true }));
 
       // Check if we have a stored auth token
       const storedToken = await getStoredToken();
@@ -122,7 +128,7 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
         await performAuthentication();
       } else {
         // No Telegram data available
-        setAuthState(prev => ({ ...prev, isLoading: false }));
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
       console.error('Auth initialization error:', error);
@@ -153,7 +159,8 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
       }
 
       // Get TON wallet address if connected
-      const tonWalletAddress = tonConnectUI.wallet?.account.address || undefined;
+      const tonWalletAddress =
+        tonConnectUI.wallet?.account.address || undefined;
 
       // Call authentication API
       const response = await fetch('/api/auth/validate', {
@@ -200,11 +207,11 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
       return;
     }
 
-    setAuthState(prev => ({ ...prev, isLoading: true }));
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
     try {
       await performAuthentication();
     } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
       throw error;
     }
   }
@@ -237,43 +244,46 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
   /**
    * Update user's TON wallet address
    */
-  const updateWalletAddress = useCallback(async (address: string | null): Promise<void> => {
-    if (!authState.user || !authState.token) {
-      return;
-    }
-
-    try {
-      // Update via API if different from current
-      if (address !== authState.user.tonWalletAddress) {
-        const response = await fetch('/api/auth/validate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authState.token}`,
-          },
-          body: JSON.stringify({
-            initData: initData.raw(),
-            tonWalletAddress: address,
-          }),
-        });
-
-        if (response.ok) {
-          const authResponse = await response.json();
-          const updatedUser = authResponse.user;
-
-          // Update stored user data
-          await storeUserData(updatedUser);
-
-          setAuthState(prev => ({
-            ...prev,
-            user: updatedUser,
-          }));
-        }
+  const updateWalletAddress = useCallback(
+    async (address: string | null): Promise<void> => {
+      if (!authState.user || !authState.token) {
+        return;
       }
-    } catch (error) {
-      console.error('Error updating wallet address:', error);
-    }
-  }, [authState.user, authState.token]);
+
+      try {
+        // Update via API if different from current
+        if (address !== authState.user.tonWalletAddress) {
+          const response = await fetch('/api/auth/validate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authState.token}`,
+            },
+            body: JSON.stringify({
+              initData: initData.raw(),
+              tonWalletAddress: address,
+            }),
+          });
+
+          if (response.ok) {
+            const authResponse = await response.json();
+            const updatedUser = authResponse.user;
+
+            // Update stored user data
+            await storeUserData(updatedUser);
+
+            setAuthState((prev) => ({
+              ...prev,
+              user: updatedUser,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error updating wallet address:', error);
+      }
+    },
+    [authState.user, authState.token]
+  );
 
   /**
    * Get stored authentication token from localStorage
@@ -319,7 +329,10 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
    */
   async function storeUserData(user: User): Promise<void> {
     try {
-      await cloudStorage.setItem(STORAGE_KEYS.CLOUD.USER_DATA, JSON.stringify(user));
+      await cloudStorage.setItem(
+        STORAGE_KEYS.CLOUD.USER_DATA,
+        JSON.stringify(user)
+      );
     } catch (error) {
       console.error('Error storing user data:', error);
     }
@@ -384,9 +397,7 @@ export function AuthProvider({ children, loadingComponent }: AuthProviderProps) 
   }
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 

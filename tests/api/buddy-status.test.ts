@@ -12,7 +12,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_with_buddy'
+        Authorization: 'Bearer mock_jwt_token_with_buddy',
       },
     });
 
@@ -58,7 +58,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_no_buddy'
+        Authorization: 'Bearer mock_jwt_token_no_buddy',
       },
     });
 
@@ -78,7 +78,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_pending_buddy'
+        Authorization: 'Bearer mock_jwt_token_pending_buddy',
       },
     });
 
@@ -127,7 +127,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer invalid_token'
+        Authorization: 'Bearer invalid_token',
       },
     });
 
@@ -145,7 +145,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_active_buddy'
+        Authorization: 'Bearer mock_jwt_token_active_buddy',
       },
     });
 
@@ -171,7 +171,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_dissolved_buddy'
+        Authorization: 'Bearer mock_jwt_token_dissolved_buddy',
       },
     });
 
@@ -195,7 +195,7 @@ describe('GET /api/buddy/status', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 

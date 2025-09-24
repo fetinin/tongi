@@ -13,7 +13,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -52,7 +52,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validTokenNoConfirmations}`
+        Authorization: `Bearer ${validTokenNoConfirmations}`,
       },
     });
 
@@ -72,7 +72,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -111,7 +111,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
     });
 
@@ -130,7 +130,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validTokenNoBuddy}`
+        Authorization: `Bearer ${validTokenNoBuddy}`,
       },
     });
 
@@ -150,7 +150,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -166,7 +166,9 @@ describe('GET /api/corgi/confirmations', () => {
       for (let i = 0; i < data.confirmations.length - 1; i++) {
         const currentDate = new Date(data.confirmations[i].createdAt);
         const nextDate = new Date(data.confirmations[i + 1].createdAt);
-        expect(currentDate.getTime()).toBeGreaterThanOrEqual(nextDate.getTime());
+        expect(currentDate.getTime()).toBeGreaterThanOrEqual(
+          nextDate.getTime()
+        );
       }
     }
   });
@@ -178,7 +180,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -201,7 +203,7 @@ describe('GET /api/corgi/confirmations', () => {
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
     });
 
@@ -224,7 +226,9 @@ describe('GET /api/corgi/confirmations', () => {
 
       // Verify createdAt is a valid ISO date string
       expect(() => new Date(confirmation.createdAt)).not.toThrow();
-      expect(new Date(confirmation.createdAt).toISOString()).toBe(confirmation.createdAt);
+      expect(new Date(confirmation.createdAt).toISOString()).toBe(
+        confirmation.createdAt
+      );
     }
   });
 });

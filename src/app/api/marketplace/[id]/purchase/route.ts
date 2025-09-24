@@ -34,7 +34,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -51,7 +51,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Invalid wish ID'
+          message: 'Invalid wish ID',
         },
         { status: 400 }
       );
@@ -63,7 +63,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'USER_NOT_FOUND',
-          message: 'User account not found'
+          message: 'User account not found',
         },
         { status: 404 }
       );
@@ -73,7 +73,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'WALLET_NOT_CONNECTED',
-          message: 'TON wallet must be connected to make purchases'
+          message: 'TON wallet must be connected to make purchases',
         },
         { status: 400 }
       );
@@ -85,7 +85,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'WISH_NOT_FOUND',
-          message: 'Wish not found'
+          message: 'Wish not found',
         },
         { status: 404 }
       );
@@ -96,7 +96,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'WISH_NOT_AVAILABLE',
-          message: 'Wish is not available for purchase'
+          message: 'Wish is not available for purchase',
         },
         { status: 400 }
       );
@@ -108,7 +108,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'CREATOR_NOT_FOUND',
-          message: 'Wish creator not found'
+          message: 'Wish creator not found',
         },
         { status: 404 }
       );
@@ -118,7 +118,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'CREATOR_WALLET_NOT_CONNECTED',
-          message: 'Wish creator has not connected their TON wallet'
+          message: 'Wish creator has not connected their TON wallet',
         },
         { status: 400 }
       );
@@ -152,18 +152,21 @@ export async function POST(
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Wish purchase error:', error);
 
     // Handle specific service errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -173,7 +176,7 @@ export async function POST(
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while processing the purchase'
+        message: 'An unexpected error occurred while processing the purchase',
       },
       { status: 500 }
     );

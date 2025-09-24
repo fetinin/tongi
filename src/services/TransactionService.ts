@@ -247,7 +247,9 @@ export class TransactionService {
   public async getTransactionById(id: number): Promise<Transaction | null> {
     try {
       const row = this.statements.getTransactionById!.get(id);
-      return row ? this.mapRowToTransaction(row as Record<string, unknown>) : null;
+      return row
+        ? this.mapRowToTransaction(row as Record<string, unknown>)
+        : null;
     } catch (error) {
       throw new TransactionServiceError(
         `Failed to retrieve transaction by ID: ${error}`,
@@ -262,7 +264,9 @@ export class TransactionService {
   public async getTransactionByHash(hash: string): Promise<Transaction | null> {
     try {
       const row = this.statements.getTransactionByHash!.get(hash);
-      return row ? this.mapRowToTransaction(row as Record<string, unknown>) : null;
+      return row
+        ? this.mapRowToTransaction(row as Record<string, unknown>)
+        : null;
     } catch (error) {
       throw new TransactionServiceError(
         `Failed to retrieve transaction by hash: ${error}`,
@@ -280,7 +284,9 @@ export class TransactionService {
     // Validate input data
     const validationErrors = validateCreateTransactionInput(transactionData);
     if (validationErrors.length > 0) {
-      throw new TransactionValidationError(`Validation failed: ${validationErrors.join(', ')}`);
+      throw new TransactionValidationError(
+        `Validation failed: ${validationErrors.join(', ')}`
+      );
     }
 
     try {
@@ -291,19 +297,29 @@ export class TransactionService {
         if (transactionData.transaction_type === TransactionType.REWARD) {
           const bankWalletRow = this.statements.getBankWallet!.get();
           if (!bankWalletRow) {
-            throw new TransactionServiceError('Bank wallet not initialized', 'BANK_WALLET_ERROR');
+            throw new TransactionServiceError(
+              'Bank wallet not initialized',
+              'BANK_WALLET_ERROR'
+            );
           }
 
-          const bankWallet = this.mapRowToBankWallet(bankWalletRow as Record<string, unknown>);
+          const bankWallet = this.mapRowToBankWallet(
+            bankWalletRow as Record<string, unknown>
+          );
 
           // Check if bank has sufficient balance
           if (bankWallet.current_balance < transactionData.amount) {
-            throw new InsufficientFundsError(transactionData.amount, bankWallet.current_balance);
+            throw new InsufficientFundsError(
+              transactionData.amount,
+              bankWallet.current_balance
+            );
           }
 
           // Update bank wallet balance
-          const newBalance = bankWallet.current_balance - transactionData.amount;
-          const newTotalDistributed = bankWallet.total_distributed + transactionData.amount;
+          const newBalance =
+            bankWallet.current_balance - transactionData.amount;
+          const newTotalDistributed =
+            bankWallet.total_distributed + transactionData.amount;
 
           this.statements.updateBankWallet!.run(
             newBalance,
@@ -326,7 +342,9 @@ export class TransactionService {
           TransactionStatus.PENDING
         );
 
-        const transaction = this.mapRowToTransaction(row as Record<string, unknown>);
+        const transaction = this.mapRowToTransaction(
+          row as Record<string, unknown>
+        );
 
         return {
           transaction,
@@ -344,7 +362,9 @@ export class TransactionService {
           throw new TransactionConflictError('Transaction hash already exists');
         }
         if (error.code === 'SQLITE_CONSTRAINT_CHECK') {
-          throw new TransactionValidationError('Transaction amount must be positive');
+          throw new TransactionValidationError(
+            'Transaction amount must be positive'
+          );
         }
       }
 
@@ -365,7 +385,9 @@ export class TransactionService {
     // Validate input data
     const validationErrors = validateUpdateTransactionInput(updateData);
     if (validationErrors.length > 0) {
-      throw new TransactionValidationError(`Validation failed: ${validationErrors.join(', ')}`);
+      throw new TransactionValidationError(
+        `Validation failed: ${validationErrors.join(', ')}`
+      );
     }
 
     try {
@@ -377,10 +399,11 @@ export class TransactionService {
         }
 
         // Prepare update values
-        const completedAt = updateData.status === TransactionStatus.COMPLETED ||
-                           updateData.status === TransactionStatus.FAILED
-          ? new Date().toISOString()
-          : updateData.completed_at?.toISOString() || null;
+        const completedAt =
+          updateData.status === TransactionStatus.COMPLETED ||
+          updateData.status === TransactionStatus.FAILED
+            ? new Date().toISOString()
+            : updateData.completed_at?.toISOString() || null;
 
         // Update the transaction
         const updatedRow = this.statements.updateTransaction!.get(
@@ -391,12 +414,19 @@ export class TransactionService {
         );
 
         // If updating bank wallet's last transaction hash for completed transactions
-        if (updateData.transaction_hash && updateData.status === TransactionStatus.COMPLETED) {
-          const transaction = this.mapRowToTransaction(existingTransaction as Record<string, unknown>);
+        if (
+          updateData.transaction_hash &&
+          updateData.status === TransactionStatus.COMPLETED
+        ) {
+          const transaction = this.mapRowToTransaction(
+            existingTransaction as Record<string, unknown>
+          );
           if (transaction.transaction_type === TransactionType.REWARD) {
             const bankWalletRow = this.statements.getBankWallet!.get();
             if (bankWalletRow) {
-              const bankWallet = this.mapRowToBankWallet(bankWalletRow as Record<string, unknown>);
+              const bankWallet = this.mapRowToBankWallet(
+                bankWalletRow as Record<string, unknown>
+              );
               this.statements.updateBankWallet!.run(
                 bankWallet.current_balance,
                 bankWallet.total_distributed,
@@ -440,10 +470,12 @@ export class TransactionService {
   /**
    * Query transactions with comprehensive filtering and pagination
    */
-  public async queryTransactions(query: TransactionQuery): Promise<TransactionQueryResult> {
+  public async queryTransactions(
+    query: TransactionQuery
+  ): Promise<TransactionQueryResult> {
     try {
       const limit = Math.min(query.limit || 20, 100); // Cap at 100
-      const offset = (query.offset || 0);
+      const offset = query.offset || 0;
       const page = Math.floor(offset / limit) + 1;
 
       let transactions: Transaction[] = [];
@@ -451,9 +483,9 @@ export class TransactionService {
 
       if (query.wallet_address) {
         // Find user ID from wallet address
-        const userRow = this.db.prepare(
-          'SELECT id FROM users WHERE ton_wallet_address = ?'
-        ).get(query.wallet_address);
+        const userRow = this.db
+          .prepare('SELECT id FROM users WHERE ton_wallet_address = ?')
+          .get(query.wallet_address);
 
         if (userRow) {
           const userId = (userRow as { id: number }).id;
@@ -495,41 +527,70 @@ export class TransactionService {
           params.push(limit, offset);
 
           const rows = this.db.prepare(sql).all(...params);
-          transactions = rows.map(row => this.mapRowToTransaction(row as Record<string, unknown>));
+          transactions = rows.map((row) =>
+            this.mapRowToTransaction(row as Record<string, unknown>)
+          );
 
           // Get total count
-          const countRow = this.statements.countTransactionsByUser!.get(userId, userId) as { count: number };
+          const countRow = this.statements.countTransactionsByUser!.get(
+            userId,
+            userId
+          ) as { count: number };
           total = countRow.count;
         }
       } else if (query.status) {
-        const rows = this.statements.getTransactionsByStatus!.all(query.status, limit, offset);
-        transactions = rows.map(row => this.mapRowToTransaction(row as Record<string, unknown>));
+        const rows = this.statements.getTransactionsByStatus!.all(
+          query.status,
+          limit,
+          offset
+        );
+        transactions = rows.map((row) =>
+          this.mapRowToTransaction(row as Record<string, unknown>)
+        );
 
         // Get total count for status
-        const countRow = this.db.prepare(
-          'SELECT COUNT(*) as count FROM transactions WHERE status = ?'
-        ).get(query.status) as { count: number };
+        const countRow = this.db
+          .prepare(
+            'SELECT COUNT(*) as count FROM transactions WHERE status = ?'
+          )
+          .get(query.status) as { count: number };
         total = countRow.count;
       } else if (query.transaction_type) {
-        const rows = this.statements.getTransactionsByType!.all(query.transaction_type, limit, offset);
-        transactions = rows.map(row => this.mapRowToTransaction(row as Record<string, unknown>));
+        const rows = this.statements.getTransactionsByType!.all(
+          query.transaction_type,
+          limit,
+          offset
+        );
+        transactions = rows.map((row) =>
+          this.mapRowToTransaction(row as Record<string, unknown>)
+        );
 
         // Get total count for type
-        const countRow = this.db.prepare(
-          'SELECT COUNT(*) as count FROM transactions WHERE transaction_type = ?'
-        ).get(query.transaction_type) as { count: number };
+        const countRow = this.db
+          .prepare(
+            'SELECT COUNT(*) as count FROM transactions WHERE transaction_type = ?'
+          )
+          .get(query.transaction_type) as { count: number };
         total = countRow.count;
       } else {
         // Get all transactions
-        const rows = this.db.prepare(`
+        const rows = this.db
+          .prepare(
+            `
           SELECT * FROM transactions
           ORDER BY created_at DESC
           LIMIT ? OFFSET ?
-        `).all(limit, offset);
-        transactions = rows.map(row => this.mapRowToTransaction(row as Record<string, unknown>));
+        `
+          )
+          .all(limit, offset);
+        transactions = rows.map((row) =>
+          this.mapRowToTransaction(row as Record<string, unknown>)
+        );
 
         // Get total count
-        const countRow = this.statements.countTotalTransactions!.get() as { count: number };
+        const countRow = this.statements.countTotalTransactions!.get() as {
+          count: number;
+        };
         total = countRow.count;
       }
 
@@ -556,8 +617,13 @@ export class TransactionService {
     entityId: number
   ): Promise<Transaction[]> {
     try {
-      const rows = this.statements.getTransactionsByRelatedEntity!.all(entityType, entityId);
-      return rows.map(row => this.mapRowToTransaction(row as Record<string, unknown>));
+      const rows = this.statements.getTransactionsByRelatedEntity!.all(
+        entityType,
+        entityId
+      );
+      return rows.map((row) =>
+        this.mapRowToTransaction(row as Record<string, unknown>)
+      );
     } catch (error) {
       throw new TransactionServiceError(
         `Failed to get transactions by related entity: ${error}`,
@@ -577,7 +643,10 @@ export class TransactionService {
     try {
       // Get user's wallet address
       const userRow = this.statements.getUserWalletAddress!.get(userId);
-      if (!userRow || !(userRow as { ton_wallet_address: string }).ton_wallet_address) {
+      if (
+        !userRow ||
+        !(userRow as { ton_wallet_address: string }).ton_wallet_address
+      ) {
         return {
           transactions: [],
           total: 0,
@@ -587,7 +656,8 @@ export class TransactionService {
         };
       }
 
-      const walletAddress = (userRow as { ton_wallet_address: string }).ton_wallet_address;
+      const walletAddress = (userRow as { ton_wallet_address: string })
+        .ton_wallet_address;
       const offset = (page - 1) * limit;
 
       return this.queryTransactions({
@@ -609,7 +679,9 @@ export class TransactionService {
   public async getBankWalletStatus(): Promise<BankWallet | null> {
     try {
       const row = this.statements.getBankWallet!.get();
-      return row ? this.mapRowToBankWallet(row as Record<string, unknown>) : null;
+      return row
+        ? this.mapRowToBankWallet(row as Record<string, unknown>)
+        : null;
     } catch (error) {
       throw new TransactionServiceError(
         `Failed to get bank wallet status: ${error}`,
@@ -628,7 +700,10 @@ export class TransactionService {
   ): Promise<CreateTransactionResult> {
     const bankWallet = await this.getBankWalletStatus();
     if (!bankWallet) {
-      throw new TransactionServiceError('Bank wallet not initialized', 'BANK_WALLET_ERROR');
+      throw new TransactionServiceError(
+        'Bank wallet not initialized',
+        'BANK_WALLET_ERROR'
+      );
     }
 
     const transactionData: CreateTransactionInput = {

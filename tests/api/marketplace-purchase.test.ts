@@ -14,7 +14,7 @@ describe('POST /api/marketplace/[id]/purchase', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -48,13 +48,16 @@ describe('POST /api/marketplace/[id]/purchase', () => {
     const nonExistentWishId = 999999;
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${getEndpoint(nonExistentWishId)}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${getEndpoint(nonExistentWishId)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer mock_jwt_token',
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(404);
@@ -70,13 +73,16 @@ describe('POST /api/marketplace/[id]/purchase', () => {
     const unavailableWishId = 456; // Could be pending, rejected, or already purchased
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${getEndpoint(unavailableWishId)}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${getEndpoint(unavailableWishId)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer mock_jwt_token',
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(404);
@@ -95,7 +101,7 @@ describe('POST /api/marketplace/[id]/purchase', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -135,7 +141,7 @@ describe('POST /api/marketplace/[id]/purchase', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token_no_wallet'
+        Authorization: 'Bearer mock_jwt_token_no_wallet',
       },
     });
 
@@ -152,13 +158,16 @@ describe('POST /api/marketplace/[id]/purchase', () => {
     const invalidWishId = 'not-a-number';
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}/api/marketplace/${invalidWishId}/purchase`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}/api/marketplace/${invalidWishId}/purchase`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer mock_jwt_token',
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(400);
@@ -174,21 +183,23 @@ describe('POST /api/marketplace/[id]/purchase', () => {
 
     // Simulate concurrent requests to purchase the same wish
     // This will FAIL until the actual endpoint is implemented
-    const promises = Array(3).fill(null).map(() =>
-      fetch(`${baseUrl}${getEndpoint(wishId)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer mock_jwt_token'
-        },
-      })
-    );
+    const promises = Array(3)
+      .fill(null)
+      .map(() =>
+        fetch(`${baseUrl}${getEndpoint(wishId)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer mock_jwt_token',
+          },
+        })
+      );
 
     const responses = await Promise.all(promises);
 
     // Only one should succeed, others should fail
-    const successful = responses.filter(r => r.status === 200);
-    const failed = responses.filter(r => r.status !== 200);
+    const successful = responses.filter((r) => r.status === 200);
+    const failed = responses.filter((r) => r.status !== 200);
 
     expect(successful.length).toBeLessThanOrEqual(1);
     expect(failed.length).toBeGreaterThanOrEqual(2);
@@ -210,7 +221,7 @@ describe('POST /api/marketplace/[id]/purchase', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -236,7 +247,7 @@ describe('POST /api/marketplace/[id]/purchase', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 

@@ -19,7 +19,9 @@ interface ErrorResponse {
  * GET /api/bank/status
  * Get bank wallet status - balance, total distributed, and last transaction
  */
-export async function GET(request: NextRequest): Promise<NextResponse<BankWalletResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<BankWalletResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<BankWallet
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<BankWallet
       return NextResponse.json(
         {
           error: 'BANK_WALLET_NOT_FOUND',
-          message: 'Bank wallet has not been initialized'
+          message: 'Bank wallet has not been initialized',
         },
         { status: 404 }
       );
@@ -60,13 +62,16 @@ export async function GET(request: NextRequest): Promise<NextResponse<BankWallet
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Bank wallet status retrieval error:', error);
 
     // Handle specific BankService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       // Map service error codes to HTTP status codes
       let statusCode = serviceError.statusCode || 500;
@@ -77,7 +82,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<BankWallet
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: statusCode }
       );
@@ -87,7 +92,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<BankWallet
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving bank wallet status'
+        message:
+          'An unexpected error occurred while retrieving bank wallet status',
       },
       { status: 500 }
     );

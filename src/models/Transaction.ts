@@ -9,19 +9,19 @@
 export enum TransactionStatus {
   PENDING = 'pending',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 // Transaction type enumeration
 export enum TransactionType {
   REWARD = 'reward',
-  PURCHASE = 'purchase'
+  PURCHASE = 'purchase',
 }
 
 // Related entity type enumeration for polymorphic relationships
 export enum RelatedEntityType {
   CORGI_SIGHTING = 'corgi_sighting',
-  WISH = 'wish'
+  WISH = 'wish',
 }
 
 // Core Transaction interface representing the database entity
@@ -113,11 +113,15 @@ export function isValidTransactionType(type: string): type is TransactionType {
   return Object.values(TransactionType).includes(type as TransactionType);
 }
 
-export function isValidTransactionStatus(status: string): status is TransactionStatus {
+export function isValidTransactionStatus(
+  status: string
+): status is TransactionStatus {
   return Object.values(TransactionStatus).includes(status as TransactionStatus);
 }
 
-export function isValidRelatedEntityType(type: string): type is RelatedEntityType {
+export function isValidRelatedEntityType(
+  type: string
+): type is RelatedEntityType {
   return Object.values(RelatedEntityType).includes(type as RelatedEntityType);
 }
 
@@ -142,12 +146,14 @@ export function fromDatabaseRow(row: TransactionRow): Transaction {
     related_entity_type: row.related_entity_type as RelatedEntityType | null,
     status: row.status as TransactionStatus,
     created_at: new Date(row.created_at),
-    completed_at: row.completed_at ? new Date(row.completed_at) : null
+    completed_at: row.completed_at ? new Date(row.completed_at) : null,
   };
 }
 
 // Helper function to validate transaction creation input
-export function validateCreateTransactionInput(input: CreateTransactionInput): string[] {
+export function validateCreateTransactionInput(
+  input: CreateTransactionInput
+): string[] {
   const errors: string[] = [];
 
   // Validate wallet addresses
@@ -174,11 +180,19 @@ export function validateCreateTransactionInput(input: CreateTransactionInput): s
   }
 
   // Validate related entity constraints
-  if (input.related_entity_id !== undefined && input.related_entity_type === undefined) {
-    errors.push('related_entity_type is required when related_entity_id is provided');
+  if (
+    input.related_entity_id !== undefined &&
+    input.related_entity_type === undefined
+  ) {
+    errors.push(
+      'related_entity_type is required when related_entity_id is provided'
+    );
   }
 
-  if (input.related_entity_type !== undefined && !isValidRelatedEntityType(input.related_entity_type)) {
+  if (
+    input.related_entity_type !== undefined &&
+    !isValidRelatedEntityType(input.related_entity_type)
+  ) {
     errors.push('Invalid related_entity_type');
   }
 
@@ -199,11 +213,16 @@ export function validateCreateTransactionInput(input: CreateTransactionInput): s
 }
 
 // Helper function to validate transaction update input
-export function validateUpdateTransactionInput(input: UpdateTransactionInput): string[] {
+export function validateUpdateTransactionInput(
+  input: UpdateTransactionInput
+): string[] {
   const errors: string[] = [];
 
   // Validate transaction hash if provided
-  if (input.transaction_hash !== undefined && input.transaction_hash.length === 0) {
+  if (
+    input.transaction_hash !== undefined &&
+    input.transaction_hash.length === 0
+  ) {
     errors.push('Transaction hash cannot be empty string');
   }
 

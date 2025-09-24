@@ -206,11 +206,15 @@ export function corgiCoinsToNanotons(corgiCoins: number): string {
   const nanotons = Math.floor(corgiCoins * TON_CONFIG.CORGI_TO_NANOTON_RATE);
 
   if (nanotons < TON_CONFIG.MIN_TRANSACTION_AMOUNT) {
-    throw new InvalidTransactionError(`Amount too small: minimum ${TON_CONFIG.MIN_TRANSACTION_AMOUNT} nanotons`);
+    throw new InvalidTransactionError(
+      `Amount too small: minimum ${TON_CONFIG.MIN_TRANSACTION_AMOUNT} nanotons`
+    );
   }
 
   if (nanotons > TON_CONFIG.MAX_TRANSACTION_AMOUNT) {
-    throw new InvalidTransactionError(`Amount too large: maximum ${TON_CONFIG.MAX_TRANSACTION_AMOUNT} nanotons`);
+    throw new InvalidTransactionError(
+      `Amount too large: maximum ${TON_CONFIG.MAX_TRANSACTION_AMOUNT} nanotons`
+    );
   }
 
   return nanotons.toString();
@@ -222,7 +226,8 @@ export function corgiCoinsToNanotons(corgiCoins: number): string {
  * @returns Amount in Corgi coins
  */
 export function nanotonsToCorgiCoins(nanotons: string | number): number {
-  const nanotonsNum = typeof nanotons === 'string' ? parseInt(nanotons, 10) : nanotons;
+  const nanotonsNum =
+    typeof nanotons === 'string' ? parseInt(nanotons, 10) : nanotons;
 
   if (isNaN(nanotonsNum) || nanotonsNum < 0) {
     throw new InvalidTransactionError('Invalid nanotons amount');
@@ -240,8 +245,15 @@ export function nanotonsToCorgiCoins(nanotons: string | number): number {
  * @param options Transaction creation options
  * @returns TON transaction object
  */
-export function createTonTransaction(options: CreateTransactionOptions): CorgiTonTransaction {
-  const { recipientAddress, corgiCoinAmount, memo, validitySeconds = TON_CONFIG.TRANSACTION_VALIDITY_SECONDS } = options;
+export function createTonTransaction(
+  options: CreateTransactionOptions
+): CorgiTonTransaction {
+  const {
+    recipientAddress,
+    corgiCoinAmount,
+    memo,
+    validitySeconds = TON_CONFIG.TRANSACTION_VALIDITY_SECONDS,
+  } = options;
 
   // Validate recipient address
   if (!validateTonAddress(recipientAddress)) {
@@ -280,8 +292,15 @@ export function createTonTransaction(options: CreateTransactionOptions): CorgiTo
  * @param options Purchase transaction options
  * @returns TON transaction object
  */
-export function createPurchaseTransaction(options: CreatePurchaseTransactionOptions): CorgiTonTransaction {
-  const { sellerAddress, corgiCoinAmount, wishId, validitySeconds = TON_CONFIG.TRANSACTION_VALIDITY_SECONDS } = options;
+export function createPurchaseTransaction(
+  options: CreatePurchaseTransactionOptions
+): CorgiTonTransaction {
+  const {
+    sellerAddress,
+    corgiCoinAmount,
+    wishId,
+    validitySeconds = TON_CONFIG.TRANSACTION_VALIDITY_SECONDS,
+  } = options;
 
   const memo = `Wish purchase #${wishId}`;
 
@@ -319,7 +338,9 @@ export function createRewardTransaction(
  * @param transaction TON transaction to validate
  * @returns Validation errors array (empty if valid)
  */
-export function validateTransactionParams(transaction: CorgiTonTransaction): string[] {
+export function validateTransactionParams(
+  transaction: CorgiTonTransaction
+): string[] {
   const errors: string[] = [];
 
   // Check validity timestamp
@@ -362,12 +383,14 @@ export function validateTransactionParams(transaction: CorgiTonTransaction): str
  * @param transaction TON transaction
  * @returns Estimated fee in nanotons
  */
-export function estimateTransactionFee(transaction: CorgiTonTransaction): number {
+export function estimateTransactionFee(
+  transaction: CorgiTonTransaction
+): number {
   // Basic fee calculation (in production, use actual TON fee calculation)
   const baseFee = 1_000_000; // 0.001 TON base fee
   const messageFee = 500_000; // 0.0005 TON per message
 
-  return baseFee + (transaction.messages.length * messageFee);
+  return baseFee + transaction.messages.length * messageFee;
 }
 
 /**
@@ -405,7 +428,10 @@ export function extractWalletInfo(wallet: Wallet): WalletInfo | null {
  * @param expectedNetwork Expected network ('mainnet' | 'testnet')
  * @returns true if address matches network
  */
-export function validateWalletNetwork(address: string, expectedNetwork: string = TON_CONFIG.NETWORK): boolean {
+export function validateWalletNetwork(
+  address: string,
+  expectedNetwork: string = TON_CONFIG.NETWORK
+): boolean {
   // In testnet, addresses often start with 'kQ' or 'EQ'
   // In mainnet, addresses typically start with 'EQ' or 'UQ'
   // This is a simplified check - production should use proper network detection
@@ -504,7 +530,9 @@ export function formatTransactionHash(hash: string): string {
  * @param overrides Optional overrides for transaction properties
  * @returns Mock TON transaction
  */
-export function createMockTransaction(overrides: Partial<CorgiTonTransaction> = {}): CorgiTonTransaction {
+export function createMockTransaction(
+  overrides: Partial<CorgiTonTransaction> = {}
+): CorgiTonTransaction {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Mock transactions not allowed in production');
   }

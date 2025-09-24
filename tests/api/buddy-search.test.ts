@@ -14,7 +14,7 @@ describe('GET /api/buddy/search', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -52,7 +52,7 @@ describe('GET /api/buddy/search', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -72,7 +72,7 @@ describe('GET /api/buddy/search', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -112,7 +112,7 @@ describe('GET /api/buddy/search', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -132,7 +132,7 @@ describe('GET /api/buddy/search', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 

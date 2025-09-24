@@ -10,8 +10,8 @@ describe('POST /api/wishes', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      description: 'Please walk my dog while I\'m at work',
-      proposedAmount: 5.50
+      description: "Please walk my dog while I'm at work",
+      proposedAmount: 5.5,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -19,7 +19,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -31,8 +31,11 @@ describe('POST /api/wishes', () => {
     expect(data).toHaveProperty('id');
     expect(data).toHaveProperty('creatorId');
     expect(data).toHaveProperty('buddyId');
-    expect(data).toHaveProperty('description', 'Please walk my dog while I\'m at work');
-    expect(data).toHaveProperty('proposedAmount', 5.50);
+    expect(data).toHaveProperty(
+      'description',
+      "Please walk my dog while I'm at work"
+    );
+    expect(data).toHaveProperty('proposedAmount', 5.5);
     expect(data).toHaveProperty('status', 'pending');
     expect(data).toHaveProperty('createdAt');
     expect(data.acceptedAt).toBeNull();
@@ -48,7 +51,7 @@ describe('POST /api/wishes', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      proposedAmount: 5.50
+      proposedAmount: 5.5,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -56,7 +59,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -75,7 +78,7 @@ describe('POST /api/wishes', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      description: 'Please walk my dog while I\'m at work'
+      description: "Please walk my dog while I'm at work",
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -83,7 +86,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -105,7 +108,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: longDescription,
-      proposedAmount: 5.50
+      proposedAmount: 5.5,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -113,7 +116,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -132,7 +135,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Small favor',
-      proposedAmount: 0.005
+      proposedAmount: 0.005,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -140,7 +143,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -159,7 +162,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Expensive favor',
-      proposedAmount: 1000.01
+      proposedAmount: 1000.01,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -167,7 +170,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -186,7 +189,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Please help me with groceries',
-      proposedAmount: 10.00
+      proposedAmount: 10.0,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -194,7 +197,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validTokenNoBuddy}`
+        Authorization: `Bearer ${validTokenNoBuddy}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -211,7 +214,7 @@ describe('POST /api/wishes', () => {
   test('should return 401 when no authorization token provided', async () => {
     const requestBody = {
       description: 'Please help me with groceries',
-      proposedAmount: 10.00
+      proposedAmount: 10.0,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -236,7 +239,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Please help me with groceries',
-      proposedAmount: 10.00
+      proposedAmount: 10.0,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -244,7 +247,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -262,7 +265,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Very small favor',
-      proposedAmount: 0.01
+      proposedAmount: 0.01,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -270,7 +273,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -288,7 +291,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Very expensive favor',
-      proposedAmount: 1000
+      proposedAmount: 1000,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -296,7 +299,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -316,7 +319,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: maxDescription,
-      proposedAmount: 15.75
+      proposedAmount: 15.75,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -324,7 +327,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -342,7 +345,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: 'Please help me with groceries',
-      proposedAmount: 'not-a-number'
+      proposedAmount: 'not-a-number',
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -350,7 +353,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -369,7 +372,7 @@ describe('POST /api/wishes', () => {
 
     const requestBody = {
       description: '',
-      proposedAmount: 5.50
+      proposedAmount: 5.5,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -377,7 +380,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -395,8 +398,9 @@ describe('POST /api/wishes', () => {
     const validToken = 'mock-jwt-token-from-auth';
 
     const requestBody = {
-      description: 'Please help me with groceries! 🛒 Need: milk, bread & eggs (urgently)',
-      proposedAmount: 12.50
+      description:
+        'Please help me with groceries! 🛒 Need: milk, bread & eggs (urgently)',
+      proposedAmount: 12.5,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -404,7 +408,7 @@ describe('POST /api/wishes', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -413,7 +417,9 @@ describe('POST /api/wishes', () => {
     expect(response.status).toBe(201);
 
     const data = await response.json();
-    expect(data.description).toBe('Please help me with groceries! 🛒 Need: milk, bread & eggs (urgently)');
-    expect(data.proposedAmount).toBe(12.50);
+    expect(data.description).toBe(
+      'Please help me with groceries! 🛒 Need: milk, bread & eggs (urgently)'
+    );
+    expect(data.proposedAmount).toBe(12.5);
   });
 });

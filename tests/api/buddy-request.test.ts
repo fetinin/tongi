@@ -8,7 +8,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should return 201 with buddy pair when sending valid buddy request', async () => {
     const requestBody = {
-      targetUserId: 987654321
+      targetUserId: 987654321,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -16,7 +16,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });
@@ -64,7 +64,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });
@@ -80,7 +80,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should return 400 when trying to buddy with self', async () => {
     const requestBody = {
-      targetUserId: 123456789 // Assuming this is the current user's ID
+      targetUserId: 123456789, // Assuming this is the current user's ID
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -88,7 +88,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });
@@ -104,7 +104,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should return 400 when user already has an active buddy', async () => {
     const requestBody = {
-      targetUserId: 987654321
+      targetUserId: 987654321,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -112,7 +112,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });
@@ -128,7 +128,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should return 404 when target user does not exist', async () => {
     const requestBody = {
-      targetUserId: 999999999 // Non-existent user ID
+      targetUserId: 999999999, // Non-existent user ID
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -136,7 +136,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });
@@ -152,7 +152,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should return 401 when authorization header is missing', async () => {
     const requestBody = {
-      targetUserId: 987654321
+      targetUserId: 987654321,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -174,7 +174,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should return 400 when targetUserId is invalid format', async () => {
     const requestBody = {
-      targetUserId: 'invalid_id'
+      targetUserId: 'invalid_id',
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -182,7 +182,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });
@@ -198,7 +198,7 @@ describe('POST /api/buddy/request', () => {
 
   test('should handle pending buddy request status correctly', async () => {
     const requestBody = {
-      targetUserId: 555666777
+      targetUserId: 555666777,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -206,7 +206,7 @@ describe('POST /api/buddy/request', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
       body: JSON.stringify(requestBody),
     });

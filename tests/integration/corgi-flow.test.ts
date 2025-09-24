@@ -12,14 +12,14 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
 
     // Step 1: User A reports a corgi sighting
     const sightingData = {
-      corgiCount: 5
+      corgiCount: 5,
     };
 
     const reportResponse = await fetch(`${baseUrl}/api/corgi/sightings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify(sightingData),
     });
@@ -35,12 +35,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     const sightingId = reportData.id;
 
     // Step 2: User B (buddy) checks for pending confirmations
-    const confirmationsResponse = await fetch(`${baseUrl}/api/corgi/confirmations`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userBToken}`
-      },
-    });
+    const confirmationsResponse = await fetch(
+      `${baseUrl}/api/corgi/confirmations`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userBToken}`,
+        },
+      }
+    );
 
     expect(confirmationsResponse.ok).toBe(true);
     expect(confirmationsResponse.status).toBe(200);
@@ -59,17 +62,20 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
 
     // Step 3: User B confirms the sighting
     const confirmationData = {
-      confirmed: true
+      confirmed: true,
     };
 
-    const confirmResponse = await fetch(`${baseUrl}/api/corgi/confirm/${sightingId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify(confirmationData),
-    });
+    const confirmResponse = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify(confirmationData),
+      }
+    );
 
     expect(confirmResponse.ok).toBe(true);
     expect(confirmResponse.status).toBe(200);
@@ -80,12 +86,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     expect(confirmData.respondedAt).not.toBeNull();
 
     // Step 4: User A checks their sightings to see the confirmed status
-    const userSightingsResponse = await fetch(`${baseUrl}/api/corgi/sightings`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userAToken}`
-      },
-    });
+    const userSightingsResponse = await fetch(
+      `${baseUrl}/api/corgi/sightings`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userAToken}`,
+        },
+      }
+    );
 
     expect(userSightingsResponse.ok).toBe(true);
     expect(userSightingsResponse.status).toBe(200);
@@ -101,12 +110,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     expect(confirmedSighting.respondedAt).not.toBeNull();
 
     // Step 5: Verify the sighting no longer appears in pending confirmations
-    const finalConfirmationsResponse = await fetch(`${baseUrl}/api/corgi/confirmations`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userBToken}`
-      },
-    });
+    const finalConfirmationsResponse = await fetch(
+      `${baseUrl}/api/corgi/confirmations`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userBToken}`,
+        },
+      }
+    );
 
     expect(finalConfirmationsResponse.ok).toBe(true);
     const finalConfirmationsData = await finalConfirmationsResponse.json();
@@ -124,14 +136,14 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
 
     // Step 1: User A reports a corgi sighting
     const sightingData = {
-      corgiCount: 2
+      corgiCount: 2,
     };
 
     const reportResponse = await fetch(`${baseUrl}/api/corgi/sightings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify(sightingData),
     });
@@ -142,17 +154,20 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
 
     // Step 2: User B denies the sighting
     const denialData = {
-      confirmed: false
+      confirmed: false,
     };
 
-    const confirmResponse = await fetch(`${baseUrl}/api/corgi/confirm/${sightingId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify(denialData),
-    });
+    const confirmResponse = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify(denialData),
+      }
+    );
 
     expect(confirmResponse.ok).toBe(true);
     const confirmData = await confirmResponse.json();
@@ -160,12 +175,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     expect(confirmData.respondedAt).not.toBeNull();
 
     // Step 3: Verify User A can see the denied status
-    const userSightingsResponse = await fetch(`${baseUrl}/api/corgi/sightings?status=denied`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userAToken}`
-      },
-    });
+    const userSightingsResponse = await fetch(
+      `${baseUrl}/api/corgi/sightings?status=denied`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userAToken}`,
+        },
+      }
+    );
 
     expect(userSightingsResponse.ok).toBe(true);
     const userSightingsData = await userSightingsResponse.json();
@@ -182,11 +200,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     const userBToken = 'mock-jwt-token-user-b-buddy-multi';
 
     // Step 1: User A reports multiple sightings
-    const sightings = [
-      { corgiCount: 1 },
-      { corgiCount: 3 },
-      { corgiCount: 7 }
-    ];
+    const sightings = [{ corgiCount: 1 }, { corgiCount: 3 }, { corgiCount: 7 }];
 
     const sightingIds: number[] = [];
 
@@ -195,7 +209,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userAToken}`
+          Authorization: `Bearer ${userAToken}`,
         },
         body: JSON.stringify(sightingData),
       });
@@ -206,12 +220,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     }
 
     // Step 2: User B checks confirmations and sees all three
-    const confirmationsResponse = await fetch(`${baseUrl}/api/corgi/confirmations`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userBToken}`
-      },
-    });
+    const confirmationsResponse = await fetch(
+      `${baseUrl}/api/corgi/confirmations`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userBToken}`,
+        },
+      }
+    );
 
     expect(confirmationsResponse.ok).toBe(true);
     const confirmationsData = await confirmationsResponse.json();
@@ -226,33 +243,42 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     }
 
     // Step 3: User B confirms the first, denies the second, leaves third pending
-    const confirmFirst = await fetch(`${baseUrl}/api/corgi/confirm/${sightingIds[0]}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({ confirmed: true }),
-    });
+    const confirmFirst = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingIds[0]}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({ confirmed: true }),
+      }
+    );
     expect(confirmFirst.ok).toBe(true);
 
-    const denySecond = await fetch(`${baseUrl}/api/corgi/confirm/${sightingIds[1]}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({ confirmed: false }),
-    });
+    const denySecond = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingIds[1]}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({ confirmed: false }),
+      }
+    );
     expect(denySecond.ok).toBe(true);
 
     // Step 4: Check that only the third sighting remains in pending confirmations
-    const finalConfirmationsResponse = await fetch(`${baseUrl}/api/corgi/confirmations`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userBToken}`
-      },
-    });
+    const finalConfirmationsResponse = await fetch(
+      `${baseUrl}/api/corgi/confirmations`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userBToken}`,
+        },
+      }
+    );
 
     expect(finalConfirmationsResponse.ok).toBe(true);
     const finalConfirmationsData = await finalConfirmationsResponse.json();
@@ -276,7 +302,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify(sightingData),
     });
@@ -286,14 +312,17 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     const sightingId = reportData.id;
 
     // Step 2: User C (not the buddy) tries to confirm the sighting
-    const unauthorizedConfirmResponse = await fetch(`${baseUrl}/api/corgi/confirm/${sightingId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userCToken}`
-      },
-      body: JSON.stringify({ confirmed: true }),
-    });
+    const unauthorizedConfirmResponse = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userCToken}`,
+        },
+        body: JSON.stringify({ confirmed: true }),
+      }
+    );
 
     expect(unauthorizedConfirmResponse.ok).toBe(false);
     expect(unauthorizedConfirmResponse.status).toBe(404);
@@ -302,12 +331,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     expect(errorData).toHaveProperty('error', 'NOT_AUTHORIZED');
 
     // Step 3: Verify the sighting remains pending
-    const userSightingsResponse = await fetch(`${baseUrl}/api/corgi/sightings`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${userAToken}`
-      },
-    });
+    const userSightingsResponse = await fetch(
+      `${baseUrl}/api/corgi/sightings`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${userAToken}`,
+        },
+      }
+    );
 
     expect(userSightingsResponse.ok).toBe(true);
     const userSightingsData = await userSightingsResponse.json();
@@ -331,7 +363,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify(sightingData),
     });
@@ -341,28 +373,34 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     const sightingId = reportData.id;
 
     // Step 2: User B confirms the sighting
-    const firstConfirmResponse = await fetch(`${baseUrl}/api/corgi/confirm/${sightingId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({ confirmed: true }),
-    });
+    const firstConfirmResponse = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({ confirmed: true }),
+      }
+    );
 
     expect(firstConfirmResponse.ok).toBe(true);
     const firstConfirmData = await firstConfirmResponse.json();
     expect(firstConfirmData.status).toBe('confirmed');
 
     // Step 3: User B tries to confirm again (should fail)
-    const secondConfirmResponse = await fetch(`${baseUrl}/api/corgi/confirm/${sightingId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({ confirmed: false }),
-    });
+    const secondConfirmResponse = await fetch(
+      `${baseUrl}/api/corgi/confirm/${sightingId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({ confirmed: false }),
+      }
+    );
 
     expect(secondConfirmResponse.ok).toBe(false);
     expect(secondConfirmResponse.status).toBe(400);

@@ -41,7 +41,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -56,7 +56,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Invalid transaction ID'
+          message: 'Invalid transaction ID',
         },
         { status: 400 }
       );
@@ -70,18 +70,21 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'Invalid JSON in request body'
+          message: 'Invalid JSON in request body',
         },
         { status: 400 }
       );
     }
 
     // Validate required fields
-    if (!requestBody.transactionHash || typeof requestBody.transactionHash !== 'string') {
+    if (
+      !requestBody.transactionHash ||
+      typeof requestBody.transactionHash !== 'string'
+    ) {
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'transactionHash is required and must be a string'
+          message: 'transactionHash is required and must be a string',
         },
         { status: 400 }
       );
@@ -93,19 +96,20 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'transactionHash cannot be empty'
+          message: 'transactionHash cannot be empty',
         },
         { status: 400 }
       );
     }
 
     // Get the transaction first to verify it exists and user has access
-    const existingTransaction = await transactionService.getTransactionById(transactionId);
+    const existingTransaction =
+      await transactionService.getTransactionById(transactionId);
     if (!existingTransaction) {
       return NextResponse.json(
         {
           error: 'TRANSACTION_NOT_FOUND',
-          message: 'Transaction not found'
+          message: 'Transaction not found',
         },
         { status: 404 }
       );
@@ -115,14 +119,21 @@ export async function POST(
     const userId = authResult.user!.id;
 
     // Get user's wallet address to check if they're involved in this transaction
-    const userTransactions = await transactionService.getUserTransactions(userId, 1, 1000);
-    const userHasAccess = userTransactions.transactions.some(t => t.id === transactionId);
+    const userTransactions = await transactionService.getUserTransactions(
+      userId,
+      1,
+      1000
+    );
+    const userHasAccess = userTransactions.transactions.some(
+      (t) => t.id === transactionId
+    );
 
     if (!userHasAccess) {
       return NextResponse.json(
         {
           error: 'FORBIDDEN',
-          message: 'Access denied: You are not authorized to confirm this transaction'
+          message:
+            'Access denied: You are not authorized to confirm this transaction',
         },
         { status: 403 }
       );
@@ -133,7 +144,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: 'INVALID_STATE',
-          message: `Transaction cannot be confirmed: current status is '${existingTransaction.status}'`
+          message: `Transaction cannot be confirmed: current status is '${existingTransaction.status}'`,
         },
         { status: 400 }
       );
@@ -143,10 +154,14 @@ export async function POST(
     let updatedTransaction;
     if (requestBody.success === false) {
       // Mark transaction as failed
-      updatedTransaction = await transactionService.failTransaction(transactionId);
+      updatedTransaction =
+        await transactionService.failTransaction(transactionId);
     } else {
       // Confirm transaction with blockchain hash (default behavior)
-      updatedTransaction = await transactionService.confirmTransaction(transactionId, transactionHash);
+      updatedTransaction = await transactionService.confirmTransaction(
+        transactionId,
+        transactionHash
+      );
     }
 
     // Map the response to match API contract
@@ -165,13 +180,16 @@ export async function POST(
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Transaction confirmation error:', error);
 
     // Handle specific TransactionService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       // Map service error codes to HTTP status codes
       let statusCode = serviceError.statusCode || 500;
@@ -184,7 +202,7 @@ export async function POST(
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: statusCode }
       );
@@ -194,7 +212,8 @@ export async function POST(
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while confirming the transaction'
+        message:
+          'An unexpected error occurred while confirming the transaction',
       },
       { status: 500 }
     );

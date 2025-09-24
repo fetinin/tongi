@@ -31,9 +31,7 @@ export function closeDatabase(): void {
 }
 
 // Helper function to handle database transactions
-export function withTransaction<T>(
-  callback: (db: Database.Database) => T
-): T {
+export function withTransaction<T>(callback: (db: Database.Database) => T): T {
   const database = getDatabase();
   const transaction = database.transaction(callback);
   return transaction(database);

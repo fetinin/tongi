@@ -12,7 +12,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${sightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -20,7 +20,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -50,7 +50,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${sightingId}`;
 
     const requestBody = {
-      confirmed: false
+      confirmed: false,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -58,7 +58,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -85,7 +85,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -105,7 +105,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${sightingId}`;
 
     const requestBody = {
-      confirmed: "true"
+      confirmed: 'true',
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -113,7 +113,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -133,7 +133,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${nonExistentSightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -141,7 +141,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -160,7 +160,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${sightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -168,7 +168,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validTokenWrongUser}`
+        Authorization: `Bearer ${validTokenWrongUser}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -188,7 +188,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${alreadyRespondedSightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -196,7 +196,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -215,7 +215,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${sightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -241,7 +241,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${sightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -249,7 +249,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -268,7 +268,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${invalidSightingId}`;
 
     const requestBody = {
-      confirmed: true
+      confirmed: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -276,7 +276,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -296,7 +296,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
     const endpoint = `${basePath}/${zeroSightingId}`;
 
     const requestBody = {
-      confirmed: false
+      confirmed: false,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -304,7 +304,7 @@ describe('POST /api/corgi/confirm/[id]', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });

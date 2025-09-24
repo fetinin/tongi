@@ -10,7 +10,7 @@ import {
   Placeholder,
   Spinner,
   Caption,
-  Text
+  Text,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -49,7 +49,7 @@ interface WishApprovalProps {
 export function WishApproval({
   onWishProcessed,
   refreshInterval = 15000,
-  showEmptyState = true
+  showEmptyState = true,
 }: WishApprovalProps) {
   const { token, isAuthenticated } = useAuth();
   const [wishes, setWishes] = useState<WishData[]>([]);
@@ -68,7 +68,7 @@ export function WishApproval({
     try {
       const response = await fetch('/api/wishes/pending', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -82,7 +82,9 @@ export function WishApproval({
       setError(null);
     } catch (err) {
       console.error('Pending wishes fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load pending wishes');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load pending wishes'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -100,48 +102,54 @@ export function WishApproval({
   /**
    * Handle acceptance or rejection of a wish
    */
-  const handleWishResponse = useCallback(async (wishId: number, accepted: boolean) => {
-    if (!isAuthenticated || !token) {
-      setError('Authentication required');
-      return;
-    }
-
-    // Mark as processing
-    setProcessingIds(prev => new Set(prev).add(wishId));
-
-    try {
-      const response = await fetch(`/api/wishes/${wishId}/respond`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ accepted }),
-      });
-
-      if (!response.ok) {
-        const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.message || 'Failed to process wish response');
+  const handleWishResponse = useCallback(
+    async (wishId: number, accepted: boolean) => {
+      if (!isAuthenticated || !token) {
+        setError('Authentication required');
+        return;
       }
 
-      // Remove the accepted/rejected wish from the list
-      setWishes(prev => prev.filter(wish => wish.id !== wishId));
+      // Mark as processing
+      setProcessingIds((prev) => new Set(prev).add(wishId));
 
-      // Notify parent component
-      onWishProcessed?.(wishId, accepted);
+      try {
+        const response = await fetch(`/api/wishes/${wishId}/respond`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ accepted }),
+        });
 
-    } catch (err) {
-      console.error('Wish response processing error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to process wish response');
-    } finally {
-      // Remove from processing
-      setProcessingIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(wishId);
-        return newSet;
-      });
-    }
-  }, [isAuthenticated, token, onWishProcessed]);
+        if (!response.ok) {
+          const errorData: ErrorResponse = await response.json();
+          throw new Error(
+            errorData.message || 'Failed to process wish response'
+          );
+        }
+
+        // Remove the accepted/rejected wish from the list
+        setWishes((prev) => prev.filter((wish) => wish.id !== wishId));
+
+        // Notify parent component
+        onWishProcessed?.(wishId, accepted);
+      } catch (err) {
+        console.error('Wish response processing error:', err);
+        setError(
+          err instanceof Error ? err.message : 'Failed to process wish response'
+        );
+      } finally {
+        // Remove from processing
+        setProcessingIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(wishId);
+          return newSet;
+        });
+      }
+    },
+    [isAuthenticated, token, onWishProcessed]
+  );
 
   /**
    * Format timestamp for display
@@ -164,7 +172,7 @@ export function WishApproval({
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       });
     }
   };
@@ -179,7 +187,10 @@ export function WishApproval({
   /**
    * Truncate description if too long
    */
-  const truncateDescription = (description: string, maxLength: number = 100): string => {
+  const truncateDescription = (
+    description: string,
+    maxLength: number = 100
+  ): string => {
     if (description.length <= maxLength) {
       return description;
     }
@@ -210,15 +221,8 @@ export function WishApproval({
     return (
       <Section header="Pending Wish Approvals">
         <div className="p-4">
-          <Placeholder
-            header="Error Loading Wishes"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={fetchPendingWishes}
-            >
+          <Placeholder header="Error Loading Wishes" description={error}>
+            <Button size="s" mode="outline" onClick={fetchPendingWishes}>
               Retry
             </Button>
           </Placeholder>
@@ -268,11 +272,7 @@ export function WishApproval({
                   <span className="text-lg">💝</span>
                 </div>
               }
-              after={
-                <Badge type="dot">
-                  Pending
-                </Badge>
-              }
+              after={<Badge type="dot">Pending</Badge>}
             >
               <div className="flex flex-col gap-2">
                 <div>
@@ -283,7 +283,8 @@ export function WishApproval({
 
                 <div>
                   <Caption level="1" className="text-gray-600">
-                    Proposed amount: {formatAmount(wish.proposedAmount)} Corgi coins
+                    Proposed amount: {formatAmount(wish.proposedAmount)} Corgi
+                    coins
                   </Caption>
                 </div>
 
@@ -321,7 +322,9 @@ export function WishApproval({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          When you accept a wish, it will appear in the marketplace where anyone can purchase it. Only accept wishes you&apos;re comfortable with others seeing.
+          When you accept a wish, it will appear in the marketplace where anyone
+          can purchase it. Only accept wishes you&apos;re comfortable with
+          others seeing.
         </Caption>
       </Section>
     </List>
@@ -335,13 +338,16 @@ export function useWishApproval() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  const handleWishProcessed = useCallback((wishId: number, accepted: boolean) => {
-    console.log(`Wish ${wishId} ${accepted ? 'accepted' : 'rejected'}`);
-    // Could trigger notifications or other side effects here
-  }, []);
+  const handleWishProcessed = useCallback(
+    (wishId: number, accepted: boolean) => {
+      console.log(`Wish ${wishId} ${accepted ? 'accepted' : 'rejected'}`);
+      // Could trigger notifications or other side effects here
+    },
+    []
+  );
 
   return {
     refreshTrigger,

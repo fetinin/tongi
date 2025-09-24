@@ -25,7 +25,9 @@ interface ErrorResponse {
  * GET /api/corgi/confirmations
  * Get pending confirmation requests for the authenticated user
  */
-export async function GET(request: NextRequest): Promise<NextResponse<ConfirmationsListResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<ConfirmationsListResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Confirmati
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -45,33 +47,37 @@ export async function GET(request: NextRequest): Promise<NextResponse<Confirmati
     const result = await corgiService.getPendingConfirmations(currentUserId);
 
     // Map the response
-    const mappedConfirmations: CorgiSightingResponse[] = result.confirmations.map(sighting => ({
-      id: sighting.id,
-      reporterId: sighting.reporter_id,
-      buddyId: sighting.buddy_id,
-      corgiCount: sighting.corgi_count,
-      status: sighting.status,
-      createdAt: sighting.created_at,
-      respondedAt: sighting.responded_at,
-    }));
+    const mappedConfirmations: CorgiSightingResponse[] =
+      result.confirmations.map((sighting) => ({
+        id: sighting.id,
+        reporterId: sighting.reporter_id,
+        buddyId: sighting.buddy_id,
+        corgiCount: sighting.corgi_count,
+        status: sighting.status,
+        createdAt: sighting.created_at,
+        respondedAt: sighting.responded_at,
+      }));
 
     const response: ConfirmationsListResponse = {
       confirmations: mappedConfirmations,
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Corgi confirmations retrieval error:', error);
 
     // Handle specific CorgiService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -81,7 +87,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<Confirmati
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving pending confirmations'
+        message:
+          'An unexpected error occurred while retrieving pending confirmations',
       },
       { status: 500 }
     );

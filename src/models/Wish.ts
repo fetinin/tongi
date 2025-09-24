@@ -153,7 +153,7 @@ export const WishValidation = {
 
   /** Proposed amount constraints */
   AMOUNT_MIN: 0.01,
-  AMOUNT_MAX: 1000.00,
+  AMOUNT_MAX: 1000.0,
 
   /** Decimal precision for amounts */
   AMOUNT_DECIMAL_PLACES: 2,
@@ -203,7 +203,10 @@ export class WishValidator {
   /**
    * Validates status transition
    */
-  static isValidStatusTransition(current: WishStatus, next: WishStatus): boolean {
+  static isValidStatusTransition(
+    current: WishStatus,
+    next: WishStatus
+  ): boolean {
     const validTransitions: Record<WishStatus, WishStatus[]> = {
       pending: ['accepted', 'rejected'],
       accepted: ['purchased'],
@@ -253,7 +256,9 @@ export function isWish(obj: unknown): obj is Wish {
     typeof candidate.buddy_id === 'number' &&
     typeof candidate.description === 'string' &&
     typeof candidate.proposed_amount === 'number' &&
-    ['pending', 'accepted', 'rejected', 'purchased'].includes(candidate.status as string) &&
+    ['pending', 'accepted', 'rejected', 'purchased'].includes(
+      candidate.status as string
+    ) &&
     typeof candidate.created_at === 'string'
   );
 }

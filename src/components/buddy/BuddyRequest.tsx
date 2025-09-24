@@ -11,7 +11,7 @@ import {
   Spinner,
   Caption,
   Avatar,
-  Badge
+  Badge,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -58,11 +58,13 @@ export function BuddyRequest({
   isOpen,
   onClose,
   onRequestSent,
-  onError
+  onError,
 }: BuddyRequestProps) {
   const { token, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [requestResult, setRequestResult] = useState<BuddyRequestResult | null>(null);
+  const [requestResult, setRequestResult] = useState<BuddyRequestResult | null>(
+    null
+  );
 
   /**
    * Send buddy request to target user
@@ -81,7 +83,7 @@ export function BuddyRequest({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           targetUserId: targetUser.id,
@@ -100,7 +102,8 @@ export function BuddyRequest({
       onRequestSent?.(result);
     } catch (err) {
       console.error('Buddy request error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to send buddy request';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to send buddy request';
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);
@@ -170,9 +173,7 @@ export function BuddyRequest({
           </Placeholder>
 
           <div className="mt-6 flex justify-center">
-            <Button onClick={handleClose}>
-              Close
-            </Button>
+            <Button onClick={handleClose}>Close</Button>
           </div>
         </div>
       )}
@@ -225,7 +226,9 @@ export function BuddyRequest({
           {!targetUser.tonWalletAddress && (
             <Section className="mt-4">
               <Caption level="1" className="px-4 py-2 text-orange-600">
-                ⚠️ This user hasn&apos;t connected a TON wallet yet. They&apos;ll need to connect one to participate in Corgi coin transactions.
+                ⚠️ This user hasn&apos;t connected a TON wallet yet.
+                They&apos;ll need to connect one to participate in Corgi coin
+                transactions.
               </Caption>
             </Section>
           )}

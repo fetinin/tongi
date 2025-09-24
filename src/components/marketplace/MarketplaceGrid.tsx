@@ -10,7 +10,7 @@ import {
   Placeholder,
   Spinner,
   Caption,
-  Text
+  Text,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -66,7 +66,7 @@ export function MarketplaceGrid({
   showEmptyState = true,
   pageSize = 20,
   onRefresh,
-  emptyMessage
+  emptyMessage,
 }: MarketplaceGridProps) {
   const { token, isAuthenticated } = useAuth();
   const [wishes, setWishes] = useState<MarketplaceWishData[]>([]);
@@ -78,62 +78,70 @@ export function MarketplaceGrid({
   const [offset, setOffset] = useState(0);
 
   // Fetch marketplace wishes from API
-  const fetchWishes = useCallback(async (loadMore: boolean = false) => {
-    if (!isAuthenticated || !token) {
-      setError('Authentication required');
-      setIsLoading(false);
-      return;
-    }
-
-    const currentOffset = loadMore ? offset : 0;
-    if (loadMore) {
-      setIsLoadingMore(true);
-    } else {
-      setIsLoading(true);
-      setWishes([]);
-      setOffset(0);
-    }
-
-    try {
-      const params = new URLSearchParams({
-        limit: pageSize.toString(),
-        offset: currentOffset.toString(),
-      });
-
-      const response = await fetch(`/api/marketplace?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch marketplace wishes');
+  const fetchWishes = useCallback(
+    async (loadMore: boolean = false) => {
+      if (!isAuthenticated || !token) {
+        setError('Authentication required');
+        setIsLoading(false);
+        return;
       }
 
-      const data: MarketplaceResponse = await response.json();
-
+      const currentOffset = loadMore ? offset : 0;
       if (loadMore) {
-        setWishes(prev => [...prev, ...data.wishes]);
-        setOffset(prev => prev + pageSize);
+        setIsLoadingMore(true);
       } else {
-        setWishes(data.wishes);
-        setOffset(pageSize);
+        setIsLoading(true);
+        setWishes([]);
+        setOffset(0);
       }
 
-      setTotal(data.total);
-      setHasMore(data.hasMore);
-      setError(null);
-      onRefresh?.();
+      try {
+        const params = new URLSearchParams({
+          limit: pageSize.toString(),
+          offset: currentOffset.toString(),
+        });
 
-    } catch (err) {
-      console.error('Marketplace fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load marketplace wishes');
-    } finally {
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    }
-  }, [isAuthenticated, token, pageSize, offset, onRefresh]);
+        const response = await fetch(`/api/marketplace?${params}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData: ErrorResponse = await response.json();
+          throw new Error(
+            errorData.message || 'Failed to fetch marketplace wishes'
+          );
+        }
+
+        const data: MarketplaceResponse = await response.json();
+
+        if (loadMore) {
+          setWishes((prev) => [...prev, ...data.wishes]);
+          setOffset((prev) => prev + pageSize);
+        } else {
+          setWishes(data.wishes);
+          setOffset(pageSize);
+        }
+
+        setTotal(data.total);
+        setHasMore(data.hasMore);
+        setError(null);
+        onRefresh?.();
+      } catch (err) {
+        console.error('Marketplace fetch error:', err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to load marketplace wishes'
+        );
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [isAuthenticated, token, pageSize, offset, onRefresh]
+  );
 
   // Initial load and refresh setup
   useEffect(() => {
@@ -156,9 +164,12 @@ export function MarketplaceGrid({
   /**
    * Handle wish selection for purchase
    */
-  const handleWishSelect = useCallback((wish: MarketplaceWishData) => {
-    onWishSelect?.(wish);
-  }, [onWishSelect]);
+  const handleWishSelect = useCallback(
+    (wish: MarketplaceWishData) => {
+      onWishSelect?.(wish);
+    },
+    [onWishSelect]
+  );
 
   /**
    * Format timestamp for display
@@ -186,7 +197,8 @@ export function MarketplaceGrid({
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
-          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+          year:
+            date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
         });
       }
     }
@@ -202,7 +214,10 @@ export function MarketplaceGrid({
   /**
    * Truncate description if too long
    */
-  const truncateDescription = (description: string, maxLength: number = 100): string => {
+  const truncateDescription = (
+    description: string,
+    maxLength: number = 100
+  ): string => {
     if (description.length <= maxLength) {
       return description;
     }
@@ -247,15 +262,8 @@ export function MarketplaceGrid({
     return (
       <Section header="Marketplace">
         <div className="p-4">
-          <Placeholder
-            header="Error Loading Marketplace"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={() => fetchWishes()}
-            >
+          <Placeholder header="Error Loading Marketplace" description={error}>
+            <Button size="s" mode="outline" onClick={() => fetchWishes()}>
               Retry
             </Button>
           </Placeholder>
@@ -270,7 +278,8 @@ export function MarketplaceGrid({
       return null;
     }
 
-    const defaultEmptyMessage = "No wishes are currently available for purchase. Check back later to see new wishes from the community!";
+    const defaultEmptyMessage =
+      'No wishes are currently available for purchase. Check back later to see new wishes from the community!';
 
     return (
       <Section header="Marketplace">
@@ -304,7 +313,8 @@ export function MarketplaceGrid({
               subtitle={
                 <div className="flex flex-col gap-1">
                   <span className="text-sm text-gray-600">
-                    By {wish.creator.firstName} • {formatTimestamp(wish.acceptedAt!)}
+                    By {wish.creator.firstName} •{' '}
+                    {formatTimestamp(wish.acceptedAt!)}
                   </span>
                   <span className="text-xs text-gray-500">
                     {wish.timeRemaining}
@@ -383,7 +393,9 @@ export function MarketplaceGrid({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          Browse wishes that have been accepted by their creators&apos; buddies. Purchase any wish to help someone and support the Corgi Buddy community!
+          Browse wishes that have been accepted by their creators&apos; buddies.
+          Purchase any wish to help someone and support the Corgi Buddy
+          community!
         </Caption>
       </Section>
     </List>
@@ -395,10 +407,12 @@ export function MarketplaceGrid({
  */
 export function useMarketplaceGrid() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [selectedWish, setSelectedWish] = useState<MarketplaceWishData | null>(null);
+  const [selectedWish, setSelectedWish] = useState<MarketplaceWishData | null>(
+    null
+  );
 
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
   const handleRefresh = useCallback(() => {

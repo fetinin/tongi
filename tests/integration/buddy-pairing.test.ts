@@ -11,7 +11,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -24,7 +25,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -37,7 +39,7 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
@@ -46,13 +48,16 @@ describe('Buddy Pairing Flow Integration', () => {
     expect(initialStatus.status).toBe('no_buddy');
 
     // Step 4: User A searches for User B by username
-    const searchResponse = await fetch(`${baseUrl}/api/buddy/search?username=bob_user`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
-      },
-    });
+    const searchResponse = await fetch(
+      `${baseUrl}/api/buddy/search?username=bob_user`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userAToken}`,
+        },
+      }
+    );
 
     expect(searchResponse.ok).toBe(true);
     const searchResults = await searchResponse.json();
@@ -65,10 +70,10 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        targetUserId: 987654321
+        targetUserId: 987654321,
       }),
     });
 
@@ -84,7 +89,7 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
@@ -98,7 +103,7 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
+        Authorization: `Bearer ${userBToken}`,
       },
     });
 
@@ -115,7 +120,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22Charlie%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22Charlie%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -127,7 +133,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22David%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22David%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -139,10 +146,10 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        targetUserId: 444555666
+        targetUserId: 444555666,
       }),
     });
 
@@ -153,10 +160,10 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        targetUserId: 444555666
+        targetUserId: 444555666,
       }),
     });
 
@@ -173,7 +180,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Eve%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Eve%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -185,10 +193,10 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        targetUserId: 777888999 // Same as authenticated user
+        targetUserId: 777888999, // Same as authenticated user
       }),
     });
 
@@ -205,7 +213,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -217,10 +226,10 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        targetUserId: 999999999 // Non-existent user
+        targetUserId: 999999999, // Non-existent user
       }),
     });
 
@@ -236,7 +245,8 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A400500600%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A400500600%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -244,13 +254,16 @@ describe('Buddy Pairing Flow Integration', () => {
     const token = auth.token;
 
     // Search for non-existent username
-    const searchResponse = await fetch(`${baseUrl}/api/buddy/search?username=nonexistentuser12345`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    });
+    const searchResponse = await fetch(
+      `${baseUrl}/api/buddy/search?username=nonexistentuser12345`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     expect(searchResponse.ok).toBe(false);
     expect(searchResponse.status).toBe(404);
@@ -261,10 +274,13 @@ describe('Buddy Pairing Flow Integration', () => {
 
   test('should require authentication for all buddy endpoints', async () => {
     // Test buddy search without auth
-    const searchResponse = await fetch(`${baseUrl}/api/buddy/search?username=test`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const searchResponse = await fetch(
+      `${baseUrl}/api/buddy/search?username=test`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
     expect(searchResponse.status).toBe(401);
 
     // Test buddy request without auth

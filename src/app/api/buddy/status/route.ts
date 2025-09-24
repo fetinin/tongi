@@ -31,7 +31,9 @@ interface ErrorResponse {
  * GET /api/buddy/status
  * Get current buddy relationship status for authenticated user
  */
-export async function GET(request: NextRequest): Promise<NextResponse<BuddyPairResponse | NoBuddyResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<BuddyPairResponse | NoBuddyResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -39,7 +41,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<BuddyPairR
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<BuddyPairR
     if (buddyStatus.status === 'no_buddy') {
       const response: NoBuddyResponse = {
         status: 'no_buddy',
-        message: buddyStatus.message || 'No active buddy relationship'
+        message: buddyStatus.message || 'No active buddy relationship',
       };
       return NextResponse.json(response, { status: 200 });
     }
@@ -76,18 +78,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<BuddyPairR
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Buddy status error:', error);
 
     // Handle specific BuddyService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -97,7 +102,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<BuddyPairR
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving buddy status'
+        message: 'An unexpected error occurred while retrieving buddy status',
       },
       { status: 500 }
     );

@@ -9,7 +9,7 @@ import {
   Button,
   Placeholder,
   Spinner,
-  Caption
+  Caption,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -39,7 +39,7 @@ interface BuddySearchProps {
 export function BuddySearch({
   onUserSelect,
   emptyPlaceholder,
-  noResultsPlaceholder
+  noResultsPlaceholder,
 }: BuddySearchProps) {
   const { token, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,51 +67,57 @@ export function BuddySearch({
   /**
    * Perform user search via API
    */
-  const performSearch = useCallback(async (query: string) => {
-    if (!isAuthenticated || !token) {
-      setError('Authentication required');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        `/api/buddy/search?username=${encodeURIComponent(query)}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Search failed');
+  const performSearch = useCallback(
+    async (query: string) => {
+      if (!isAuthenticated || !token) {
+        setError('Authentication required');
+        return;
       }
 
-      const data: BuddySearchResponse = await response.json();
-      setSearchResults(data.users);
-      setHasSearched(true);
-    } catch (err) {
-      console.error('Search error:', err);
-      setError(err instanceof Error ? err.message : 'Search failed');
-      setSearchResults([]);
-      setHasSearched(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isAuthenticated, token]);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `/api/buddy/search?username=${encodeURIComponent(query)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Search failed');
+        }
+
+        const data: BuddySearchResponse = await response.json();
+        setSearchResults(data.users);
+        setHasSearched(true);
+      } catch (err) {
+        console.error('Search error:', err);
+        setError(err instanceof Error ? err.message : 'Search failed');
+        setSearchResults([]);
+        setHasSearched(true);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isAuthenticated, token]
+  );
 
   /**
    * Handle user selection for buddy request
    */
-  const handleUserSelect = useCallback((user: SearchedUser) => {
-    if (onUserSelect) {
-      onUserSelect(user);
-    }
-  }, [onUserSelect]);
+  const handleUserSelect = useCallback(
+    (user: SearchedUser) => {
+      if (onUserSelect) {
+        onUserSelect(user);
+      }
+    },
+    [onUserSelect]
+  );
 
   /**
    * Format username display
@@ -210,7 +216,9 @@ export function BuddySearch({
       {/* Results List */}
       {!isLoading && searchResults.length > 0 && (
         <List>
-          <Section header={`Found ${searchResults.length} user${searchResults.length === 1 ? '' : 's'}`}>
+          <Section
+            header={`Found ${searchResults.length} user${searchResults.length === 1 ? '' : 's'}`}
+          >
             {searchResults.map((user) => (
               <Cell
                 key={user.id}

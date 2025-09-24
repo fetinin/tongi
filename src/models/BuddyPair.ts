@@ -9,7 +9,7 @@
 export enum BuddyPairStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
-  DISSOLVED = 'dissolved'
+  DISSOLVED = 'dissolved',
 }
 
 /**
@@ -91,7 +91,11 @@ export class BuddyPairValidator {
   /**
    * Validates that initiated_by is either user1_id or user2_id
    */
-  static validateInitiator(user1_id: number, user2_id: number, initiated_by: number): boolean {
+  static validateInitiator(
+    user1_id: number,
+    user2_id: number,
+    initiated_by: number
+  ): boolean {
     return initiated_by === user1_id || initiated_by === user2_id;
   }
 
@@ -105,7 +109,13 @@ export class BuddyPairValidator {
       errors.push('Users cannot buddy with themselves');
     }
 
-    if (!this.validateInitiator(input.user1_id, input.user2_id, input.initiated_by)) {
+    if (
+      !this.validateInitiator(
+        input.user1_id,
+        input.user2_id,
+        input.initiated_by
+      )
+    ) {
       errors.push('initiated_by must be either user1_id or user2_id');
     }
 
@@ -125,7 +135,10 @@ export class BuddyPairUtils {
    * Ensures consistent ordering of user IDs (user1_id < user2_id)
    * This helps maintain the unique constraint in the database
    */
-  static normalizeUserIds(user1_id: number, user2_id: number): [number, number] {
+  static normalizeUserIds(
+    user1_id: number,
+    user2_id: number
+  ): [number, number] {
     return user1_id < user2_id ? [user1_id, user2_id] : [user2_id, user1_id];
   }
 
@@ -188,7 +201,7 @@ export function rowToBuddyPair(row: BuddyPairRow): BuddyPair {
     initiated_by: row.initiated_by,
     status: row.status as BuddyPairStatus,
     created_at: row.created_at,
-    confirmed_at: row.confirmed_at
+    confirmed_at: row.confirmed_at,
   };
 }
 

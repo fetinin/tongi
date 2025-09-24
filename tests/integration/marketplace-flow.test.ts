@@ -11,8 +11,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%2C%22username%22%3A%22alice_user%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-'
+        initData:
+          'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%2C%22username%22%3A%22alice_user%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04A-',
       }),
     });
 
@@ -25,8 +26,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQC-BuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04B-'
+        initData:
+          'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQC-BuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04B-',
       }),
     });
 
@@ -39,8 +41,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A555666777%2C%22first_name%22%3A%22Charlie%22%2C%22username%22%3A%22charlie_user%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQE-CuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04C-'
+        initData:
+          'user=%7B%22id%22%3A555666777%2C%22first_name%22%3A%22Charlie%22%2C%22username%22%3A%22charlie_user%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQE-CuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04C-',
       }),
     });
 
@@ -53,10 +56,10 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        targetUserId: 987654321
+        targetUserId: 987654321,
       }),
     });
 
@@ -67,32 +70,37 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
       body: JSON.stringify({
-        description: 'Please walk my corgi while I\'m at work today',
-        proposedAmount: 10.5
+        description: "Please walk my corgi while I'm at work today",
+        proposedAmount: 10.5,
       }),
     });
 
     expect(wishCreateResponse.status).toBe(201);
     const createdWish = await wishCreateResponse.json();
     expect(createdWish.status).toBe('pending');
-    expect(createdWish.description).toBe('Please walk my corgi while I\'m at work today');
+    expect(createdWish.description).toBe(
+      "Please walk my corgi while I'm at work today"
+    );
     expect(createdWish.proposedAmount).toBe(10.5);
     const wishId = createdWish.id;
 
     // Step 6: User B (buddy) accepts the wish
-    const acceptWishResponse = await fetch(`${baseUrl}/api/wishes/${wishId}/respond`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userBToken}`
-      },
-      body: JSON.stringify({
-        accepted: true
-      }),
-    });
+    const acceptWishResponse = await fetch(
+      `${baseUrl}/api/wishes/${wishId}/respond`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userBToken}`,
+        },
+        body: JSON.stringify({
+          accepted: true,
+        }),
+      }
+    );
 
     expect(acceptWishResponse.ok).toBe(true);
     const acceptedWish = await acceptWishResponse.json();
@@ -104,7 +112,7 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userCToken}`
+        Authorization: `Bearer ${userCToken}`,
       },
     });
 
@@ -114,18 +122,21 @@ describe('Marketplace Purchase Flow Integration', () => {
       expect.objectContaining({
         id: wishId,
         status: 'accepted',
-        description: 'Please walk my corgi while I\'m at work today'
+        description: "Please walk my corgi while I'm at work today",
       })
     );
 
     // Step 8: User C initiates purchase of the wish
-    const purchaseResponse = await fetch(`${baseUrl}/api/marketplace/${wishId}/purchase`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userCToken}`
-      },
-    });
+    const purchaseResponse = await fetch(
+      `${baseUrl}/api/marketplace/${wishId}/purchase`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userCToken}`,
+        },
+      }
+    );
 
     expect(purchaseResponse.ok).toBe(true);
     const purchaseData = await purchaseResponse.json();
@@ -145,29 +156,34 @@ describe('Marketplace Purchase Flow Integration', () => {
     expect(parseInt(tonTx.amount)).toBeGreaterThan(0);
 
     // Step 9: User C confirms the transaction (simulating blockchain confirmation)
-    const confirmResponse = await fetch(`${baseUrl}/api/transactions/${transactionId}/confirm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userCToken}`
-      },
-      body: JSON.stringify({
-        transactionHash: 'abc123def456ghi789jkl012mno345pqr678stu901vwx234yz',
-        success: true
-      }),
-    });
+    const confirmResponse = await fetch(
+      `${baseUrl}/api/transactions/${transactionId}/confirm`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userCToken}`,
+        },
+        body: JSON.stringify({
+          transactionHash: 'abc123def456ghi789jkl012mno345pqr678stu901vwx234yz',
+          success: true,
+        }),
+      }
+    );
 
     expect(confirmResponse.ok).toBe(true);
     const confirmedTransaction = await confirmResponse.json();
     expect(confirmedTransaction.status).toBe('completed');
-    expect(confirmedTransaction.transactionHash).toBe('abc123def456ghi789jkl012mno345pqr678stu901vwx234yz');
+    expect(confirmedTransaction.transactionHash).toBe(
+      'abc123def456ghi789jkl012mno345pqr678stu901vwx234yz'
+    );
 
     // Step 10: Verify wish status is updated to purchased
     const wishStatusResponse = await fetch(`${baseUrl}/api/wishes`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userAToken}`
+        Authorization: `Bearer ${userAToken}`,
       },
     });
 
@@ -179,17 +195,23 @@ describe('Marketplace Purchase Flow Integration', () => {
     expect(purchasedWish.purchasedAt).toBeTruthy();
 
     // Step 11: Verify wish is no longer in marketplace
-    const postPurchaseMarketplaceResponse = await fetch(`${baseUrl}/api/marketplace`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userCToken}`
-      },
-    });
+    const postPurchaseMarketplaceResponse = await fetch(
+      `${baseUrl}/api/marketplace`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userCToken}`,
+        },
+      }
+    );
 
     expect(postPurchaseMarketplaceResponse.ok).toBe(true);
-    const postPurchaseMarketplace = await postPurchaseMarketplaceResponse.json();
-    const wishStillInMarketplace = postPurchaseMarketplace.wishes.find((w: any) => w.id === wishId);
+    const postPurchaseMarketplace =
+      await postPurchaseMarketplaceResponse.json();
+    const wishStillInMarketplace = postPurchaseMarketplace.wishes.find(
+      (w: any) => w.id === wishId
+    );
     expect(wishStillInMarketplace).toBeUndefined();
   });
 
@@ -199,7 +221,8 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22David%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22David%22%7D&auth_date=1234567890&hash=abcdef123456',
         // No tonWalletAddress
       }),
     });
@@ -208,13 +231,16 @@ describe('Marketplace Purchase Flow Integration', () => {
     const userToken = userAuth.token;
 
     // Try to purchase a wish
-    const purchaseResponse = await fetch(`${baseUrl}/api/marketplace/123/purchase`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userToken}`
-      },
-    });
+    const purchaseResponse = await fetch(
+      `${baseUrl}/api/marketplace/123/purchase`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
 
     expect(purchaseResponse.ok).toBe(false);
     expect(purchaseResponse.status).toBe(400);
@@ -228,8 +254,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22Eva%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04D-'
+        initData:
+          'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22Eva%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQD-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04D-',
       }),
     });
 
@@ -241,7 +268,8 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456'
+        initData:
+          'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456',
       }),
     });
 
@@ -253,7 +281,7 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${creatorToken}`
+        Authorization: `Bearer ${creatorToken}`,
       },
       body: JSON.stringify({ targetUserId: 777888999 }),
     });
@@ -263,11 +291,11 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${creatorToken}`
+        Authorization: `Bearer ${creatorToken}`,
       },
       body: JSON.stringify({
         description: 'Test wish for self-purchase prevention',
-        proposedAmount: 5.0
+        proposedAmount: 5.0,
       }),
     });
 
@@ -278,19 +306,22 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${buddyToken}`
+        Authorization: `Bearer ${buddyToken}`,
       },
       body: JSON.stringify({ accepted: true }),
     });
 
     // Creator tries to purchase their own wish
-    const selfPurchaseResponse = await fetch(`${baseUrl}/api/marketplace/${wishId}/purchase`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${creatorToken}`
-      },
-    });
+    const selfPurchaseResponse = await fetch(
+      `${baseUrl}/api/marketplace/${wishId}/purchase`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${creatorToken}`,
+        },
+      }
+    );
 
     expect(selfPurchaseResponse.ok).toBe(false);
     expect(selfPurchaseResponse.status).toBe(400);
@@ -304,8 +335,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQG-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04G-'
+        initData:
+          'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQG-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04G-',
       }),
     });
 
@@ -313,30 +345,36 @@ describe('Marketplace Purchase Flow Integration', () => {
     const purchaserToken = purchaserAuth.token;
 
     // Initiate purchase (assuming wish exists and is available)
-    const purchaseResponse = await fetch(`${baseUrl}/api/marketplace/123/purchase`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${purchaserToken}`
-      },
-    });
+    const purchaseResponse = await fetch(
+      `${baseUrl}/api/marketplace/123/purchase`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${purchaserToken}`,
+        },
+      }
+    );
 
     if (purchaseResponse.ok) {
       const purchaseData = await purchaseResponse.json();
       const transactionId = purchaseData.transactionId;
 
       // Confirm transaction as failed
-      const failedConfirmResponse = await fetch(`${baseUrl}/api/transactions/${transactionId}/confirm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${purchaserToken}`
-        },
-        body: JSON.stringify({
-          transactionHash: 'failed_transaction_hash_123',
-          success: false
-        }),
-      });
+      const failedConfirmResponse = await fetch(
+        `${baseUrl}/api/transactions/${transactionId}/confirm`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${purchaserToken}`,
+          },
+          body: JSON.stringify({
+            transactionHash: 'failed_transaction_hash_123',
+            success: false,
+          }),
+        }
+      );
 
       expect(failedConfirmResponse.ok).toBe(true);
       const failedTransaction = await failedConfirmResponse.json();
@@ -347,12 +385,14 @@ describe('Marketplace Purchase Flow Integration', () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${purchaserToken}`
+          Authorization: `Bearer ${purchaserToken}`,
         },
       });
 
       const marketplaceData = await marketplaceCheck.json();
-      const wishStillAvailable = marketplaceData.wishes.find((w: any) => w.id === 123);
+      const wishStillAvailable = marketplaceData.wishes.find(
+        (w: any) => w.id === 123
+      );
       expect(wishStillAvailable).toBeDefined();
       expect(wishStillAvailable.status).toBe('accepted');
     }
@@ -364,8 +404,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A401502603%2C%22first_name%22%3A%22Henry%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQH-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04H-'
+        initData:
+          'user=%7B%22id%22%3A401502603%2C%22first_name%22%3A%22Henry%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQH-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04H-',
       }),
     });
 
@@ -377,8 +418,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A704805906%2C%22first_name%22%3A%22Ivy%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQI-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04I-'
+        initData:
+          'user=%7B%22id%22%3A704805906%2C%22first_name%22%3A%22Ivy%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQI-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04I-',
       }),
     });
 
@@ -393,23 +435,23 @@ describe('Marketplace Purchase Flow Integration', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user1Token}`
+          Authorization: `Bearer ${user1Token}`,
         },
       }),
       fetch(`${baseUrl}/api/marketplace/${wishId}/purchase`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user2Token}`
+          Authorization: `Bearer ${user2Token}`,
         },
-      })
+      }),
     ];
 
     const responses = await Promise.all(promises);
 
     // Only one should succeed
-    const successful = responses.filter(r => r.status === 200);
-    const failed = responses.filter(r => r.status !== 200);
+    const successful = responses.filter((r) => r.status === 200);
+    const failed = responses.filter((r) => r.status !== 200);
 
     expect(successful.length).toBeLessThanOrEqual(1);
     expect(failed.length).toBeGreaterThanOrEqual(1);
@@ -428,8 +470,9 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        initData: 'user=%7B%22id%22%3A300400500%2C%22first_name%22%3A%22Jack%22%7D&auth_date=1234567890&hash=abcdef123456',
-        tonWalletAddress: 'UQJ-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04J-'
+        initData:
+          'user=%7B%22id%22%3A300400500%2C%22first_name%22%3A%22Jack%22%7D&auth_date=1234567890&hash=abcdef123456',
+        tonWalletAddress: 'UQJ-SuoCHsCL2pIZfE8IAKsjc0aDpDUQAoo-ALHl2mje04J-',
       }),
     });
 
@@ -441,7 +484,7 @@ describe('Marketplace Purchase Flow Integration', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${purchaserToken}`
+        Authorization: `Bearer ${purchaserToken}`,
       },
     });
 
@@ -450,33 +493,40 @@ describe('Marketplace Purchase Flow Integration', () => {
     const initialCount = initialHistory.transactions.length;
 
     // Make a purchase (assuming wish exists)
-    const purchaseResponse = await fetch(`${baseUrl}/api/marketplace/123/purchase`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${purchaserToken}`
-      },
-    });
+    const purchaseResponse = await fetch(
+      `${baseUrl}/api/marketplace/123/purchase`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${purchaserToken}`,
+        },
+      }
+    );
 
     if (purchaseResponse.ok) {
       // Check updated transaction history
-      const updatedHistoryResponse = await fetch(`${baseUrl}/api/transactions`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${purchaserToken}`
-        },
-      });
+      const updatedHistoryResponse = await fetch(
+        `${baseUrl}/api/transactions`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${purchaserToken}`,
+          },
+        }
+      );
 
       expect(updatedHistoryResponse.ok).toBe(true);
       const updatedHistory = await updatedHistoryResponse.json();
       expect(updatedHistory.transactions.length).toBe(initialCount + 1);
 
       // Verify the new transaction is a purchase type
-      const newTransaction = updatedHistory.transactions.find((t: any) =>
-        t.transactionType === 'purchase' &&
-        t.relatedEntityType === 'wish' &&
-        t.relatedEntityId === 123
+      const newTransaction = updatedHistory.transactions.find(
+        (t: any) =>
+          t.transactionType === 'purchase' &&
+          t.relatedEntityType === 'wish' &&
+          t.relatedEntityId === 123
       );
       expect(newTransaction).toBeDefined();
       expect(newTransaction.status).toBe('pending');

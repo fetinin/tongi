@@ -10,7 +10,7 @@ import {
   Placeholder,
   Spinner,
   Caption,
-  Text
+  Text,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -60,7 +60,7 @@ export function WishList({
   showEmptyState = true,
   pageSize = 20,
   onRefresh,
-  emptyMessage
+  emptyMessage,
 }: WishListProps) {
   const { token, isAuthenticated } = useAuth();
   const [wishes, setWishes] = useState<WishData[]>([]);
@@ -72,66 +72,68 @@ export function WishList({
   const [offset, setOffset] = useState(0);
 
   // Fetch wishes from API
-  const fetchWishes = useCallback(async (loadMore: boolean = false) => {
-    if (!isAuthenticated || !token) {
-      setError('Authentication required');
-      setIsLoading(false);
-      return;
-    }
-
-    const currentOffset = loadMore ? offset : 0;
-    if (loadMore) {
-      setIsLoadingMore(true);
-    } else {
-      setIsLoading(true);
-      setWishes([]);
-      setOffset(0);
-    }
-
-    try {
-      const params = new URLSearchParams({
-        limit: pageSize.toString(),
-        offset: currentOffset.toString(),
-      });
-
-      if (statusFilter) {
-        params.append('status', statusFilter);
+  const fetchWishes = useCallback(
+    async (loadMore: boolean = false) => {
+      if (!isAuthenticated || !token) {
+        setError('Authentication required');
+        setIsLoading(false);
+        return;
       }
 
-      const response = await fetch(`/api/wishes?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch wishes');
-      }
-
-      const data: WishesListResponse = await response.json();
-
+      const currentOffset = loadMore ? offset : 0;
       if (loadMore) {
-        setWishes(prev => [...prev, ...data.wishes]);
-        setOffset(prev => prev + pageSize);
+        setIsLoadingMore(true);
       } else {
-        setWishes(data.wishes);
-        setOffset(pageSize);
+        setIsLoading(true);
+        setWishes([]);
+        setOffset(0);
       }
 
-      setTotal(data.total);
-      setHasMore(data.hasMore);
-      setError(null);
-      onRefresh?.();
+      try {
+        const params = new URLSearchParams({
+          limit: pageSize.toString(),
+          offset: currentOffset.toString(),
+        });
 
-    } catch (err) {
-      console.error('Wishes fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load wishes');
-    } finally {
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    }
-  }, [isAuthenticated, token, statusFilter, pageSize, offset, onRefresh]);
+        if (statusFilter) {
+          params.append('status', statusFilter);
+        }
+
+        const response = await fetch(`/api/wishes?${params}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData: ErrorResponse = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch wishes');
+        }
+
+        const data: WishesListResponse = await response.json();
+
+        if (loadMore) {
+          setWishes((prev) => [...prev, ...data.wishes]);
+          setOffset((prev) => prev + pageSize);
+        } else {
+          setWishes(data.wishes);
+          setOffset(pageSize);
+        }
+
+        setTotal(data.total);
+        setHasMore(data.hasMore);
+        setError(null);
+        onRefresh?.();
+      } catch (err) {
+        console.error('Wishes fetch error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load wishes');
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [isAuthenticated, token, statusFilter, pageSize, offset, onRefresh]
+  );
 
   // Initial load and refresh setup
   useEffect(() => {
@@ -177,7 +179,8 @@ export function WishList({
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
-          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+          year:
+            date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
         });
       }
     }
@@ -193,7 +196,10 @@ export function WishList({
   /**
    * Truncate description if too long
    */
-  const truncateDescription = (description: string, maxLength: number = 120): string => {
+  const truncateDescription = (
+    description: string,
+    maxLength: number = 120
+  ): string => {
     if (description.length <= maxLength) {
       return description;
     }
@@ -206,15 +212,35 @@ export function WishList({
   const getStatusBadge = (status: WishData['status']) => {
     switch (status) {
       case 'pending':
-        return { type: 'dot' as const, children: 'Pending', className: 'text-yellow-600' };
+        return {
+          type: 'dot' as const,
+          children: 'Pending',
+          className: 'text-yellow-600',
+        };
       case 'accepted':
-        return { type: 'dot' as const, children: 'In Marketplace', className: 'text-green-600' };
+        return {
+          type: 'dot' as const,
+          children: 'In Marketplace',
+          className: 'text-green-600',
+        };
       case 'rejected':
-        return { type: 'dot' as const, children: 'Rejected', className: 'text-red-600' };
+        return {
+          type: 'dot' as const,
+          children: 'Rejected',
+          className: 'text-red-600',
+        };
       case 'purchased':
-        return { type: 'dot' as const, children: 'Purchased', className: 'text-blue-600' };
+        return {
+          type: 'dot' as const,
+          children: 'Purchased',
+          className: 'text-blue-600',
+        };
       default:
-        return { type: 'dot' as const, children: status, className: 'text-gray-600' };
+        return {
+          type: 'dot' as const,
+          children: status,
+          className: 'text-gray-600',
+        };
     }
   };
 
@@ -245,7 +271,7 @@ export function WishList({
         pending: 'Pending Wishes',
         accepted: 'Wishes in Marketplace',
         rejected: 'Rejected Wishes',
-        purchased: 'Purchased Wishes'
+        purchased: 'Purchased Wishes',
       };
       return statusLabels[statusFilter];
     }
@@ -287,15 +313,8 @@ export function WishList({
     return (
       <Section header={getSectionHeader()}>
         <div className="p-4">
-          <Placeholder
-            header="Error Loading Wishes"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={() => fetchWishes()}
-            >
+          <Placeholder header="Error Loading Wishes" description={error}>
+            <Button size="s" mode="outline" onClick={() => fetchWishes()}>
               Retry
             </Button>
           </Placeholder>
@@ -333,10 +352,7 @@ export function WishList({
   // List of wishes
   return (
     <List>
-      <Section
-        header={getSectionHeader()}
-        footer={getSectionFooter()}
-      >
+      <Section header={getSectionHeader()} footer={getSectionFooter()}>
         {wishes.map((wish) => {
           const statusBadge = getStatusBadge(wish.status);
           const statusIcon = getStatusIcon(wish.status);
@@ -351,7 +367,10 @@ export function WishList({
                 </div>
               }
               after={
-                <Badge type={statusBadge.type} className={statusBadge.className}>
+                <Badge
+                  type={statusBadge.type}
+                  className={statusBadge.className}
+                >
                   {statusBadge.children}
                 </Badge>
               }
@@ -417,11 +436,16 @@ export function WishList({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          {statusFilter === 'pending' && 'Pending wishes are waiting for your buddy\'s approval.'}
-          {statusFilter === 'accepted' && 'These wishes are available for purchase in the marketplace.'}
-          {statusFilter === 'rejected' && 'Your buddy rejected these wishes. You can create new ones.'}
-          {statusFilter === 'purchased' && 'These wishes have been purchased and completed.'}
-          {!statusFilter && 'Track all your wishes and their current status. Create new wishes to earn Corgi coins!'}
+          {statusFilter === 'pending' &&
+            "Pending wishes are waiting for your buddy's approval."}
+          {statusFilter === 'accepted' &&
+            'These wishes are available for purchase in the marketplace.'}
+          {statusFilter === 'rejected' &&
+            'Your buddy rejected these wishes. You can create new ones.'}
+          {statusFilter === 'purchased' &&
+            'These wishes have been purchased and completed.'}
+          {!statusFilter &&
+            'Track all your wishes and their current status. Create new wishes to earn Corgi coins!'}
         </Caption>
       </Section>
     </List>
@@ -435,7 +459,7 @@ export function useWishList(statusFilter?: WishData['status']) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
   const handleRefresh = useCallback(() => {

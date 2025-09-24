@@ -47,7 +47,7 @@ describe('/api/bank/status GET', () => {
       currentBalance: expect.any(Number),
       totalDistributed: expect.any(Number),
       lastTransactionHash: expect.any(String),
-      updatedAt: expect.any(String)
+      updatedAt: expect.any(String),
     });
   });
 

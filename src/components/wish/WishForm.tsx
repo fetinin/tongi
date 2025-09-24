@@ -10,7 +10,7 @@ import {
   Placeholder,
   Spinner,
   Caption,
-  Text
+  Text,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -43,7 +43,7 @@ export function WishForm({
   isOpen,
   onClose,
   onWishCreated,
-  onError
+  onError,
 }: WishFormProps) {
   const { token, isAuthenticated } = useAuth();
   const [description, setDescription] = useState<string>('');
@@ -92,30 +92,36 @@ export function WishForm({
   /**
    * Handle description change with validation
    */
-  const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setDescription(value);
+  const handleDescriptionChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setDescription(value);
 
-    const error = validateDescription(value);
-    setValidationErrors(prev => ({
-      ...prev,
-      description: error || undefined
-    }));
-  }, [validateDescription]);
+      const error = validateDescription(value);
+      setValidationErrors((prev) => ({
+        ...prev,
+        description: error || undefined,
+      }));
+    },
+    [validateDescription]
+  );
 
   /**
    * Handle proposed amount change with validation
    */
-  const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setProposedAmount(value);
+  const handleAmountChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setProposedAmount(value);
 
-    const error = validateProposedAmount(value);
-    setValidationErrors(prev => ({
-      ...prev,
-      proposedAmount: error || undefined
-    }));
-  }, [validateProposedAmount]);
+      const error = validateProposedAmount(value);
+      setValidationErrors((prev) => ({
+        ...prev,
+        proposedAmount: error || undefined,
+      }));
+    },
+    [validateProposedAmount]
+  );
 
   /**
    * Validate all form fields
@@ -126,12 +132,17 @@ export function WishForm({
 
     const errors = {
       description: descError || undefined,
-      proposedAmount: amountError || undefined
+      proposedAmount: amountError || undefined,
     };
 
     setValidationErrors(errors);
     return !descError && !amountError;
-  }, [description, proposedAmount, validateDescription, validateProposedAmount]);
+  }, [
+    description,
+    proposedAmount,
+    validateDescription,
+    validateProposedAmount,
+  ]);
 
   /**
    * Submit wish creation
@@ -155,7 +166,7 @@ export function WishForm({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           description: description.trim(),
@@ -175,12 +186,21 @@ export function WishForm({
       onWishCreated?.(result);
     } catch (err) {
       console.error('Wish creation error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create wish';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to create wish';
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [description, proposedAmount, isAuthenticated, token, validateForm, onWishCreated, onError]);
+  }, [
+    description,
+    proposedAmount,
+    isAuthenticated,
+    token,
+    validateForm,
+    onWishCreated,
+    onError,
+  ]);
 
   /**
    * Handle modal close and reset state
@@ -196,10 +216,13 @@ export function WishForm({
   /**
    * Handle form submission
    */
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    submitWish();
-  }, [submitWish]);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      submitWish();
+    },
+    [submitWish]
+  );
 
   /**
    * Check if form has validation errors
@@ -250,9 +273,7 @@ export function WishForm({
           </div>
 
           <div className="mt-6 flex justify-center">
-            <Button onClick={handleClose}>
-              Close
-            </Button>
+            <Button onClick={handleClose}>Close</Button>
           </div>
         </div>
       )}
@@ -262,7 +283,10 @@ export function WishForm({
         <form onSubmit={handleSubmit} className="p-4">
           {/* Wish Details */}
           <List>
-            <Section header="Wish Details" footer="Your buddy must approve this wish before it appears in the marketplace">
+            <Section
+              header="Wish Details"
+              footer="Your buddy must approve this wish before it appears in the marketplace"
+            >
               <div className="p-4 space-y-4">
                 <div>
                   <Input
@@ -292,7 +316,9 @@ export function WishForm({
                     placeholder="1.00"
                     value={proposedAmount}
                     onChange={handleAmountChange}
-                    status={validationErrors.proposedAmount ? 'error' : undefined}
+                    status={
+                      validationErrors.proposedAmount ? 'error' : undefined
+                    }
                   />
                   {validationErrors.proposedAmount && (
                     <Caption level="1" className="text-red-500 mt-1">
@@ -326,7 +352,13 @@ export function WishForm({
             <Button
               type="submit"
               size="l"
-              disabled={isLoading || !isAuthenticated || hasValidationErrors || !description.trim() || !proposedAmount}
+              disabled={
+                isLoading ||
+                !isAuthenticated ||
+                hasValidationErrors ||
+                !description.trim() ||
+                !proposedAmount
+              }
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">

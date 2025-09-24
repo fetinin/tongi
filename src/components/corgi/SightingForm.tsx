@@ -9,7 +9,7 @@ import {
   Modal,
   Placeholder,
   Spinner,
-  Caption
+  Caption,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -39,12 +39,13 @@ export function SightingForm({
   isOpen,
   onClose,
   onSightingReported,
-  onError
+  onError,
 }: SightingFormProps) {
   const { token, isAuthenticated } = useAuth();
   const [corgiCount, setCorgiCount] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [sightingResult, setSightingResult] = useState<CorgiSightingResult | null>(null);
+  const [sightingResult, setSightingResult] =
+    useState<CorgiSightingResult | null>(null);
   const [validationError, setValidationError] = useState<string>('');
 
   /**
@@ -63,11 +64,14 @@ export function SightingForm({
   /**
    * Handle corgi count change with validation
    */
-  const handleCorgiCountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value) || 1;
-    setCorgiCount(value);
-    setValidationError(validateCorgiCount(value));
-  }, [validateCorgiCount]);
+  const handleCorgiCountChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value) || 1;
+      setCorgiCount(value);
+      setValidationError(validateCorgiCount(value));
+    },
+    [validateCorgiCount]
+  );
 
   /**
    * Submit corgi sighting report
@@ -94,7 +98,7 @@ export function SightingForm({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           corgiCount,
@@ -113,12 +117,20 @@ export function SightingForm({
       onSightingReported?.(result);
     } catch (err) {
       console.error('Sighting report error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to report sighting';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to report sighting';
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [corgiCount, isAuthenticated, token, validateCorgiCount, onSightingReported, onError]);
+  }, [
+    corgiCount,
+    isAuthenticated,
+    token,
+    validateCorgiCount,
+    onSightingReported,
+    onError,
+  ]);
 
   /**
    * Handle modal close and reset state
@@ -133,10 +145,13 @@ export function SightingForm({
   /**
    * Handle form submission
    */
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    submitSighting();
-  }, [submitSighting]);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      submitSighting();
+    },
+    [submitSighting]
+  );
 
   return (
     <Modal
@@ -157,9 +172,7 @@ export function SightingForm({
           </Placeholder>
 
           <div className="mt-6 flex justify-center">
-            <Button onClick={handleClose}>
-              Close
-            </Button>
+            <Button onClick={handleClose}>Close</Button>
           </div>
         </div>
       )}
@@ -169,7 +182,10 @@ export function SightingForm({
         <form onSubmit={handleSubmit} className="p-4">
           {/* Sighting Details */}
           <List>
-            <Section header="Sighting Details" footer="Your buddy will need to confirm this sighting before you earn Corgi coins">
+            <Section
+              header="Sighting Details"
+              footer="Your buddy will need to confirm this sighting before you earn Corgi coins"
+            >
               <div className="p-4">
                 <div>
                   <Input

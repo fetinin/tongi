@@ -30,7 +30,9 @@ interface ErrorResponse {
  * GET /api/wishes/pending
  * Get pending wishes that need user's approval
  */
-export async function GET(request: NextRequest): Promise<NextResponse<PendingWishesResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<PendingWishesResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<PendingWis
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -59,7 +61,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<PendingWis
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'limit must be a number between 1 and 100'
+          message: 'limit must be a number between 1 and 100',
         },
         { status: 400 }
       );
@@ -69,7 +71,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<PendingWis
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'offset must be a non-negative number'
+          message: 'offset must be a non-negative number',
         },
         { status: 400 }
       );
@@ -81,10 +83,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<PendingWis
       offset,
     };
 
-    const result = await wishService.getPendingWishes(currentUserId, queryParams);
+    const result = await wishService.getPendingWishes(
+      currentUserId,
+      queryParams
+    );
 
     // Map the response
-    const mappedWishes: WishResponse[] = result.wishes.map(wish => ({
+    const mappedWishes: WishResponse[] = result.wishes.map((wish) => ({
       id: wish.id,
       creatorId: wish.creator_id,
       buddyId: wish.buddy_id,
@@ -104,18 +109,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<PendingWis
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Pending wishes retrieval error:', error);
 
     // Handle specific WishService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -125,7 +133,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<PendingWis
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving pending wishes'
+        message: 'An unexpected error occurred while retrieving pending wishes',
       },
       { status: 500 }
     );

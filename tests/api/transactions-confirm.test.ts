@@ -16,15 +16,15 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'test-transaction-id' },
       body: {
-        tonTxHash: '0x1234567890abcdef'
-      }
+        tonTxHash: '0x1234567890abcdef',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(401);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Unauthorized'
+      error: 'Unauthorized',
     });
   });
 
@@ -33,16 +33,16 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'test-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
-      body: {}
+      body: {},
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'tonTxHash is required'
+      error: 'tonTxHash is required',
     });
   });
 
@@ -51,18 +51,18 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'invalid-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0x1234567890abcdef'
-      }
+        tonTxHash: '0x1234567890abcdef',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Invalid transaction ID format'
+      error: 'Invalid transaction ID format',
     });
   });
 
@@ -71,18 +71,18 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'non-existent-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0x1234567890abcdef'
-      }
+        tonTxHash: '0x1234567890abcdef',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(404);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Transaction not found'
+      error: 'Transaction not found',
     });
   });
 
@@ -91,18 +91,18 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'other-user-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0x1234567890abcdef'
-      }
+        tonTxHash: '0x1234567890abcdef',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(403);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Not authorized to confirm this transaction'
+      error: 'Not authorized to confirm this transaction',
     });
   });
 
@@ -111,18 +111,18 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'already-confirmed-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0x1234567890abcdef'
-      }
+        tonTxHash: '0x1234567890abcdef',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Transaction already confirmed'
+      error: 'Transaction already confirmed',
     });
   });
 
@@ -131,18 +131,18 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'valid-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: 'invalid-hash'
-      }
+        tonTxHash: 'invalid-hash',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Invalid TON transaction hash format'
+      error: 'Invalid TON transaction hash format',
     });
   });
 
@@ -151,18 +151,18 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'valid-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0x1234567890abcdef'
-      }
+        tonTxHash: '0x1234567890abcdef',
+      },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'TON transaction could not be verified'
+      error: 'TON transaction could not be verified',
     });
   });
 
@@ -171,11 +171,11 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'valid-pending-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0xvalidtransactionhash123456789abcdef'
-      }
+        tonTxHash: '0xvalidtransactionhash123456789abcdef',
+      },
     });
 
     await handler(req, res);
@@ -184,7 +184,10 @@ describe('/api/transactions/[id]/confirm POST', () => {
     const data = JSON.parse(res._getData());
     expect(data).toHaveProperty('id');
     expect(data).toHaveProperty('status', 'confirmed');
-    expect(data).toHaveProperty('tonTxHash', '0xvalidtransactionhash123456789abcdef');
+    expect(data).toHaveProperty(
+      'tonTxHash',
+      '0xvalidtransactionhash123456789abcdef'
+    );
     expect(data).toHaveProperty('confirmedAt');
     expect(data).toHaveProperty('updatedAt');
   });
@@ -194,11 +197,11 @@ describe('/api/transactions/[id]/confirm POST', () => {
       method: 'POST',
       query: { id: 'valid-pending-transaction-id' },
       headers: {
-        'x-telegram-user-id': '123456789'
+        'x-telegram-user-id': '123456789',
       },
       body: {
-        tonTxHash: '0xvalidtransactionhash123456789abcdef'
-      }
+        tonTxHash: '0xvalidtransactionhash123456789abcdef',
+      },
     });
 
     await handler(req, res);
@@ -222,14 +225,14 @@ describe('/api/transactions/[id]/confirm POST', () => {
   it('should return 405 for non-POST methods', async () => {
     const { req, res } = createMocks({
       method: 'GET',
-      query: { id: 'test-transaction-id' }
+      query: { id: 'test-transaction-id' },
     });
 
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(405);
     expect(JSON.parse(res._getData())).toEqual({
-      error: 'Method not allowed'
+      error: 'Method not allowed',
     });
   });
 

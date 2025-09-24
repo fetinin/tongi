@@ -30,7 +30,9 @@ interface ErrorResponse {
  * GET /api/transactions
  * Get user's transaction history
  */
-export async function GET(request: NextRequest): Promise<NextResponse<TransactionListResponse | ErrorResponse>> {
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<TransactionListResponse | ErrorResponse>> {
   try {
     // Authenticate the request
     const authResult = authenticateRequest(request);
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
         return NextResponse.json(
           {
             error: 'VALIDATION_ERROR',
-            message: 'type must be either "reward" or "purchase"'
+            message: 'type must be either "reward" or "purchase"',
           },
           { status: 400 }
         );
@@ -72,7 +74,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
-          message: 'limit must be a number between 1 and 100'
+          message: 'limit must be a number between 1 and 100',
         },
         { status: 400 }
       );
@@ -82,11 +84,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
     let result;
     if (transactionType) {
       // Get user's wallet address first
-      const userTransactionsResult = await transactionService.getUserTransactions(userId, 1, limit);
+      const userTransactionsResult =
+        await transactionService.getUserTransactions(userId, 1, limit);
 
       // Filter by transaction type
       const filteredTransactions = userTransactionsResult.transactions.filter(
-        transaction => transaction.transaction_type === transactionType
+        (transaction) => transaction.transaction_type === transactionType
       );
 
       result = {
@@ -94,7 +97,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
         total: filteredTransactions.length,
         page: 1,
         limit,
-        hasMore: false
+        hasMore: false,
       };
     } else {
       // Get all user transactions
@@ -102,37 +105,42 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
     }
 
     // Map the response to match API contract
-    const mappedTransactions: TransactionResponse[] = result.transactions.map(transaction => ({
-      id: transaction.id,
-      transactionHash: transaction.transaction_hash,
-      fromWallet: transaction.from_wallet,
-      toWallet: transaction.to_wallet,
-      amount: transaction.amount,
-      transactionType: transaction.transaction_type,
-      relatedEntityId: transaction.related_entity_id,
-      relatedEntityType: transaction.related_entity_type,
-      status: transaction.status,
-      createdAt: transaction.created_at.toISOString(),
-      completedAt: transaction.completed_at?.toISOString() || null,
-    }));
+    const mappedTransactions: TransactionResponse[] = result.transactions.map(
+      (transaction) => ({
+        id: transaction.id,
+        transactionHash: transaction.transaction_hash,
+        fromWallet: transaction.from_wallet,
+        toWallet: transaction.to_wallet,
+        amount: transaction.amount,
+        transactionType: transaction.transaction_type,
+        relatedEntityId: transaction.related_entity_id,
+        relatedEntityType: transaction.related_entity_type,
+        status: transaction.status,
+        createdAt: transaction.created_at.toISOString(),
+        completedAt: transaction.completed_at?.toISOString() || null,
+      })
+    );
 
     const response: TransactionListResponse = {
       transactions: mappedTransactions,
     };
 
     return NextResponse.json(response, { status: 200 });
-
   } catch (error) {
     console.error('Transaction retrieval error:', error);
 
     // Handle specific TransactionService errors
     if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as { code: string; message: string; statusCode?: number };
+      const serviceError = error as {
+        code: string;
+        message: string;
+        statusCode?: number;
+      };
 
       return NextResponse.json(
         {
           error: serviceError.code,
-          message: serviceError.message
+          message: serviceError.message,
         },
         { status: serviceError.statusCode || 500 }
       );
@@ -142,7 +150,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<Transactio
     return NextResponse.json(
       {
         error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving transactions'
+        message: 'An unexpected error occurred while retrieving transactions',
       },
       { status: 500 }
     );

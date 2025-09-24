@@ -9,7 +9,7 @@ import {
   Badge,
   Placeholder,
   Spinner,
-  Caption
+  Caption,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -53,11 +53,13 @@ export function SightingHistory({
   refreshInterval = 30000,
   showEmptyState = true,
   limit,
-  initialFilter = 'all'
+  initialFilter = 'all',
 }: SightingHistoryProps) {
   const { token, isAuthenticated } = useAuth();
   const [sightings, setSightings] = useState<CorgiSightingData[]>([]);
-  const [filteredSightings, setFilteredSightings] = useState<CorgiSightingData[]>([]);
+  const [filteredSightings, setFilteredSightings] = useState<
+    CorgiSightingData[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialFilter);
@@ -78,13 +80,15 @@ export function SightingHistory({
 
       const response = await fetch(url.toString(), {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch sighting history');
+        throw new Error(
+          errorData.message || 'Failed to fetch sighting history'
+        );
       }
 
       const data: SightingHistoryResponse = await response.json();
@@ -95,7 +99,9 @@ export function SightingHistory({
       onHistoryUpdated?.(data.sightings);
     } catch (err) {
       console.error('Sighting history fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load sighting history');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load sighting history'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +121,9 @@ export function SightingHistory({
     if (statusFilter === 'all') {
       setFilteredSightings(sightings);
     } else {
-      setFilteredSightings(sightings.filter(sighting => sighting.status === statusFilter));
+      setFilteredSightings(
+        sightings.filter((sighting) => sighting.status === statusFilter)
+      );
     }
   }, [sightings, statusFilter]);
 
@@ -145,7 +153,8 @@ export function SightingHistory({
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
-          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+          year:
+            date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
         });
       }
     }
@@ -195,9 +204,11 @@ export function SightingHistory({
    * Calculate statistics from sightings
    */
   const getStatistics = () => {
-    const confirmedSightings = sightings.filter(s => s.status === 'confirmed');
-    const pendingSightings = sightings.filter(s => s.status === 'pending');
-    const deniedSightings = sightings.filter(s => s.status === 'denied');
+    const confirmedSightings = sightings.filter(
+      (s) => s.status === 'confirmed'
+    );
+    const pendingSightings = sightings.filter((s) => s.status === 'pending');
+    const deniedSightings = sightings.filter((s) => s.status === 'denied');
 
     const totalRewards = confirmedSightings.reduce((total, sighting) => {
       return total + calculateReward(sighting.corgiCount);
@@ -213,7 +224,7 @@ export function SightingHistory({
       pending: pendingSightings.length,
       denied: deniedSightings.length,
       totalRewards,
-      totalCorgisSpotted
+      totalCorgisSpotted,
     };
   };
 
@@ -241,15 +252,8 @@ export function SightingHistory({
     return (
       <Section header="Sighting History">
         <div className="p-4">
-          <Placeholder
-            header="Error Loading History"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={fetchSightingHistory}
-            >
+          <Placeholder header="Error Loading History" description={error}>
+            <Button size="s" mode="outline" onClick={fetchSightingHistory}>
               Retry
             </Button>
           </Placeholder>
@@ -271,7 +275,7 @@ export function SightingHistory({
         <div className="p-4">
           <Placeholder
             header="No Sightings Yet"
-            description="You haven&apos;t reported any corgi sightings yet. Start spotting corgis and building your history!"
+            description="You haven't reported any corgi sightings yet. Start spotting corgis and building your history!"
           >
             <div className="flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full">
               <span className="text-2xl">🐕</span>
@@ -288,16 +292,24 @@ export function SightingHistory({
       <Section header="Your Statistics">
         <div className="p-4 space-y-2">
           <div className="flex justify-between items-center">
-            <Caption level="1" className="text-gray-600">Total Sightings</Caption>
+            <Caption level="1" className="text-gray-600">
+              Total Sightings
+            </Caption>
             <span className="font-medium">{stats.total}</span>
           </div>
           <div className="flex justify-between items-center">
-            <Caption level="1" className="text-gray-600">Corgis Spotted</Caption>
+            <Caption level="1" className="text-gray-600">
+              Corgis Spotted
+            </Caption>
             <span className="font-medium">{stats.totalCorgisSpotted}</span>
           </div>
           <div className="flex justify-between items-center">
-            <Caption level="1" className="text-gray-600">Corgi Coins Earned</Caption>
-            <span className="font-medium text-green-600">{stats.totalRewards}</span>
+            <Caption level="1" className="text-gray-600">
+              Corgi Coins Earned
+            </Caption>
+            <span className="font-medium text-green-600">
+              {stats.totalRewards}
+            </span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-500">Confirmed: {stats.confirmed}</span>
@@ -363,7 +375,9 @@ export function SightingHistory({
           filteredSightings.map((sighting) => {
             const statusBadge = getStatusBadge(sighting.status);
             const isConfirmed = sighting.status === 'confirmed';
-            const reward = isConfirmed ? calculateReward(sighting.corgiCount) : 0;
+            const reward = isConfirmed
+              ? calculateReward(sighting.corgiCount)
+              : 0;
 
             return (
               <Cell
@@ -371,17 +385,18 @@ export function SightingHistory({
                 subtitle={`Reported ${formatTimestamp(sighting.createdAt)}${sighting.respondedAt ? ` • Responded ${formatTimestamp(sighting.respondedAt)}` : ''}`}
                 before={
                   <div className="flex items-center justify-center w-10 h-10 bg-orange-100 rounded-full">
-                    <span className="text-lg">{getCorgiEmoji(sighting.corgiCount)}</span>
+                    <span className="text-lg">
+                      {getCorgiEmoji(sighting.corgiCount)}
+                    </span>
                   </div>
                 }
-                after={
-                  <Badge {...statusBadge} />
-                }
+                after={<Badge {...statusBadge} />}
               >
                 <div className="flex flex-col gap-1">
                   <div>
                     <strong>
-                      {sighting.corgiCount} Corgi{sighting.corgiCount !== 1 ? 's' : ''} Spotted
+                      {sighting.corgiCount} Corgi
+                      {sighting.corgiCount !== 1 ? 's' : ''} Spotted
                     </strong>
                   </div>
                   {isConfirmed && (
@@ -395,9 +410,7 @@ export function SightingHistory({
                     </div>
                   )}
                   {sighting.status === 'denied' && (
-                    <div className="text-sm text-red-500">
-                      Denied by buddy
-                    </div>
+                    <div className="text-sm text-red-500">Denied by buddy</div>
                   )}
                 </div>
               </Cell>
@@ -409,7 +422,9 @@ export function SightingHistory({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          Your sighting history shows all corgi reports you&apos;ve made. Confirmed sightings earn you Corgi coins, which can be used in the marketplace.
+          Your sighting history shows all corgi reports you&apos;ve made.
+          Confirmed sightings earn you Corgi coins, which can be used in the
+          marketplace.
         </Caption>
       </Section>
     </List>
@@ -424,7 +439,7 @@ export function useCorgiSightingHistory() {
   const [filter, setFilter] = useState<StatusFilter>('all');
 
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
   const setStatusFilter = useCallback((newFilter: StatusFilter) => {

@@ -12,7 +12,7 @@ describe('GET /api/marketplace', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -37,7 +37,7 @@ describe('GET /api/marketplace', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -96,7 +96,7 @@ describe('GET /api/marketplace', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -114,7 +114,7 @@ describe('GET /api/marketplace', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -131,13 +131,16 @@ describe('GET /api/marketplace', () => {
     const offset = 5;
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?limit=${limit}&offset=${offset}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?limit=${limit}&offset=${offset}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer mock_jwt_token',
+        },
+      }
+    );
 
     expect(response.ok).toBe(true);
     const data = await response.json();
@@ -149,13 +152,16 @@ describe('GET /api/marketplace', () => {
     const invalidLimit = 150; // exceeds maximum of 100
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?limit=${invalidLimit}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?limit=${invalidLimit}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer mock_jwt_token',
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(400);
@@ -171,13 +177,16 @@ describe('GET /api/marketplace', () => {
     const invalidOffset = -1;
 
     // This will FAIL until the actual endpoint is implemented
-    const response = await fetch(`${baseUrl}${endpoint}?offset=${invalidOffset}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}${endpoint}?offset=${invalidOffset}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer mock_jwt_token',
+        },
+      }
+    );
 
     expect(response.ok).toBe(false);
     expect(response.status).toBe(400);
@@ -211,7 +220,7 @@ describe('GET /api/marketplace', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 
@@ -232,7 +241,7 @@ describe('GET /api/marketplace', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock_jwt_token'
+        Authorization: 'Bearer mock_jwt_token',
       },
     });
 

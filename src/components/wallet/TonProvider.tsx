@@ -1,7 +1,17 @@
 'use client';
 
-import { type PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
-import { useTonAddress, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import {
+  type PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import {
+  useTonAddress,
+  useTonConnectUI,
+  useTonWallet,
+} from '@tonconnect/ui-react';
 import { Cell, Section, Placeholder, Button } from '@telegram-apps/telegram-ui';
 
 // TON Connect wallet state interface
@@ -54,9 +64,8 @@ export function TonProvider({ children, className }: TonProviderProps) {
       setConnectionError(null);
       await tonConnectUI.connectWallet();
     } catch (error) {
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Failed to connect wallet';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to connect wallet';
       setConnectionError(errorMessage);
       console.error('TON Connect error:', error);
     } finally {
@@ -70,9 +79,8 @@ export function TonProvider({ children, className }: TonProviderProps) {
       setConnectionError(null);
       await tonConnectUI.disconnect();
     } catch (error) {
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Failed to disconnect wallet';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to disconnect wallet';
       setConnectionError(errorMessage);
       console.error('TON Disconnect error:', error);
     }
@@ -91,9 +99,7 @@ export function TonProvider({ children, className }: TonProviderProps) {
 
   return (
     <TonWalletContext.Provider value={walletState}>
-      <div className={className}>
-        {children}
-      </div>
+      <div className={className}>{children}</div>
     </TonWalletContext.Provider>
   );
 }
@@ -110,22 +116,15 @@ export function WalletStatus({ showActions = true }: WalletStatusProps) {
     isConnecting,
     connectionError,
     connectWallet,
-    disconnectWallet
+    disconnectWallet,
   } = useTonWalletContext();
 
   if (connectionError) {
     return (
       <Section header="Wallet Connection">
-        <Placeholder
-          header="Connection Error"
-          description={connectionError}
-        >
+        <Placeholder header="Connection Error" description={connectionError}>
           {showActions && (
-            <Button
-              size="s"
-              onClick={connectWallet}
-              disabled={isConnecting}
-            >
+            <Button size="s" onClick={connectWallet} disabled={isConnecting}>
               {isConnecting ? 'Connecting...' : 'Try Again'}
             </Button>
           )}
@@ -142,11 +141,7 @@ export function WalletStatus({ showActions = true }: WalletStatusProps) {
           description="Connect your TON wallet to use Corgi coins and purchase wishes"
         >
           {showActions && (
-            <Button
-              size="s"
-              onClick={connectWallet}
-              disabled={isConnecting}
-            >
+            <Button size="s" onClick={connectWallet} disabled={isConnecting}>
               {isConnecting ? 'Connecting...' : 'Connect Wallet'}
             </Button>
           )}
@@ -158,16 +153,18 @@ export function WalletStatus({ showActions = true }: WalletStatusProps) {
   return (
     <Section header="TON Wallet">
       <Cell
-        subtitle={friendlyAddress ? `${friendlyAddress.slice(0, 8)}...${friendlyAddress.slice(-8)}` : 'Loading...'}
-        after={showActions && (
-          <Button
-            size="s"
-            mode="plain"
-            onClick={disconnectWallet}
-          >
-            Disconnect
-          </Button>
-        )}
+        subtitle={
+          friendlyAddress
+            ? `${friendlyAddress.slice(0, 8)}...${friendlyAddress.slice(-8)}`
+            : 'Loading...'
+        }
+        after={
+          showActions && (
+            <Button size="s" mode="plain" onClick={disconnectWallet}>
+              Disconnect
+            </Button>
+          )
+        }
       >
         Connected
       </Cell>
@@ -185,14 +182,10 @@ interface WalletButtonProps {
 export function WalletButton({
   variant = 'primary',
   size = 'm',
-  disabled
+  disabled,
 }: WalletButtonProps) {
-  const {
-    isConnected,
-    isConnecting,
-    connectWallet,
-    disconnectWallet
-  } = useTonWalletContext();
+  const { isConnected, isConnecting, connectWallet, disconnectWallet } =
+    useTonWalletContext();
 
   const handleClick = isConnected ? disconnectWallet : connectWallet;
   const buttonText = isConnecting

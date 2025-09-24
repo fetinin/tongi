@@ -87,16 +87,20 @@ export class CorgiSightingValidator {
    * Validates corgi count is within acceptable range
    */
   static isValidCorgiCount(count: number): boolean {
-    return Number.isInteger(count) &&
-           count >= CORGI_SIGHTING_VALIDATION.MIN_CORGI_COUNT &&
-           count <= CORGI_SIGHTING_VALIDATION.MAX_CORGI_COUNT;
+    return (
+      Number.isInteger(count) &&
+      count >= CORGI_SIGHTING_VALIDATION.MIN_CORGI_COUNT &&
+      count <= CORGI_SIGHTING_VALIDATION.MAX_CORGI_COUNT
+    );
   }
 
   /**
    * Validates status is a valid CorgiSightingStatus
    */
   static isValidStatus(status: string): status is CorgiSightingStatus {
-    return CORGI_SIGHTING_VALIDATION.VALID_STATUSES.includes(status as CorgiSightingStatus);
+    return CORGI_SIGHTING_VALIDATION.VALID_STATUSES.includes(
+      status as CorgiSightingStatus
+    );
   }
 
   /**
@@ -113,7 +117,9 @@ export class CorgiSightingValidator {
     const errors: string[] = [];
 
     if (!this.isValidCorgiCount(input.corgi_count)) {
-      errors.push(`corgi_count must be between ${CORGI_SIGHTING_VALIDATION.MIN_CORGI_COUNT} and ${CORGI_SIGHTING_VALIDATION.MAX_CORGI_COUNT}`);
+      errors.push(
+        `corgi_count must be between ${CORGI_SIGHTING_VALIDATION.MIN_CORGI_COUNT} and ${CORGI_SIGHTING_VALIDATION.MAX_CORGI_COUNT}`
+      );
     }
 
     if (!this.isValidUserPair(input.reporter_id, input.buddy_id)) {
@@ -138,7 +144,9 @@ export class CorgiSightingValidator {
     const errors: string[] = [];
 
     if (!this.isValidStatus(input.status)) {
-      errors.push(`status must be one of: ${CORGI_SIGHTING_VALIDATION.VALID_STATUSES.join(', ')}`);
+      errors.push(
+        `status must be one of: ${CORGI_SIGHTING_VALIDATION.VALID_STATUSES.join(', ')}`
+      );
     }
 
     if (input.responded_at !== undefined && input.responded_at !== null) {

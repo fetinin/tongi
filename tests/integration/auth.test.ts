@@ -3,11 +3,12 @@ import { describe, test, expect } from '@jest/globals';
 // T007: Integration test Telegram initData validation
 // This test MUST FAIL until the actual validation utilities are implemented
 describe('Telegram initData validation integration', () => {
-
   describe('validateInitData function from src/lib/telegram.ts', () => {
     test('should validate correctly signed initData', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { validateInitData, createTestInitData } = await import('@/lib/telegram');
+      const { validateInitData, createTestInitData } = await import(
+        '@/lib/telegram'
+      );
 
       const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
       const userData = { id: 123456789, first_name: 'John' };
@@ -21,7 +22,8 @@ describe('Telegram initData validation integration', () => {
       // This will FAIL until src/lib/telegram.ts is implemented
       const { validateInitData } = await import('@/lib/telegram');
 
-      const invalidInitData = 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=invalid_hash';
+      const invalidInitData =
+        'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22John%22%7D&auth_date=1234567890&hash=invalid_hash';
       const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
 
       const isValid = validateInitData(invalidInitData, botToken);
@@ -30,7 +32,9 @@ describe('Telegram initData validation integration', () => {
 
     test('should reject expired initData (older than 1 day)', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { validateInitData, createTestInitData } = await import('@/lib/telegram');
+      const { validateInitData, createTestInitData } = await import(
+        '@/lib/telegram'
+      );
 
       const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
       const userData = { id: 123456789, first_name: 'John' };
@@ -45,14 +49,16 @@ describe('Telegram initData validation integration', () => {
   describe('extractUserData function from src/lib/telegram.ts', () => {
     test('should extract user data correctly from valid initData', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { extractUserData, createTestInitData } = await import('@/lib/telegram');
+      const { extractUserData, createTestInitData } = await import(
+        '@/lib/telegram'
+      );
 
       const userData = {
         id: 123456789,
         first_name: 'John',
         last_name: 'Doe',
         username: 'john_doe',
-        language_code: 'en'
+        language_code: 'en',
       };
 
       const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
@@ -64,7 +70,7 @@ describe('Telegram initData validation integration', () => {
         firstName: 'John',
         lastName: 'Doe',
         username: 'john_doe',
-        languageCode: 'en'
+        languageCode: 'en',
       });
     });
 
@@ -82,7 +88,8 @@ describe('Telegram initData validation integration', () => {
       // This will FAIL until src/lib/telegram.ts is implemented
       const { extractUserData } = await import('@/lib/telegram');
 
-      const initDataWithMalformedUser = 'auth_date=1234567890&user=invalid_json_string&hash=abcdef123456';
+      const initDataWithMalformedUser =
+        'auth_date=1234567890&user=invalid_json_string&hash=abcdef123456';
 
       const extractedUser = extractUserData(initDataWithMalformedUser);
       expect(extractedUser).toBeNull();
@@ -95,12 +102,16 @@ describe('Telegram initData validation integration', () => {
       const { validateUserData } = await import('@/lib/telegram');
 
       // Valid user data
-      expect(validateUserData({ id: 123456789, first_name: 'John' })).toBe(true);
+      expect(validateUserData({ id: 123456789, first_name: 'John' })).toBe(
+        true
+      );
 
       // Invalid cases
       expect(validateUserData(null)).toBe(false);
       expect(validateUserData({})).toBe(false);
-      expect(validateUserData({ id: 'not_a_number', first_name: 'John' })).toBe(false);
+      expect(validateUserData({ id: 'not_a_number', first_name: 'John' })).toBe(
+        false
+      );
       expect(validateUserData({ id: 123456789, first_name: '' })).toBe(false);
       expect(validateUserData({ id: 123456789 })).toBe(false);
     });
@@ -114,12 +125,12 @@ describe('Telegram initData validation integration', () => {
         first_name: 'John',
         last_name: 'Doe',
         username: 'john_doe',
-        language_code: 'en'
+        language_code: 'en',
       };
 
       const minimalUserData = {
         id: 123456789,
-        first_name: 'John'
+        first_name: 'John',
       };
 
       const processedFullUser = normalizeUserData(fullUserData);
@@ -128,7 +139,7 @@ describe('Telegram initData validation integration', () => {
         firstName: 'John',
         lastName: 'Doe',
         username: 'john_doe',
-        languageCode: 'en'
+        languageCode: 'en',
       });
 
       const processedMinimalUser = normalizeUserData(minimalUserData);
@@ -137,7 +148,7 @@ describe('Telegram initData validation integration', () => {
         firstName: 'John',
         lastName: null,
         username: null,
-        languageCode: null
+        languageCode: null,
       });
     });
   });
@@ -150,7 +161,7 @@ describe('Telegram initData validation integration', () => {
       const userData = {
         id: 123456789,
         firstName: 'John',
-        username: 'john_doe'
+        username: 'john_doe',
       };
 
       const token = createAuthToken(userData);
@@ -160,12 +171,14 @@ describe('Telegram initData validation integration', () => {
 
     test('should verify JWT token correctly', async () => {
       // This will FAIL until src/lib/telegram.ts is implemented
-      const { createAuthToken, verifyAuthToken } = await import('@/lib/telegram');
+      const { createAuthToken, verifyAuthToken } = await import(
+        '@/lib/telegram'
+      );
 
       const userData = {
         id: 123456789,
         firstName: 'John',
-        username: 'john_doe'
+        username: 'john_doe',
       };
 
       const token = createAuthToken(userData);

@@ -12,7 +12,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -20,7 +20,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -61,7 +61,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: false
+      accepted: false,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -69,7 +69,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -101,7 +101,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -121,7 +121,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: "true"
+      accepted: 'true',
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -129,7 +129,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -149,7 +149,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${nonExistentWishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -157,7 +157,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -176,7 +176,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -184,7 +184,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validTokenWrongUser}`
+        Authorization: `Bearer ${validTokenWrongUser}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -204,7 +204,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${alreadyRespondedWishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -212,7 +212,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -231,7 +231,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -257,7 +257,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -265,7 +265,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${invalidToken}`
+        Authorization: `Bearer ${invalidToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -284,7 +284,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${invalidWishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -292,7 +292,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -312,7 +312,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${zeroWishId}/respond`;
 
     const requestBody = {
-      accepted: false
+      accepted: false,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -320,7 +320,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -339,7 +339,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${ownWishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -347,7 +347,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -367,7 +367,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${purchasedWishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -375,7 +375,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -399,7 +399,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: 'invalid-json-body',
     });
@@ -418,14 +418,14 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -444,7 +444,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -452,7 +452,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validTokenNoBuddy}`
+        Authorization: `Bearer ${validTokenNoBuddy}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -463,7 +463,9 @@ describe('POST /api/wishes/[id]/respond', () => {
     const data = await response.json();
     expect(data).toHaveProperty('error', 'NO_BUDDY_RELATIONSHIP');
     expect(data).toHaveProperty('message');
-    expect(data.message).toMatch(/no active buddy|buddy relationship required/i);
+    expect(data.message).toMatch(
+      /no active buddy|buddy relationship required/i
+    );
   });
 
   test('should handle negative wish ID', async () => {
@@ -472,7 +474,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${negativeWishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -480,7 +482,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -500,7 +502,7 @@ describe('POST /api/wishes/[id]/respond', () => {
     const endpoint = `${basePath}/${wishId}/respond`;
 
     const requestBody = {
-      accepted: true
+      accepted: true,
     };
 
     // This will FAIL until the actual endpoint is implemented
@@ -508,7 +510,7 @@ describe('POST /api/wishes/[id]/respond', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${validToken}`
+        Authorization: `Bearer ${validToken}`,
       },
       body: JSON.stringify(requestBody),
     });
@@ -535,7 +537,9 @@ describe('POST /api/wishes/[id]/respond', () => {
       expect(typeof data.createdAt).toBe('string');
 
       // Verify status enum
-      expect(['pending', 'accepted', 'rejected', 'purchased']).toContain(data.status);
+      expect(['pending', 'accepted', 'rejected', 'purchased']).toContain(
+        data.status
+      );
 
       // Verify date format
       expect(() => new Date(data.createdAt)).not.toThrow();

@@ -16,13 +16,15 @@ export interface AuthenticationResult {
  * @param request The incoming Next.js request
  * @returns Authentication result with user data or error
  */
-export function authenticateRequest(request: NextRequest): AuthenticationResult {
+export function authenticateRequest(
+  request: NextRequest
+): AuthenticationResult {
   const authHeader = request.headers.get('authorization');
 
   if (!authHeader) {
     return {
       success: false,
-      error: 'Missing authorization header'
+      error: 'Missing authorization header',
     };
   }
 
@@ -31,13 +33,13 @@ export function authenticateRequest(request: NextRequest): AuthenticationResult 
   if (!user) {
     return {
       success: false,
-      error: 'Invalid or expired token'
+      error: 'Invalid or expired token',
     };
   }
 
   return {
     success: true,
-    user
+    user,
   };
 }
 
@@ -47,7 +49,10 @@ export function authenticateRequest(request: NextRequest): AuthenticationResult 
  * @returns Wrapped handler that requires authentication
  */
 export function withAuth<T extends unknown[]>(
-  handler: (request: AuthenticatedRequest, ...args: T) => Promise<NextResponse> | NextResponse
+  handler: (
+    request: AuthenticatedRequest,
+    ...args: T
+  ) => Promise<NextResponse> | NextResponse
 ) {
   return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
     const authResult = authenticateRequest(request);
@@ -56,7 +61,7 @@ export function withAuth<T extends unknown[]>(
       return NextResponse.json(
         {
           error: 'UNAUTHORIZED',
-          message: authResult.error || 'Authentication required'
+          message: authResult.error || 'Authentication required',
         },
         { status: 401 }
       );
@@ -76,7 +81,9 @@ export function withAuth<T extends unknown[]>(
  * @param request The authenticated request object
  * @returns User data from the JWT token
  */
-export function getAuthenticatedUser(request: AuthenticatedRequest): AuthTokenPayload {
+export function getAuthenticatedUser(
+  request: AuthenticatedRequest
+): AuthTokenPayload {
   return request.user;
 }
 
@@ -103,7 +110,7 @@ export function requireAuth(request: NextRequest): NextResponse | null {
     return NextResponse.json(
       {
         error: 'UNAUTHORIZED',
-        message: authResult.error || 'Authentication required'
+        message: authResult.error || 'Authentication required',
       },
       { status: 401 }
     );
@@ -127,6 +134,9 @@ export function getUserId(request: AuthenticatedRequest): number {
  * @param targetUserId The user ID to compare against
  * @returns true if the authenticated user matches the target ID
  */
-export function isCurrentUser(request: AuthenticatedRequest, targetUserId: number): boolean {
+export function isCurrentUser(
+  request: AuthenticatedRequest,
+  targetUserId: number
+): boolean {
   return request.user.id === targetUserId;
 }

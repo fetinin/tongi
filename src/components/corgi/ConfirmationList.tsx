@@ -9,7 +9,7 @@ import {
   Badge,
   Placeholder,
   Spinner,
-  Caption
+  Caption,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -45,7 +45,7 @@ interface ConfirmationListProps {
 export function ConfirmationList({
   onConfirmationProcessed,
   refreshInterval = 15000,
-  showEmptyState = true
+  showEmptyState = true,
 }: ConfirmationListProps) {
   const { token, isAuthenticated } = useAuth();
   const [confirmations, setConfirmations] = useState<CorgiSightingData[]>([]);
@@ -64,7 +64,7 @@ export function ConfirmationList({
     try {
       const response = await fetch('/api/corgi/confirmations', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -78,7 +78,9 @@ export function ConfirmationList({
       setError(null);
     } catch (err) {
       console.error('Confirmations fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load confirmations');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load confirmations'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -96,48 +98,56 @@ export function ConfirmationList({
   /**
    * Handle confirmation or denial of a sighting
    */
-  const handleConfirmSighting = useCallback(async (sightingId: number, confirmed: boolean) => {
-    if (!isAuthenticated || !token) {
-      setError('Authentication required');
-      return;
-    }
-
-    // Mark as processing
-    setProcessingIds(prev => new Set(prev).add(sightingId));
-
-    try {
-      const response = await fetch(`/api/corgi/confirm/${sightingId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ confirmed }),
-      });
-
-      if (!response.ok) {
-        const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.message || 'Failed to process confirmation');
+  const handleConfirmSighting = useCallback(
+    async (sightingId: number, confirmed: boolean) => {
+      if (!isAuthenticated || !token) {
+        setError('Authentication required');
+        return;
       }
 
-      // Remove the confirmed/denied sighting from the list
-      setConfirmations(prev => prev.filter(sighting => sighting.id !== sightingId));
+      // Mark as processing
+      setProcessingIds((prev) => new Set(prev).add(sightingId));
 
-      // Notify parent component
-      onConfirmationProcessed?.(sightingId, confirmed);
+      try {
+        const response = await fetch(`/api/corgi/confirm/${sightingId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ confirmed }),
+        });
 
-    } catch (err) {
-      console.error('Confirmation processing error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to process confirmation');
-    } finally {
-      // Remove from processing
-      setProcessingIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(sightingId);
-        return newSet;
-      });
-    }
-  }, [isAuthenticated, token, onConfirmationProcessed]);
+        if (!response.ok) {
+          const errorData: ErrorResponse = await response.json();
+          throw new Error(
+            errorData.message || 'Failed to process confirmation'
+          );
+        }
+
+        // Remove the confirmed/denied sighting from the list
+        setConfirmations((prev) =>
+          prev.filter((sighting) => sighting.id !== sightingId)
+        );
+
+        // Notify parent component
+        onConfirmationProcessed?.(sightingId, confirmed);
+      } catch (err) {
+        console.error('Confirmation processing error:', err);
+        setError(
+          err instanceof Error ? err.message : 'Failed to process confirmation'
+        );
+      } finally {
+        // Remove from processing
+        setProcessingIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(sightingId);
+          return newSet;
+        });
+      }
+    },
+    [isAuthenticated, token, onConfirmationProcessed]
+  );
 
   /**
    * Format timestamp for display
@@ -160,7 +170,7 @@ export function ConfirmationList({
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       });
     }
   };
@@ -199,15 +209,8 @@ export function ConfirmationList({
     return (
       <Section header="Pending Confirmations">
         <div className="p-4">
-          <Placeholder
-            header="Error Loading Confirmations"
-            description={error}
-          >
-            <Button
-              size="s"
-              mode="outline"
-              onClick={fetchConfirmations}
-            >
+          <Placeholder header="Error Loading Confirmations" description={error}>
+            <Button size="s" mode="outline" onClick={fetchConfirmations}>
               Retry
             </Button>
           </Placeholder>
@@ -254,19 +257,18 @@ export function ConfirmationList({
               subtitle={`Reported ${formatTimestamp(sighting.createdAt)}`}
               before={
                 <div className="flex items-center justify-center w-10 h-10 bg-orange-100 rounded-full">
-                  <span className="text-lg">{getCorgiEmoji(sighting.corgiCount)}</span>
+                  <span className="text-lg">
+                    {getCorgiEmoji(sighting.corgiCount)}
+                  </span>
                 </div>
               }
-              after={
-                <Badge type="dot">
-                  Pending
-                </Badge>
-              }
+              after={<Badge type="dot">Pending</Badge>}
             >
               <div className="flex flex-col gap-2">
                 <div>
                   <strong>
-                    {sighting.corgiCount} Corgi{sighting.corgiCount !== 1 ? 's' : ''} Spotted
+                    {sighting.corgiCount} Corgi
+                    {sighting.corgiCount !== 1 ? 's' : ''} Spotted
                   </strong>
                 </div>
 
@@ -304,7 +306,8 @@ export function ConfirmationList({
       {/* Information Section */}
       <Section>
         <Caption level="1" className="px-4 py-2 text-gray-600">
-          When you confirm a sighting, your buddy will earn Corgi coins. Only confirm sightings you can actually verify or trust.
+          When you confirm a sighting, your buddy will earn Corgi coins. Only
+          confirm sightings you can actually verify or trust.
         </Caption>
       </Section>
     </List>
@@ -318,13 +321,18 @@ export function useCorgiConfirmations() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  const handleConfirmationProcessed = useCallback((sightingId: number, confirmed: boolean) => {
-    console.log(`Sighting ${sightingId} ${confirmed ? 'confirmed' : 'denied'}`);
-    // Could trigger notifications or other side effects here
-  }, []);
+  const handleConfirmationProcessed = useCallback(
+    (sightingId: number, confirmed: boolean) => {
+      console.log(
+        `Sighting ${sightingId} ${confirmed ? 'confirmed' : 'denied'}`
+      );
+      // Could trigger notifications or other side effects here
+    },
+    []
+  );
 
   return {
     refreshTrigger,

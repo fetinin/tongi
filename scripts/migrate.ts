@@ -110,13 +110,25 @@ try {
   `);
 
   // Create indexes for performance
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_buddy_pairs_users ON buddy_pairs(user1_id, user2_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_corgi_sightings_reporter ON corgi_sightings(reporter_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_corgi_sightings_buddy ON corgi_sightings(buddy_id)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_wishes_creator ON wishes(creator_id)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_buddy_pairs_users ON buddy_pairs(user1_id, user2_id)`
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_corgi_sightings_reporter ON corgi_sightings(reporter_id)`
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_corgi_sightings_buddy ON corgi_sightings(buddy_id)`
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_wishes_creator ON wishes(creator_id)`
+  );
   db.exec(`CREATE INDEX IF NOT EXISTS idx_wishes_status ON wishes(status)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_hash ON transactions(transaction_hash)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_related ON transactions(related_entity_type, related_entity_id)`);
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_transactions_hash ON transactions(transaction_hash)`
+  );
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_transactions_related ON transactions(related_entity_type, related_entity_id)`
+  );
 
   // Create triggers for updated_at fields
   db.exec(`
@@ -136,7 +148,9 @@ try {
   `);
 
   console.log('✅ Database migration completed successfully');
-  console.log('Tables created: users, buddy_pairs, corgi_sightings, wishes, transactions, bank_wallet');
+  console.log(
+    'Tables created: users, buddy_pairs, corgi_sightings, wishes, transactions, bank_wallet'
+  );
 } catch (error) {
   console.error('❌ Database migration failed:', error);
   process.exit(1);

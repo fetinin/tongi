@@ -169,30 +169,45 @@ export class BankService {
     const errors: string[] = [];
 
     // Validate wallet address
-    if (!data.wallet_address || !BankWalletConstraints.TON_ADDRESS_PATTERN.test(data.wallet_address)) {
+    if (
+      !data.wallet_address ||
+      !BankWalletConstraints.TON_ADDRESS_PATTERN.test(data.wallet_address)
+    ) {
       errors.push('Invalid TON wallet address format');
     }
 
     // Validate balance
     if (data.current_balance < BankWalletConstraints.MIN_BALANCE) {
-      errors.push(`Current balance must be at least ${BankWalletConstraints.MIN_BALANCE}`);
+      errors.push(
+        `Current balance must be at least ${BankWalletConstraints.MIN_BALANCE}`
+      );
     }
 
     // Validate total distributed
     if (data.total_distributed < BankWalletConstraints.MIN_TOTAL_DISTRIBUTED) {
-      errors.push(`Total distributed must be at least ${BankWalletConstraints.MIN_TOTAL_DISTRIBUTED}`);
+      errors.push(
+        `Total distributed must be at least ${BankWalletConstraints.MIN_TOTAL_DISTRIBUTED}`
+      );
     }
 
     // Validate decimal places
-    const balanceDecimals = (data.current_balance.toString().split('.')[1] || '').length;
-    const distributedDecimals = (data.total_distributed.toString().split('.')[1] || '').length;
+    const balanceDecimals = (
+      data.current_balance.toString().split('.')[1] || ''
+    ).length;
+    const distributedDecimals = (
+      data.total_distributed.toString().split('.')[1] || ''
+    ).length;
 
     if (balanceDecimals > BankWalletConstraints.DECIMAL_PLACES) {
-      errors.push(`Current balance cannot have more than ${BankWalletConstraints.DECIMAL_PLACES} decimal places`);
+      errors.push(
+        `Current balance cannot have more than ${BankWalletConstraints.DECIMAL_PLACES} decimal places`
+      );
     }
 
     if (distributedDecimals > BankWalletConstraints.DECIMAL_PLACES) {
-      errors.push(`Total distributed cannot have more than ${BankWalletConstraints.DECIMAL_PLACES} decimal places`);
+      errors.push(
+        `Total distributed cannot have more than ${BankWalletConstraints.DECIMAL_PLACES} decimal places`
+      );
     }
 
     return errors;
@@ -203,8 +218,12 @@ export class BankService {
    */
   public async getBankWalletStatus(): Promise<BankWallet | null> {
     try {
-      const row = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
-      return row ? this.mapRowToBankWallet(row as Record<string, unknown>) : null;
+      const row = this.statements.getBankWallet!.get(
+        BankWalletConstraints.SINGLETON_ID
+      );
+      return row
+        ? this.mapRowToBankWallet(row as Record<string, unknown>)
+        : null;
     } catch (error) {
       throw new BankServiceError(
         `Failed to retrieve bank wallet status: ${error}`,
@@ -216,17 +235,23 @@ export class BankService {
   /**
    * Initialize bank wallet (creates if doesn't exist)
    */
-  public async initializeBankWallet(walletData: BankWalletInput): Promise<BankWallet> {
+  public async initializeBankWallet(
+    walletData: BankWalletInput
+  ): Promise<BankWallet> {
     // Validate input data
     const validationErrors = this.validateBankWalletInput(walletData);
     if (validationErrors.length > 0) {
-      throw new BankWalletValidationError(`Validation failed: ${validationErrors.join(', ')}`);
+      throw new BankWalletValidationError(
+        `Validation failed: ${validationErrors.join(', ')}`
+      );
     }
 
     try {
       return withTransaction(() => {
         // Check if bank wallet already exists
-        const existingWallet = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
+        const existingWallet = this.statements.getBankWallet!.get(
+          BankWalletConstraints.SINGLETON_ID
+        );
         if (existingWallet) {
           throw new BankWalletConflictError('Bank wallet already exists');
         }
@@ -253,7 +278,9 @@ export class BankService {
           throw new BankWalletConflictError('Bank wallet already exists');
         }
         if (error.code === 'SQLITE_CONSTRAINT_CHECK') {
-          throw new BankWalletValidationError('Bank wallet data violates constraints');
+          throw new BankWalletValidationError(
+            'Bank wallet data violates constraints'
+          );
         }
       }
 
@@ -267,26 +294,48 @@ export class BankService {
   /**
    * Update bank wallet data
    */
-  public async updateBankWallet(updateData: BankWalletUpdate): Promise<BankWallet> {
+  public async updateBankWallet(
+    updateData: BankWalletUpdate
+  ): Promise<BankWallet> {
     try {
       return withTransaction(() => {
         // Check if bank wallet exists
-        const existingWallet = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
+        const existingWallet = this.statements.getBankWallet!.get(
+          BankWalletConstraints.SINGLETON_ID
+        );
         if (!existingWallet) {
           throw new BankWalletNotFoundError();
         }
 
         // Validate updated data if provided
-        if (updateData.wallet_address && !BankWalletConstraints.TON_ADDRESS_PATTERN.test(updateData.wallet_address)) {
-          throw new BankWalletValidationError('Invalid TON wallet address format');
+        if (
+          updateData.wallet_address &&
+          !BankWalletConstraints.TON_ADDRESS_PATTERN.test(
+            updateData.wallet_address
+          )
+        ) {
+          throw new BankWalletValidationError(
+            'Invalid TON wallet address format'
+          );
         }
 
-        if (updateData.current_balance !== undefined && updateData.current_balance < BankWalletConstraints.MIN_BALANCE) {
-          throw new BankWalletValidationError(`Current balance must be at least ${BankWalletConstraints.MIN_BALANCE}`);
+        if (
+          updateData.current_balance !== undefined &&
+          updateData.current_balance < BankWalletConstraints.MIN_BALANCE
+        ) {
+          throw new BankWalletValidationError(
+            `Current balance must be at least ${BankWalletConstraints.MIN_BALANCE}`
+          );
         }
 
-        if (updateData.total_distributed !== undefined && updateData.total_distributed < BankWalletConstraints.MIN_TOTAL_DISTRIBUTED) {
-          throw new BankWalletValidationError(`Total distributed must be at least ${BankWalletConstraints.MIN_TOTAL_DISTRIBUTED}`);
+        if (
+          updateData.total_distributed !== undefined &&
+          updateData.total_distributed <
+            BankWalletConstraints.MIN_TOTAL_DISTRIBUTED
+        ) {
+          throw new BankWalletValidationError(
+            `Total distributed must be at least ${BankWalletConstraints.MIN_TOTAL_DISTRIBUTED}`
+          );
         }
 
         // Update the bank wallet
@@ -294,7 +343,9 @@ export class BankService {
           updateData.wallet_address || null,
           updateData.current_balance || null,
           updateData.total_distributed || null,
-          updateData.last_transaction_hash !== undefined ? updateData.last_transaction_hash : null,
+          updateData.last_transaction_hash !== undefined
+            ? updateData.last_transaction_hash
+            : null,
           BankWalletConstraints.SINGLETON_ID
         );
 
@@ -315,19 +366,25 @@ export class BankService {
   /**
    * Add funds to bank wallet
    */
-  public async addToBalance(operation: BalanceOperation): Promise<BalanceOperationResult> {
+  public async addToBalance(
+    operation: BalanceOperation
+  ): Promise<BalanceOperationResult> {
     if (operation.amount <= 0) {
       throw new BankWalletValidationError('Amount must be positive');
     }
 
     try {
       return withTransaction(() => {
-        const existingWallet = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
+        const existingWallet = this.statements.getBankWallet!.get(
+          BankWalletConstraints.SINGLETON_ID
+        );
         if (!existingWallet) {
           throw new BankWalletNotFoundError();
         }
 
-        const bankWallet = this.mapRowToBankWallet(existingWallet as Record<string, unknown>);
+        const bankWallet = this.mapRowToBankWallet(
+          existingWallet as Record<string, unknown>
+        );
         const previousBalance = bankWallet.current_balance;
         const newBalance = previousBalance + operation.amount;
 
@@ -339,7 +396,9 @@ export class BankService {
           BankWalletConstraints.SINGLETON_ID
         );
 
-        const updatedWallet = this.mapRowToBankWallet(updatedRow as Record<string, unknown>);
+        const updatedWallet = this.mapRowToBankWallet(
+          updatedRow as Record<string, unknown>
+        );
 
         return {
           bankWallet: updatedWallet,
@@ -362,28 +421,38 @@ export class BankService {
   /**
    * Deduct funds from bank wallet (for distributions)
    */
-  public async deductFromBalance(operation: BalanceOperation): Promise<BalanceOperationResult> {
+  public async deductFromBalance(
+    operation: BalanceOperation
+  ): Promise<BalanceOperationResult> {
     if (operation.amount <= 0) {
       throw new BankWalletValidationError('Amount must be positive');
     }
 
     try {
       return withTransaction(() => {
-        const existingWallet = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
+        const existingWallet = this.statements.getBankWallet!.get(
+          BankWalletConstraints.SINGLETON_ID
+        );
         if (!existingWallet) {
           throw new BankWalletNotFoundError();
         }
 
-        const bankWallet = this.mapRowToBankWallet(existingWallet as Record<string, unknown>);
+        const bankWallet = this.mapRowToBankWallet(
+          existingWallet as Record<string, unknown>
+        );
         const previousBalance = bankWallet.current_balance;
 
         // Check if sufficient funds
         if (previousBalance < operation.amount) {
-          throw new InsufficientBankFundsError(operation.amount, previousBalance);
+          throw new InsufficientBankFundsError(
+            operation.amount,
+            previousBalance
+          );
         }
 
         const newBalance = previousBalance - operation.amount;
-        const newTotalDistributed = bankWallet.total_distributed + operation.amount;
+        const newTotalDistributed =
+          bankWallet.total_distributed + operation.amount;
 
         // Update balance and total distributed
         const updatedRow = this.statements.updateBalance!.get(
@@ -393,7 +462,9 @@ export class BankService {
           BankWalletConstraints.SINGLETON_ID
         );
 
-        const updatedWallet = this.mapRowToBankWallet(updatedRow as Record<string, unknown>);
+        const updatedWallet = this.mapRowToBankWallet(
+          updatedRow as Record<string, unknown>
+        );
 
         return {
           bankWallet: updatedWallet,
@@ -416,14 +487,18 @@ export class BankService {
   /**
    * Update last transaction hash
    */
-  public async updateLastTransactionHash(transactionHash: string): Promise<BankWallet> {
+  public async updateLastTransactionHash(
+    transactionHash: string
+  ): Promise<BankWallet> {
     if (!transactionHash || transactionHash.trim().length === 0) {
       throw new BankWalletValidationError('Transaction hash is required');
     }
 
     try {
       return withTransaction(() => {
-        const existingWallet = this.statements.getBankWallet!.get(BankWalletConstraints.SINGLETON_ID);
+        const existingWallet = this.statements.getBankWallet!.get(
+          BankWalletConstraints.SINGLETON_ID
+        );
         if (!existingWallet) {
           throw new BankWalletNotFoundError();
         }

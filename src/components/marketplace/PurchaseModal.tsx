@@ -6,7 +6,7 @@ import {
   Spinner,
   Text,
   Caption,
-  Badge
+  Badge,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
@@ -54,7 +54,10 @@ interface PurchaseModalProps {
   /** Callback when purchase is initiated */
   onPurchaseStart?: (wish: MarketplaceWishData) => void;
   /** Callback when purchase is completed successfully */
-  onPurchaseSuccess?: (wish: MarketplaceWishData, transactionId: number) => void;
+  onPurchaseSuccess?: (
+    wish: MarketplaceWishData,
+    transactionId: number
+  ) => void;
   /** Callback when purchase fails */
   onPurchaseError?: (wish: MarketplaceWishData, error: string) => void;
 }
@@ -67,7 +70,7 @@ export function PurchaseModal({
   onClose,
   onPurchaseStart,
   onPurchaseSuccess,
-  onPurchaseError
+  onPurchaseError,
 }: PurchaseModalProps) {
   const { token, isAuthenticated } = useAuth();
   const [purchaseState, setPurchaseState] = useState<PurchaseState>('idle');
@@ -105,7 +108,7 @@ export function PurchaseModal({
       const response = await fetch(`/api/marketplace/${wish.id}/purchase`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -124,20 +127,29 @@ export function PurchaseModal({
 
       setPurchaseState('success');
       onPurchaseSuccess?.(wish, purchaseData.transactionId);
-
     } catch (err) {
       console.error('Purchase error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to complete purchase';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to complete purchase';
       setError(errorMessage);
       setPurchaseState('error');
       onPurchaseError?.(wish, errorMessage);
     }
-  }, [wish, isAuthenticated, token, onPurchaseStart, onPurchaseSuccess, onPurchaseError]);
+  }, [
+    wish,
+    isAuthenticated,
+    token,
+    onPurchaseStart,
+    onPurchaseSuccess,
+    onPurchaseError,
+  ]);
 
   /**
    * Simulate TON transaction (in real implementation, this would use TON Connect)
    */
-  const simulateTonTransaction = async (_tonTransaction: PurchaseResponse['tonTransaction']): Promise<void> => {
+  const simulateTonTransaction = async (
+    _tonTransaction: PurchaseResponse['tonTransaction']
+  ): Promise<void> => {
     return new Promise((resolve, reject) => {
       // Simulate transaction processing time
       setTimeout(() => {
@@ -145,7 +157,11 @@ export function PurchaseModal({
         if (Math.random() > 0.1) {
           resolve();
         } else {
-          reject(new Error('Transaction failed - insufficient funds or network error'));
+          reject(
+            new Error(
+              'Transaction failed - insufficient funds or network error'
+            )
+          );
         }
       }, 2000);
     });
@@ -172,7 +188,10 @@ export function PurchaseModal({
   /**
    * Truncate description if too long
    */
-  const truncateDescription = (description: string, maxLength: number = 150): string => {
+  const truncateDescription = (
+    description: string,
+    maxLength: number = 150
+  ): string => {
     if (description.length <= maxLength) {
       return description;
     }
@@ -282,7 +301,8 @@ export function PurchaseModal({
                       Transaction Notice
                     </Text>
                     <Caption level="1" className="text-yellow-700">
-                      This will initiate a TON blockchain transaction. Make sure you have sufficient balance in your connected wallet.
+                      This will initiate a TON blockchain transaction. Make sure
+                      you have sufficient balance in your connected wallet.
                     </Caption>
                   </div>
                 </div>
@@ -297,11 +317,7 @@ export function PurchaseModal({
                 >
                   Cancel
                 </Button>
-                <Button
-                  size="m"
-                  onClick={handlePurchase}
-                  className="flex-1"
-                >
+                <Button size="m" onClick={handlePurchase} className="flex-1">
                   Confirm Purchase
                 </Button>
               </div>
@@ -334,7 +350,8 @@ export function PurchaseModal({
                 <div className="flex items-center gap-2">
                   <span className="text-blue-600">ℹ️</span>
                   <Caption level="1" className="text-blue-800">
-                    Do not close this window while the transaction is being processed
+                    Do not close this window while the transaction is being
+                    processed
                   </Caption>
                 </div>
               </div>
@@ -356,14 +373,12 @@ export function PurchaseModal({
               </Caption>
 
               <Caption level="1" className="text-gray-600 mb-6">
-                You have successfully purchased &quot;{truncateDescription(wish.description, 50)}&quot; from {wish.creator.firstName}. The Corgi coins have been transferred!
+                You have successfully purchased &quot;
+                {truncateDescription(wish.description, 50)}&quot; from{' '}
+                {wish.creator.firstName}. The Corgi coins have been transferred!
               </Caption>
 
-              <Button
-                size="m"
-                onClick={handleClose}
-                className="w-full"
-              >
+              <Button size="m" onClick={handleClose} className="w-full">
                 Close
               </Button>
             </div>
@@ -392,11 +407,7 @@ export function PurchaseModal({
                 >
                   Close
                 </Button>
-                <Button
-                  size="m"
-                  onClick={handlePurchase}
-                  className="flex-1"
-                >
+                <Button size="m" onClick={handlePurchase} className="flex-1">
                   Try Again
                 </Button>
               </div>
@@ -412,7 +423,9 @@ export function PurchaseModal({
  * Hook to manage purchase modal state
  */
 export function usePurchaseModal() {
-  const [selectedWish, setSelectedWish] = useState<MarketplaceWishData | null>(null);
+  const [selectedWish, setSelectedWish] = useState<MarketplaceWishData | null>(
+    null
+  );
   const [isOpen, setIsOpen] = useState(false);
 
   const openModal = useCallback((wish: MarketplaceWishData) => {
@@ -430,13 +443,24 @@ export function usePurchaseModal() {
     console.log('Purchase started for wish:', wish.id);
   }, []);
 
-  const handlePurchaseSuccess = useCallback((wish: MarketplaceWishData, transactionId: number) => {
-    console.log('Purchase successful for wish:', wish.id, 'Transaction:', transactionId);
-  }, []);
+  const handlePurchaseSuccess = useCallback(
+    (wish: MarketplaceWishData, transactionId: number) => {
+      console.log(
+        'Purchase successful for wish:',
+        wish.id,
+        'Transaction:',
+        transactionId
+      );
+    },
+    []
+  );
 
-  const handlePurchaseError = useCallback((wish: MarketplaceWishData, error: string) => {
-    console.error('Purchase failed for wish:', wish.id, 'Error:', error);
-  }, []);
+  const handlePurchaseError = useCallback(
+    (wish: MarketplaceWishData, error: string) => {
+      console.error('Purchase failed for wish:', wish.id, 'Error:', error);
+    },
+    []
+  );
 
   return {
     selectedWish,
