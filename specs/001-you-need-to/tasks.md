@@ -158,7 +158,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 
 - [x] T080 Main app page using telegram-ui AppRoot wrapper in src/app/page.tsx
 - [x] T081 Buddy management page using telegram-ui components in src/app/buddy/page.tsx
-- [ ] T082 Corgi sighting page using telegram-ui components in src/app/corgi/page.tsx
+- [x] T082 Corgi sighting page using telegram-ui components in src/app/corgi/page.tsx
 - [ ] T083 Wish management page using telegram-ui components in src/app/wishes/page.tsx
 - [ ] T084 Marketplace page using telegram-ui components in src/app/marketplace/page.tsx
 - [ ] T085 Transaction history page using telegram-ui components in src/app/transactions/page.tsx
