@@ -78,7 +78,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ### Core Utilities
 - [x] T044 [P] Telegram initData validation utility in src/lib/telegram.ts
 - [x] T045 [P] TON Connect integration utility in src/lib/ton.ts
-- [x] T046 [P] JWT authentication middleware in src/middleware/auth.ts
+ 
 
 ### API Endpoints - Authentication
 - [x] T047 POST /api/auth/validate endpoint in src/app/api/auth/validate/route.ts
@@ -168,14 +168,13 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [ ] T087 Implement Telegram bot notification system
 - [ ] T088 Wire up TON Connect transaction flow
 - [ ] T089 Add error handling and logging throughout app
-- [ ] T090 Configure CORS and security headers
+ 
 
 ## Phase 3.7: Polish
 - [ ] T091 [P] Unit tests for validation utilities in tests/unit/validation.test.ts
 - [ ] T092 [P] Unit tests for Telegram utilities in tests/unit/telegram.test.ts
 - [ ] T093 [P] Unit tests for TON utilities in tests/unit/ton.test.ts
-- [ ] T094 End-to-end tests following quickstart.md scenarios
-- [ ] T095 Security audit for HMAC validation and SQL injection
+ 
 - [ ] T096 Mobile responsiveness and Telegram theme integration
 - [ ] T097 Production deployment configuration
 
@@ -187,7 +186,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - Tests (T006-T028) before implementation (T029-T098)
 - Models (T029-T034) before services (T038-T043)
 - Services before endpoints (T047-T063)
-- Core utilities (T044-T046) before endpoints
+- Core utilities (T044-T045) before endpoints
 - Frontend providers (T064-T066) before components (T067-T079)
 - Components before pages (T080-T085)
 - Implementation before integration (T086-T090)
@@ -197,7 +196,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - T001 blocks T002, T035
 - T035 blocks T029-T034, T038-T043
 - T038-T043 block T047-T063
-- T044-T046 block T047-T063
+- T044-T045 block T047-T063
 - T064-T066 block T067-T079
 - T067-T079 block T080-T085
 

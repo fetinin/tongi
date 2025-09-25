@@ -7,11 +7,11 @@
 
 Here are use cases.
 1) When user opens app for the first time, the first thing he sees is that he must enter telegram name of another user. If user enter telegram username and click confirm, he becomes binded with that user. Let's call them buddies.
-2) As a user, I can send a request to confirm that I saw a corgi. I can also specify how much corgi I saw. After that I click on the button "Ask to confirm". My body receives a message from this app and is asked to confirm That indeed corgis were spotted. If buddy confirms it, I will receive currency called "Corgi coins" on my crypto wallet from bank wallet.
-3) As a user I can buy a wish from my body. I click on button by wish. Then I enter my wish And amount of corgis I propose for that. Then I click Buy button. After that opens window in my ton wallet that displays transaction to confirm. Transaction goes from my wallet to wallet of my body. It contains amount of corgis I requested. After that I confirm transaction and corgi coins are sent to another wallet.
+2) As a user, I can send a request to confirm that I saw a corgi. I can also specify how much corgi I saw. After that I click on the button "Ask to confirm". My buddy receives a message from this app and is asked to confirm That indeed corgis were spotted. If buddy confirms it, I will receive currency called "Corgi coins" on my crypto wallet from bank wallet.
+3) As a user I can buy a wish from my buddy. I click on button by wish. Then I enter my wish And amount of corgis I propose for that. Then I click Buy button. After that opens window in my ton wallet that displays transaction to confirm. Transaction goes from my wallet to wallet of my buddy. It contains amount of corgis I requested. After that I confirm transaction and corgi coins are sent to another wallet.
 
 Notes:
-Corgi bank wallet is a TON crypto wallet That app has full access to. It contains all Corgi coins and can send them to users If both bodies agreed on that.
+Corgi bank wallet is a TON crypto wallet That app has full access to. It contains all Corgi coins and can send them to users If both buddies agreed on that.
 Upon registration user must also login with using Ton Connect (docs: https://docs.ton.org/v3/guidelines/ton-connect/frameworks/react).
 Telegram webapp docs @docs/telegram_web.md"
 
@@ -106,7 +106,7 @@ A user opens the Telegram mini-app for the first time and must establish a "budd
 - **FR-025**: System MUST import @telegram-apps/telegram-ui/dist/styles.css for consistent Telegram styling
 - **FR-026**: System MUST wrap the application with AppRoot component from @telegram-apps/telegram-ui
 - **FR-027**: System MUST use List, Section, Cell, and other telegram-ui components for structured layouts
-- **FR-028**: Developers MUST obtain @telegram-apps/telegram-ui documentation via context7 by searching for "telegramui"
+
 
 **General Requirements**
 - **FR-029**: System MUST operate as a Telegram Mini App accessible through mobile devices
@@ -128,7 +128,7 @@ A user opens the Telegram mini-app for the first time and must establish a "budd
 *GATE: Automated checks run during main() execution*
 
 ### Content Quality
-- [x] No implementation details (languages, frameworks, APIs)
+- [ ] No implementation details (languages, frameworks, APIs)
 - [x] Focused on user value and business needs
 - [x] Written for non-technical stakeholders
 - [x] All mandatory sections completed
@@ -149,7 +149,7 @@ A user opens the Telegram mini-app for the first time and must establish a "budd
 - [x] Key concepts extracted
 - [x] Ambiguities marked (6 clarification points identified)
 - [x] User scenarios defined
-- [x] Requirements generated (27 functional requirements)
+- [x] Requirements generated (31 functional requirements)
 - [x] Entities identified (6 key entities)
 - [x] Review checklist passed (pending clarifications)
 

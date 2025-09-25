@@ -307,7 +307,7 @@ ios/ or android/
 **Gate Status**:
 - [x] Initial Constitution Check: PASS - ✅ 2025-09-17
 - [x] Post-Design Constitution Check: PASS - ✅ 2025-09-17
-- [x] All NEEDS CLARIFICATION resolved - ✅ 2025-09-17
+- [ ] All NEEDS CLARIFICATION resolved - Pending FR-019 failure handling definition
 - [x] Complexity deviations documented - ✅ None required
 
 **Artifacts Generated**:
@@ -318,4 +318,4 @@ ios/ or android/
 - [x] `/CLAUDE.md` - Updated agent context with feature details
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v2.1.1 - See `.specify/memory/constitution.md`*
