@@ -161,7 +161,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T082 Corgi sighting page using telegram-ui components in src/app/corgi/page.tsx
 - [x] T083 Wish management page using telegram-ui components in src/app/wishes/page.tsx
 - [x] T084 Marketplace page using telegram-ui components in src/app/marketplace/page.tsx
-- [ ] T085 Transaction history page using telegram-ui components in src/app/transactions/page.tsx
+- [x] T085 Transaction history page using telegram-ui components in src/app/transactions/page.tsx
 
 ## Phase 3.6: Integration
 - [ ] T086 Connect services to database models
