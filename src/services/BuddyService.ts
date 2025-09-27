@@ -19,6 +19,7 @@ import {
 } from '@/models/BuddyPair';
 import { UserProfile, UserUtils } from '@/models/User';
 import { userService, UserNotFoundError } from '@/services/UserService';
+import { notificationService } from '@/services/NotificationService';
 import type Database from 'better-sqlite3';
 
 /**
@@ -213,6 +214,11 @@ export class BuddyService {
     }
 
     try {
+      // Fetch requester and target for notification display names
+      const requesterUser = await userService.getUserById(requesterId);
+      if (!requesterUser) {
+        throw new UserNotFoundError(requesterId);
+      }
       // Get the target user's profile outside transaction
       const targetUser = await userService.getUserById(targetUserId);
       if (!targetUser) {
@@ -275,7 +281,7 @@ export class BuddyService {
         // Convert target user to profile
         const buddyProfile: UserProfile = UserUtils.toProfile(targetUser);
 
-        return {
+        const result = {
           id: buddyPair.id,
           buddy: buddyProfile,
           status: buddyPair.status,
@@ -283,7 +289,12 @@ export class BuddyService {
           confirmedAt: buddyPair.confirmed_at,
           initiatedBy: buddyPair.initiated_by,
         };
+        return result;
       });
+      // Best-effort notify target user about buddy request
+      await notificationService
+        .notifyBuddyRequest(targetUserId, requesterUser.first_name)
+        .catch(() => {});
     } catch (error) {
       if (
         error instanceof BuddyServiceError ||
@@ -404,6 +415,11 @@ export class BuddyService {
     confirmingUserId: number
   ): Promise<BuddyPairWithProfile> {
     try {
+      // Fetch confirming user name for notification
+      const confirmerUser = await userService.getUserById(confirmingUserId);
+      if (!confirmerUser) {
+        throw new UserNotFoundError(confirmingUserId);
+      }
       // Get the buddy pair first to determine buddy user
       const row = this.statements.getBuddyPairById!.get(buddyPairId);
       if (!row) {
@@ -466,7 +482,7 @@ export class BuddyService {
         // Convert buddy user to profile (already fetched outside transaction)
         const buddyProfile: UserProfile = UserUtils.toProfile(buddyUser);
 
-        return {
+        const result = {
           id: updatedBuddyPair.id,
           buddy: buddyProfile,
           status: updatedBuddyPair.status,
@@ -474,7 +490,15 @@ export class BuddyService {
           confirmedAt: updatedBuddyPair.confirmed_at,
           initiatedBy: updatedBuddyPair.initiated_by,
         };
+        return result;
       });
+      // Notify the initiator that their request was confirmed
+      const initiatorId = (await this.getBuddyPairById(buddyPairId))?.initiated_by;
+      if (initiatorId) {
+        await notificationService
+          .notifyBuddyConfirmed(initiatorId, confirmerUser.first_name)
+          .catch(() => {});
+      }
     } catch (error) {
       if (
         error instanceof BuddyServiceError ||

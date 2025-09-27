@@ -20,6 +20,7 @@ import {
 } from '@/models/Wish';
 import { userService, UserNotFoundError } from '@/services/UserService';
 import { buddyService, BuddyServiceError } from '@/services/BuddyService';
+import { notificationService } from '@/services/NotificationService';
 import type Database from 'better-sqlite3';
 
 /**
@@ -333,7 +334,12 @@ export class WishService {
         );
       }
 
-      return withTransaction(() => {
+      const creatorUser = await userService.getUserById(creatorId);
+      if (!creatorUser) {
+        throw new UserNotFoundError(creatorId);
+      }
+
+      const result = withTransaction(() => {
         // Check if creator exists
         if (!userService.userExists(creatorId)) {
           throw new UserNotFoundError(creatorId);
@@ -359,6 +365,18 @@ export class WishService {
           wishWithUsersRow as Record<string, unknown>
         );
       });
+      // Notify buddy about new wish
+      if (buddyStatus.buddy) {
+        await notificationService
+          .notifyWishCreated(
+            buddyStatus.buddy.id,
+            creatorUser.first_name,
+            description,
+            proposedAmount
+          )
+          .catch(() => {});
+      }
+      return result;
     } catch (error) {
       if (
         error instanceof WishServiceError ||
@@ -428,7 +446,12 @@ export class WishService {
         throw new WishNotFoundError(wishId);
       }
 
-      return withTransaction(() => {
+      const buddyUser = await userService.getUserById(userId);
+      if (!buddyUser) {
+        throw new UserNotFoundError(userId);
+      }
+
+      const result = withTransaction(() => {
         // Verify the user is the buddy for this wish
         if (wish.buddy_id !== userId) {
           throw new WishAuthorizationError(
@@ -476,6 +499,19 @@ export class WishService {
           wishWithUsersRow as Record<string, unknown>
         );
       });
+      // Notify creator about buddy response
+      const updated = await this.getWishWithUsersById(wishId);
+      if (updated) {
+        await notificationService
+          .notifyWishResponded(
+            updated.creator_id,
+            buddyUser.first_name,
+            input.accepted,
+            updated.description
+          )
+          .catch(() => {});
+      }
+      return result;
     } catch (error) {
       if (error instanceof WishServiceError) {
         throw error;
@@ -635,7 +671,12 @@ export class WishService {
         throw new WishNotFoundError(wishId);
       }
 
-      return withTransaction(() => {
+      const purchaser = await userService.getUserById(purchaserId);
+      if (!purchaser) {
+        throw new UserNotFoundError(purchaserId);
+      }
+
+      const result = withTransaction(() => {
         // Verify the wish is in accepted status
         if (wish.status !== 'accepted') {
           if (wish.status === 'pending') {
@@ -685,6 +726,19 @@ export class WishService {
           wishWithUsersRow as Record<string, unknown>
         );
       });
+      // Notify creator that wish was purchased
+      const updated = await this.getWishWithUsersById(wishId);
+      if (updated) {
+        await notificationService
+          .notifyWishPurchased(
+            updated.creator_id,
+            purchaser.first_name,
+            updated.description,
+            updated.proposed_amount
+          )
+          .catch(() => {});
+      }
+      return result;
     } catch (error) {
       if (
         error instanceof WishServiceError ||

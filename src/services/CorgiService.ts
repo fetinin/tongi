@@ -19,6 +19,7 @@ import {
 } from '@/models/CorgiSighting';
 import { buddyService, BuddyServiceError } from '@/services/BuddyService';
 import { userService, UserNotFoundError } from '@/services/UserService';
+import { notificationService } from '@/services/NotificationService';
 import type Database from 'better-sqlite3';
 
 /**
@@ -202,7 +203,12 @@ export class CorgiService {
         throw new CorgiValidationError(validationErrors[0]);
       }
 
-      return withTransaction(() => {
+      const reporterUser = await userService.getUserById(reporterId);
+      if (!reporterUser) {
+        throw new UserNotFoundError(reporterId);
+      }
+
+      const result = withTransaction(() => {
         // Check if both users still exist
         if (!userService.userExists(reporterId)) {
           throw new UserNotFoundError(reporterId);
@@ -237,6 +243,11 @@ export class CorgiService {
           sighting,
         };
       });
+      // Best-effort notify buddy about new sighting
+      await notificationService
+        .notifyNewSighting(buddyId, reporterUser.first_name, corgiCount)
+        .catch(() => {});
+      return result;
     } catch (error) {
       if (
         error instanceof CorgiServiceError ||
@@ -295,7 +306,12 @@ export class CorgiService {
     confirmed: boolean
   ): Promise<SightingResult> {
     try {
-      return withTransaction(() => {
+      const confirmerUser = await userService.getUserById(buddyId);
+      if (!confirmerUser) {
+        throw new UserNotFoundError(buddyId);
+      }
+
+      const result = withTransaction(() => {
         // Get the sighting
         const row = this.statements.getSightingById!.get(sightingId);
         if (!row) {
@@ -363,6 +379,19 @@ export class CorgiService {
           rewardEarned,
         };
       });
+      // Notify reporter of confirmation outcome
+      const updated = await this.getSightingById(sightingId);
+      if (updated) {
+        await notificationService
+          .notifySightingResponse(
+            updated.reporter_id,
+            confirmerUser.first_name,
+            confirmed,
+            result.rewardEarned
+          )
+          .catch(() => {});
+      }
+      return result;
     } catch (error) {
       if (error instanceof CorgiServiceError) {
         throw error;
