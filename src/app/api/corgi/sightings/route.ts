@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { corgiService } from '@/services/CorgiService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface CorgiSightingResponse {
   id: number;
@@ -84,33 +85,7 @@ export async function POST(
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error('Corgi sighting creation error:', error);
-
-    // Handle specific CorgiService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while creating the sighting',
-      },
-      { status: 500 }
-    );
+    return handleApiError('corgi/sightings:POST', error);
   }
 }
 
@@ -184,32 +159,6 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Corgi sightings retrieval error:', error);
-
-    // Handle specific CorgiService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving sightings',
-      },
-      { status: 500 }
-    );
+    return handleApiError('corgi/sightings:GET', error);
   }
 }

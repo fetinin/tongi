@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { bankService } from '@/services/BankService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface BankWalletResponse {
   walletAddress: string;
@@ -63,39 +64,6 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Bank wallet status retrieval error:', error);
-
-    // Handle specific BankService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      // Map service error codes to HTTP status codes
-      let statusCode = serviceError.statusCode || 500;
-      if (serviceError.code === 'BANK_WALLET_NOT_FOUND') {
-        statusCode = 404;
-      }
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: statusCode }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message:
-          'An unexpected error occurred while retrieving bank wallet status',
-      },
-      { status: 500 }
-    );
+    return handleApiError('bank/status:GET', error);
   }
 }

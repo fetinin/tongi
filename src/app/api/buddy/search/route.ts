@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { userService } from '@/services/UserService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface UserSearchResponse {
   users: {
@@ -111,32 +112,6 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Buddy search error:', error);
-
-    // Handle specific UserService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred during user search',
-      },
-      { status: 500 }
-    );
+    return handleApiError('buddy/search:GET', error);
   }
 }

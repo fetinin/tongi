@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { wishService } from '@/services/WishService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface WishResponse {
   id: number;
@@ -116,33 +117,7 @@ export async function POST(
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error('Wish creation error:', error);
-
-    // Handle specific WishService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while creating the wish',
-      },
-      { status: 500 }
-    );
+    return handleApiError('wishes:POST', error);
   }
 }
 
@@ -249,32 +224,6 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Wishes retrieval error:', error);
-
-    // Handle specific WishService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving wishes',
-      },
-      { status: 500 }
-    );
+    return handleApiError('wishes:GET', error);
   }
 }

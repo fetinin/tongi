@@ -4,6 +4,7 @@ import { wishService } from '@/services/WishService';
 import { transactionService } from '@/services/TransactionService';
 import { userService } from '@/services/UserService';
 import { createTonTransaction } from '@/lib/ton';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface PurchaseResponse {
   transactionId: number;
@@ -153,32 +154,6 @@ export async function POST(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Wish purchase error:', error);
-
-    // Handle specific service errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while processing the purchase',
-      },
-      { status: 500 }
-    );
+    return handleApiError('marketplace/purchase:POST', error);
   }
 }

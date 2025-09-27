@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { buddyService } from '@/services/BuddyService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface BuddyPairResponse {
   id: number;
@@ -79,32 +80,6 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Buddy status error:', error);
-
-    // Handle specific BuddyService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving buddy status',
-      },
-      { status: 500 }
-    );
+    return handleApiError('buddy/status:GET', error);
   }
 }

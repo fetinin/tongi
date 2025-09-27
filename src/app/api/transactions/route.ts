@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { transactionService } from '@/services/TransactionService';
 import { TransactionType } from '@/models/Transaction';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface TransactionResponse {
   id: number;
@@ -127,32 +128,6 @@ export async function GET(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Transaction retrieval error:', error);
-
-    // Handle specific TransactionService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred while retrieving transactions',
-      },
-      { status: 500 }
-    );
+    return handleApiError('transactions:GET', error);
   }
 }

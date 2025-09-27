@@ -5,6 +5,7 @@ import {
   createAuthToken,
 } from '@/lib/telegram';
 import { userService } from '@/services/UserService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface AuthValidateRequest {
   initData: string;
@@ -135,32 +136,6 @@ export async function POST(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Authentication error:', error);
-
-    // Handle specific UserService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: serviceError.statusCode || 500 }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred during authentication',
-      },
-      { status: 500 }
-    );
+    return handleApiError('auth/validate:POST', error);
   }
 }

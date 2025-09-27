@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
 import { transactionService } from '@/services/TransactionService';
+import { handleApiError } from '@/lib/apiErrors';
 
 interface TransactionConfirmRequest {
   transactionHash: string;
@@ -181,41 +182,6 @@ export async function POST(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Transaction confirmation error:', error);
-
-    // Handle specific TransactionService errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      const serviceError = error as {
-        code: string;
-        message: string;
-        statusCode?: number;
-      };
-
-      // Map service error codes to HTTP status codes
-      let statusCode = serviceError.statusCode || 500;
-      if (serviceError.code === 'TRANSACTION_NOT_FOUND') {
-        statusCode = 404;
-      } else if (serviceError.code === 'VALIDATION_ERROR') {
-        statusCode = 400;
-      }
-
-      return NextResponse.json(
-        {
-          error: serviceError.code,
-          message: serviceError.message,
-        },
-        { status: statusCode }
-      );
-    }
-
-    // Handle generic errors
-    return NextResponse.json(
-      {
-        error: 'INTERNAL_ERROR',
-        message:
-          'An unexpected error occurred while confirming the transaction',
-      },
-      { status: 500 }
-    );
+    return handleApiError('transactions/confirm:POST', error);
   }
 }
