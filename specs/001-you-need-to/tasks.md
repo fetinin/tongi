@@ -164,7 +164,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 - [x] T085 Transaction history page using telegram-ui components in src/app/transactions/page.tsx
 
 ## Phase 3.6: Integration
-- [ ] T086 Connect services to database models
+- [x] T086 Connect services to database models
 - [ ] T087 Implement Telegram bot notification system
 - [ ] T088 Wire up TON Connect transaction flow
 - [ ] T089 Add error handling and logging throughout app

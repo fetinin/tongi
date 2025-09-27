@@ -493,7 +493,7 @@ export class UserService {
   /**
    * Check if a user exists (lightweight check)
    */
-  public async userExists(userId: number): Promise<boolean> {
+  public userExists(userId: number): boolean {
     try {
       const result = this.statements.checkUserExists!.get(userId);
       return Boolean(result);
