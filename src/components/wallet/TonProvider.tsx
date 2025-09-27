@@ -13,6 +13,7 @@ import {
   useTonWallet,
 } from '@tonconnect/ui-react';
 import { Cell, Section, Placeholder, Button } from '@telegram-apps/telegram-ui';
+import { TON_CONFIG } from '@/lib/ton';
 
 // TON Connect wallet state interface
 interface TonWalletState {
@@ -23,6 +24,11 @@ interface TonWalletState {
   connectionError: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
+  sendTransaction: (tx: {
+    to: string;
+    amount: string;
+    payload?: string;
+  }) => Promise<string>; // returns transaction BOC/hash
 }
 
 // Create context for TON wallet state
@@ -86,6 +92,34 @@ export function TonProvider({ children, className }: TonProviderProps) {
     }
   };
 
+  // Send TON transaction via TON Connect
+  const sendTransaction: TonWalletState['sendTransaction'] = async (tx) => {
+    if (!wallet) {
+      throw new Error('Wallet not connected');
+    }
+
+    const request = {
+      validUntil: Math.floor(Date.now() / 1000) + TON_CONFIG.TRANSACTION_VALIDITY_SECONDS,
+      messages: [
+        {
+          address: tx.to,
+          amount: tx.amount,
+          payload: tx.payload,
+        },
+      ],
+    } as const;
+
+    const result = await tonConnectUI.sendTransaction(request);
+    // TON Connect returns an object with BOC; use it as a transaction proof/hash surrogate
+    // In production, you might resolve actual tx hash from a backend or explorer
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const boc = (result as unknown as { boc?: string }).boc;
+    if (!boc) {
+      throw new Error('Failed to obtain transaction BOC');
+    }
+    return boc;
+  };
+
   // Wallet state object
   const walletState: TonWalletState = {
     isConnected: !!wallet,
@@ -95,6 +129,7 @@ export function TonProvider({ children, className }: TonProviderProps) {
     connectionError,
     connectWallet,
     disconnectWallet,
+    sendTransaction,
   };
 
   return (

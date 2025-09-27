@@ -166,7 +166,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 ## Phase 3.6: Integration
 - [x] T086 Connect services to database models
 - [x] T087 Implement Telegram bot notification system
-- [ ] T088 Wire up TON Connect transaction flow
+- [x] T088 Wire up TON Connect transaction flow
 - [ ] T089 Add error handling and logging throughout app
  
 

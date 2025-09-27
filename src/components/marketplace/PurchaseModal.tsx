@@ -9,6 +9,7 @@ import {
   Badge,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
+import { useTonWalletContext } from '@/components/Wallet';
 
 // Types for marketplace wish data
 interface MarketplaceWishData {
@@ -73,6 +74,7 @@ export function PurchaseModal({
   onPurchaseError,
 }: PurchaseModalProps) {
   const { token, isAuthenticated } = useAuth();
+  const { isConnected, connectWallet, sendTransaction } = useTonWalletContext();
   const [purchaseState, setPurchaseState] = useState<PurchaseState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [transactionId, setTransactionId] = useState<number | null>(null);
@@ -93,6 +95,15 @@ export function PurchaseModal({
     if (!wish || !isAuthenticated || !token) {
       setError('Authentication required');
       return;
+    }
+
+    if (!isConnected) {
+      try {
+        await connectWallet();
+      } catch (e) {
+        setError('Wallet connection required');
+        return;
+      }
     }
 
     setPurchaseState('confirming');
@@ -121,9 +132,30 @@ export function PurchaseModal({
       const purchaseData: PurchaseResponse = await response.json();
       setTransactionId(purchaseData.transactionId);
 
-      // Here we would normally integrate with TON Connect to actually send the transaction
-      // For now, we'll simulate the transaction process
-      await simulateTonTransaction(purchaseData.tonTransaction);
+      // Send transaction via TON Connect
+      const boc = await sendTransaction({
+        to: purchaseData.tonTransaction.to,
+        amount: purchaseData.tonTransaction.amount,
+        payload: purchaseData.tonTransaction.payload,
+      });
+
+      // Confirm transaction on the server with returned BOC/hash
+      const confirmRes = await fetch(
+        `/api/transactions/${purchaseData.transactionId}/confirm`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ transactionHash: boc }),
+        }
+      );
+
+      if (!confirmRes.ok) {
+        const errData: ErrorResponse = await confirmRes.json();
+        throw new Error(errData.message || 'Failed to confirm transaction');
+      }
 
       setPurchaseState('success');
       onPurchaseSuccess?.(wish, purchaseData.transactionId);
