@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 This repository will contain a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration. The `telegram_webapp_example/` directory serves as a reference implementation and template.

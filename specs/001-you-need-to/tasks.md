@@ -171,7 +171,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
  
 
 ## Phase 3.7: Polish
-- [ ] T091 [P] Unit tests for validation utilities in tests/unit/validation.test.ts
+- [x] T091 [P] Unit tests for validation utilities in tests/unit/validation.test.ts
 - [ ] T092 [P] Unit tests for Telegram utilities in tests/unit/telegram.test.ts
 - [ ] T093 [P] Unit tests for TON utilities in tests/unit/ton.test.ts
  
