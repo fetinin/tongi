@@ -2,22 +2,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  allowedDevOrigins: ['*', 'web.telegram.org', '127.0.0.1'],
 
-  webpack: (config, {}) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-
-    // Exclude telegram_webapp_example directory
-    config.watchOptions = {
-      ...config.watchOptions,
-      ignored: [
-        ...((config.watchOptions?.ignored as string[]) || []),
-        '**/telegram_webapp_example/**',
-      ],
-    };
-
-    return config;
+  turbopack: {
+    root: process.cwd(),
   },
 };
 
