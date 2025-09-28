@@ -17,6 +17,7 @@
     "db:seed": "npx tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@telegram-apps/sdk": "^3.11.5",
     "@telegram-apps/sdk-react": "^3.3.7",
     "@telegram-apps/telegram-ui": "^2.1.9",
     "@tonconnect/sdk": "^3.3.1",
