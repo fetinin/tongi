@@ -8,6 +8,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "type-check": "tsc --noEmit",
+    "validate": "pnpm run lint && pnpm run type-check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",

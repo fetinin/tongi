@@ -1,12 +1,6 @@
 ## Project Overview
 
-This repository will contain a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration. The `telegram_webapp_example/` directory serves as a reference implementation and template.
-
-**NEW FEATURE (001-you-need-to)**: Corgi Buddy TON Cryptocurrency Mini-App
-- Buddy pairing system between Telegram users
-- Corgi spotting confirmations for earning "Corgi coins"
-- Wish marketplace with TON blockchain transactions
-- Uses TON Connect for wallet integration and SQLite for data storage
+This repository will contain a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration. The `example-app/` directory serves as a reference implementation and template.
 
 ## Commands
 
@@ -17,9 +11,16 @@ All commands should be run from the project root directory (after Next.js setup)
 - `pnpm run dev:https` - Run development server with HTTPS on https://localhost:3000 (required for testing in Telegram)
 - `pnpm run build` - Build for production
 - `pnpm run start` - Start production server
-- `pnpm run lint` - Run ESLint
-- `pnpm run db:migrate` - Run database migrations (NEW)
-- `pnpm run db:seed` - Seed initial data (NEW)
+- `pnpm run lint` - Run ESLint (code style/patterns)
+- `pnpm run type-check` - Run TypeScript compiler type checking (NEW)
+- `pnpm run validate` - Run both lint and type-check (NEW)
+- `pnpm run format` - Format code with Prettier
+- `pnpm run format:check` - Check code formatting
+- `pnpm run test` - Run Jest tests
+- `pnpm run test:watch` - Run Jest in watch mode
+- `pnpm run test:coverage` - Run Jest with coverage report
+- `pnpm run db:migrate` - Run database migrations
+- `pnpm run db:seed` - Seed initial data
 
 ## Architecture
 

@@ -1,24 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) Telegram Mini App project for **Corgi Buddy** - a TON cryptocurrency mini-app where users pair up to spot corgis and earn Corgi coins.
 
 ## Getting Started
 
-First, run the development server:
+This project uses **pnpm** exclusively. Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+```
+
+### Development
+
+Run the development server:
+
+```bash
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Testing in Telegram
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To test the app inside Telegram, you need HTTPS:
+
+```bash
+pnpm run dev:https
+```
+
+Then submit `https://127.0.0.1:3000` to [@BotFather](https://t.me/botfather) and test in Telegram Web or desktop client.
+
+### Development with Mock Data
+
+To develop outside of Telegram with mock authentication data:
+
+1. Create a `.env.local` file:
+```bash
+NEXT_PUBLIC_USE_MOCK_AUTH=true
+NEXT_PUBLIC_TELEGRAM_BOT_TOKEN=your_bot_token_here
+```
+
+2. Run the development server:
+```bash
+pnpm run dev
+```
+
+The app will now use a mock Telegram user (Arthur, ID: 99281932) with properly signed initData. You can customize the mock user in `src/lib/mockAuth.ts`.
+
+### Available Commands
+
+- `pnpm run dev` - Run development server
+- `pnpm run dev:https` - Run with HTTPS (for Telegram testing)
+- `pnpm run build` - Build for production
+- `pnpm run start` - Start production server
+- `pnpm run lint` - Run ESLint
+- `pnpm run type-check` - Run TypeScript type checking
+- `pnpm run validate` - Run both lint and type-check
+- `pnpm run format` - Format code with Prettier
+- `pnpm run test` - Run Jest tests
+- `pnpm run db:migrate` - Run database migrations
+- `pnpm run db:seed` - Seed initial data
+
+## Project Structure
+
+- `src/app/` - Next.js 15 App Router pages
+- `src/components/` - React components (Auth, Buddy, Corgi, Wallet, etc.)
+- `src/core/` - Core initialization and i18n
+- `src/lib/` - Utility libraries (Telegram auth, mock auth, API errors, logger)
+- `src/services/` - Business logic services (User, Buddy, Transaction, etc.)
+- `specs/` - Feature specifications and design documents
 
 ## Learn More
 
