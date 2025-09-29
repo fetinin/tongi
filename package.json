@@ -22,6 +22,7 @@
     "@telegram-apps/sdk": "^3.11.5",
     "@telegram-apps/sdk-react": "^3.3.7",
     "@telegram-apps/telegram-ui": "^2.1.9",
+    "@tma.js/init-data-node": "^2.0.1",
     "@tonconnect/sdk": "^3.3.1",
     "@tonconnect/ui-react": "^2.3.0",
     "better-sqlite3": "^12.2.0",
@@ -29,8 +30,8 @@
     "next": "15.5.3",
     "next-intl": "^4.3.9",
     "normalize.css": "^8.0.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
