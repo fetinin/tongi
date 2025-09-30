@@ -1,11 +1,8 @@
 import { describe, test, expect } from '@jest/globals';
 
-// T007: Integration test Telegram initData validation
-// This test MUST FAIL until the actual validation utilities are implemented
 describe('Telegram initData validation integration', () => {
   describe('validateInitData function from src/lib/telegram.ts', () => {
     test('should validate correctly signed initData', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { validateInitData, createTestInitData } = await import(
         '@/lib/telegram'
       );
@@ -19,7 +16,6 @@ describe('Telegram initData validation integration', () => {
     });
 
     test('should reject initData with invalid HMAC signature', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { validateInitData } = await import('@/lib/telegram');
 
       const invalidInitData =
@@ -31,7 +27,6 @@ describe('Telegram initData validation integration', () => {
     });
 
     test('should reject expired initData (older than 1 day)', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { validateInitData, createTestInitData } = await import(
         '@/lib/telegram'
       );
@@ -48,7 +43,6 @@ describe('Telegram initData validation integration', () => {
 
   describe('extractUserData function from src/lib/telegram.ts', () => {
     test('should extract user data correctly from valid initData', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { extractUserData, createTestInitData } = await import(
         '@/lib/telegram'
       );
@@ -75,7 +69,6 @@ describe('Telegram initData validation integration', () => {
     });
 
     test('should handle missing user data in initData', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { extractUserData } = await import('@/lib/telegram');
 
       const initDataWithoutUser = 'auth_date=1234567890&hash=abcdef123456';
@@ -85,7 +78,6 @@ describe('Telegram initData validation integration', () => {
     });
 
     test('should handle malformed user JSON in initData', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { extractUserData } = await import('@/lib/telegram');
 
       const initDataWithMalformedUser =
@@ -98,7 +90,6 @@ describe('Telegram initData validation integration', () => {
 
   describe('validateUserData function from src/lib/telegram.ts', () => {
     test('should validate required user fields', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { validateUserData } = await import('@/lib/telegram');
 
       // Valid user data
@@ -117,7 +108,6 @@ describe('Telegram initData validation integration', () => {
     });
 
     test('should handle optional user fields correctly', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { normalizeUserData } = await import('@/lib/telegram');
 
       const fullUserData = {
@@ -155,7 +145,6 @@ describe('Telegram initData validation integration', () => {
 
   describe('createAuthToken function from src/lib/telegram.ts', () => {
     test('should create JWT token for authenticated user', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { createAuthToken } = await import('@/lib/telegram');
 
       const userData = {
@@ -170,7 +159,6 @@ describe('Telegram initData validation integration', () => {
     });
 
     test('should verify JWT token correctly', async () => {
-      // This will FAIL until src/lib/telegram.ts is implemented
       const { createAuthToken, verifyAuthToken } = await import(
         '@/lib/telegram'
       );

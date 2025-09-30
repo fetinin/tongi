@@ -1,6 +1,6 @@
 # Feature Specification: Corgi Buddy TON Cryptocurrency Mini-App
 
-**Feature Branch**: `001-you-need-to`
+**Feature Branch**: `001-initial-implementation`
 **Created**: 2025-09-17
 **Status**: Draft
 **Input**: User description: "You need to build a Telegram mini-app. The main point of this app is to transfer TON cryptocurrency between two users. This is the web app oriented for mobile devices with backend to integrate with cryptocurrency.

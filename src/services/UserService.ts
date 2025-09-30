@@ -4,7 +4,7 @@
  * Provides comprehensive user management operations for the Corgi Buddy TON Mini-App.
  * Handles user creation, retrieval, updates, and Telegram authentication integration.
  *
- * Based on the data model specification in specs/001-you-need-to/data-model.md
+ * Based on the data model specification in specs/001-initial-implementation/data-model.md
  */
 
 import { getDatabase, withTransaction } from '@/lib/database';

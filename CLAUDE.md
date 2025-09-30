@@ -78,7 +78,7 @@ All commands should be run from the project root directory (after Next.js setup)
 - `/api/marketplace/*` - Public wish marketplace
 - `/api/transactions/*` - Transaction history and confirmation
 
-## Recent Changes (Feature 001-you-need-to)
+## Recent Changes (Feature 001-initial-implementation)
 
 ### Phase 1 Completed (2025-09-17)
 -  Data model design with SQLite schema

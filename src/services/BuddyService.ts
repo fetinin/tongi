@@ -4,7 +4,7 @@
  * Handles buddy relationship operations for the Corgi Buddy TON Mini-App.
  * Manages buddy requests, confirmations, status checking, and user searching.
  *
- * Based on the data model specification in specs/001-you-need-to/data-model.md
+ * Based on the data model specification in specs/001-initial-implementation/data-model.md
  */
 
 import { getDatabase, withTransaction } from '@/lib/database';

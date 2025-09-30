@@ -2,7 +2,7 @@
  * User Model for Corgi Buddy TON Cryptocurrency Mini-App
  *
  * Represents an authenticated Telegram user with TON wallet integration.
- * Based on the data model specification in specs/001-you-need-to/data-model.md
+ * Based on the data model specification in specs/001-initial-implementation/data-model.md
  */
 
 /**

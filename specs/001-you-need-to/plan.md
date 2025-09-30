@@ -1,8 +1,8 @@
 
 # Implementation Plan: Corgi Buddy TON Cryptocurrency Mini-App
 
-**Branch**: `001-you-need-to` | **Date**: 2025-09-17 | **Spec**: [/Users/inv-denisf/dev/personal/tongi/specs/001-you-need-to/spec.md](../spec.md)
-**Input**: Feature specification from `/specs/001-you-need-to/spec.md`
+**Branch**: `001-initial-implementation` | **Date**: 2025-09-17 | **Spec**: [/Users/inv-denisf/dev/personal/tongi/specs/001-initial-implementation/spec.md](../spec.md)
+**Input**: Feature specification from `/specs/001-initial-implementation/spec.md`
 
 ## Execution Flow (/plan command scope)
 ```
@@ -306,15 +306,15 @@ ios/ or android/
 
 **Gate Status**:
 - [x] Initial Constitution Check: PASS - ✅ 2025-09-17
-- [x] Post-Design Constitution Check: PASS - ✅ 2025-09-17
+- [x] Post-Design Constitution Check: PASS - ✅  2025-09-17
 - [ ] All NEEDS CLARIFICATION resolved - Pending FR-019 failure handling definition
 - [x] Complexity deviations documented - ✅ None required
 
 **Artifacts Generated**:
-- [x] `/specs/001-you-need-to/research.md` - Technical research and decisions
-- [x] `/specs/001-you-need-to/data-model.md` - Complete database schema and entities
-- [x] `/specs/001-you-need-to/contracts/api-spec.yaml` - OpenAPI specification
-- [x] `/specs/001-you-need-to/quickstart.md` - Testing scenarios and validation
+- [x] `/specs/001-initial-implementation/research.md` - Technical research and decisions
+- [x] `/specs/001-initial-implementation/data-model.md` - Complete database schema and entities
+- [x] `/specs/001-initial-implementation/contracts/api-spec.yaml` - OpenAPI specification
+- [x] `/specs/001-initial-implementation/quickstart.md` - Testing scenarios and validation
 - [x] `/CLAUDE.md` - Updated agent context with feature details
 
 ---

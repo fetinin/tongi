@@ -5,7 +5,7 @@
  * for the Corgi Buddy TON Mini-App. Manages the complete wish lifecycle from
  * creation to purchase.
  *
- * Based on the data model specification in specs/001-you-need-to/data-model.md
+ * Based on the data model specification in specs/001-initial-implementation/data-model.md
  */
 
 import { getDatabase, withTransaction } from '@/lib/database';

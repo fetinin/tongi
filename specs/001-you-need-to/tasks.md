@@ -2,7 +2,7 @@ After each task is done. YOU MUST mark it as complete in this file and commit ch
 
 # Tasks: Corgi Buddy TON Cryptocurrency Mini-App
 
-**Input**: Design documents from `/specs/001-you-need-to/`
+**Input**: Design documents from `/specs/001-initial-implementation/`
 **Prerequisites**: research.md, data-model.md, contracts/api-spec.yaml, quickstart.md
 
 ## Phase 3.1: Setup
