@@ -17,6 +17,9 @@ importers:
       '@telegram-apps/telegram-ui':
         specifier: ^2.1.9
         version: 2.1.9(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tma.js/bridge':
+        specifier: ^2.0.2
+        version: 2.0.2(typescript@5.9.2)
       '@tma.js/init-data-node':
         specifier: ^2.0.1
         version: 2.0.1(typescript@5.9.2)
@@ -1174,8 +1177,14 @@ packages:
     resolution: {integrity: sha512-pXh9BdnLZF3e2BGc4WL+RTRMAUpqKpaSP3Rs8rB4WyRwIoRSGWFKE4gtT/9m42LGixB8YVwdo/pJ+9XO765XEA==}
     deprecated: This package is not supported anymore. Use @tma.js/types instead
 
+  '@tma.js/bridge@2.0.2':
+    resolution: {integrity: sha512-Ezt56uVCYj/lgVw0EM1mUQ61q7Wio1MkNV8qXSQKQmKpmSGV7OHjc5f3V9ez1Ic6fOMM6IOzvnQhIPB5SNQz8Q==}
+
   '@tma.js/init-data-node@2.0.1':
     resolution: {integrity: sha512-cYOzED5p57n2uXzZLFXq9e7Td37wzGXYV2tKWHqSU+8XzgCnlB8bvTjbGsguC/sKnQSDCctI77FS7qM4FDtyJw==}
+
+  '@tma.js/signals@1.0.0':
+    resolution: {integrity: sha512-LsTTcg+AEhYQPFOkgx+4B3eLNOxfhzACQfpCqngomrcVEBgLvYCyXMxdMVGmP2O+2E+jf45kmeddrxNDDw5NKQ==}
 
   '@tma.js/toolkit@1.0.1':
     resolution: {integrity: sha512-ihXOY4YscLL1Z1JcAoR0W1u3ANWCm8G+oq+cC491WEHX80O9i/ojYYSM3GX8o2yDBBGQXqHo70tsf1nxXvv7dg==}
@@ -4945,6 +4954,20 @@ snapshots:
 
   '@telegram-apps/types@2.0.3': {}
 
+  '@tma.js/bridge@2.0.2(typescript@5.9.2)':
+    dependencies:
+      '@tma.js/signals': 1.0.0
+      '@tma.js/toolkit': 1.0.1
+      '@tma.js/transformers': 1.0.1(typescript@5.9.2)
+      '@tma.js/types': 1.0.0
+      better-promises: 1.0.0
+      error-kid: 1.0.2
+      fp-ts: 2.16.11
+      mitt: 3.0.1
+      valibot: 1.1.0(typescript@5.9.2)
+    transitivePeerDependencies:
+      - typescript
+
   '@tma.js/init-data-node@2.0.1(typescript@5.9.2)':
     dependencies:
       '@tma.js/toolkit': 1.0.1
@@ -4955,6 +4978,8 @@ snapshots:
       fp-ts: 2.16.11
     transitivePeerDependencies:
       - typescript
+
+  '@tma.js/signals@1.0.0': {}
 
   '@tma.js/toolkit@1.0.1':
     dependencies:

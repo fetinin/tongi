@@ -11,6 +11,7 @@ import React, {
 import { initData, useSignal, cloudStorage } from '@telegram-apps/sdk-react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Placeholder, Spinner } from '@telegram-apps/telegram-ui';
+import { retrieveRawLaunchParams } from '@tma.js/bridge';
 
 // Types for authentication state
 interface User {
@@ -124,10 +125,16 @@ export function AuthProvider({
       }
 
       // No valid stored credentials, attempt fresh authentication
-      if (initDataUser && initData.raw()) {
-        await performAuthentication();
-      } else {
-        // No Telegram data available
+      // Try to get raw launch params directly from Telegram environment
+      try {
+        const rawParams = retrieveRawLaunchParams();
+        if (rawParams) {
+          await performAuthentication(rawParams);
+        } else {
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
+        }
+      } catch (error) {
+        console.log('No Telegram launch params available:', error);
         setAuthState((prev) => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
@@ -152,11 +159,34 @@ export function AuthProvider({
   /**
    * Perform authentication with Telegram initData
    */
-  const performAuthentication = useCallback(async (): Promise<void> => {
+  const performAuthentication = useCallback(async (rawInitData?: string): Promise<void> => {
     try {
-      if (!initData.raw()) {
+      // Get raw init data from parameter or retrieve it
+      let rawLaunchParams = rawInitData;
+      if (!rawLaunchParams) {
+        try {
+          rawLaunchParams = retrieveRawLaunchParams();
+        } catch (error) {
+          throw new Error('No Telegram initData available');
+        }
+      }
+
+      if (!rawLaunchParams) {
         throw new Error('No Telegram initData available');
       }
+
+      // Extract tgWebAppData from launch params
+      // The launch params contain: tgWebAppData=...&tgWebAppVersion=...&tgWebAppPlatform=...
+      // We need to extract and decode the tgWebAppData parameter value
+      const params = new URLSearchParams(rawLaunchParams);
+      const tgWebAppData = params.get('tgWebAppData');
+
+      if (!tgWebAppData) {
+        throw new Error('No tgWebAppData found in launch params');
+      }
+
+      // The tgWebAppData is already URL-encoded, so we need to decode it
+      const initDataString = decodeURIComponent(tgWebAppData);
 
       // Get TON wallet address if connected
       const tonWalletAddress =
@@ -169,7 +199,7 @@ export function AuthProvider({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          initData: initData.raw(),
+          initData: initDataString,
           tonWalletAddress,
         }),
       });
@@ -251,6 +281,15 @@ export function AuthProvider({
       }
 
       try {
+        // Get raw init data for wallet update
+        let initDataString: string;
+        try {
+          initDataString = retrieveRawLaunchParams();
+        } catch (error) {
+          console.error('Cannot update wallet: No Telegram data available');
+          return;
+        }
+
         // Update via API if different from current
         if (address !== authState.user.tonWalletAddress) {
           const response = await fetch('/api/auth/validate', {
@@ -260,7 +299,7 @@ export function AuthProvider({
               Authorization: `Bearer ${authState.token}`,
             },
             body: JSON.stringify({
-              initData: initData.raw(),
+              initData: initDataString,
               tonWalletAddress: address,
             }),
           });
