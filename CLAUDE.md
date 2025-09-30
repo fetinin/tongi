@@ -78,30 +78,13 @@ All commands should be run from the project root directory (after Next.js setup)
 - `/api/marketplace/*` - Public wish marketplace
 - `/api/transactions/*` - Transaction history and confirmation
 
-## Recent Changes (Feature 001-initial-implementation)
-
-### Phase 1 Completed (2025-09-17)
--  Data model design with SQLite schema
--  API contract specification (OpenAPI 3.0)
--  Research on Telegram Mini Apps integration patterns
--  Quickstart guide with testing scenarios
--  TON Connect integration architecture
-
-### Next Steps
-- Phase 2: Task generation for implementation
-- Database migration scripts
-- API endpoint implementation
-- React component development
-- TON Connect wallet integration
-- Telegram bot backend for notifications
-
 ## Important Notes
 - This template requires pnpm - other package managers will cause errors
 - Some Telegram SDK features only work within Telegram environment
 - The `mockTelegramEnv` function should not be used in production
 - macOS Telegram client has known bugs that require special handling
-- **NEW**: Bank wallet private key must be secured in environment variables
-- **NEW**: All Telegram initData must be validated server-side for security
+- Bank wallet private key must be secured in environment variables
+- All Telegram initData must be validated server-side for security
 
 ## Security Requirements
 - TON wallet integration via established TON Connect SDK only
@@ -119,3 +102,4 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+- This service use sqlite database located at ./data/app.db
