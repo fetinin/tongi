@@ -1,5 +1,5 @@
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import { validate, sign } from '@tma.js/init-data-node';
 
 export interface TelegramUser {
   id: number;
@@ -26,7 +26,7 @@ export interface AuthTokenPayload {
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-development-secret';
-const JWT_EXPIRES_IN = '30d';
+const JWT_EXPIRES_IN = '3d';
 
 /**
  * Validates Telegram initData using HMAC-SHA-256 signature verification
@@ -36,64 +36,11 @@ const JWT_EXPIRES_IN = '30d';
  */
 export function validateInitData(initData: string, botToken: string): boolean {
   try {
-    // Parse initData string manually to preserve encoding
-    const params = initData.split('&');
-    const data: Record<string, string> = {};
-    let hash = '';
-
-    for (const param of params) {
-      const [key, value] = param.split('=');
-      if (key === 'hash') {
-        hash = value;
-      } else {
-        data[key] = value;
-      }
-    }
-
-    if (!hash) {
-      return false;
-    }
-
-    // Check auth_date (not older than 24 hours)
-    const authDate = data.auth_date;
-    if (!authDate) {
-      return false;
-    }
-
-    const authTimestamp = parseInt(authDate, 10);
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const maxAge = 24 * 60 * 60; // 24 hours in seconds
-
-    if (currentTimestamp - authTimestamp > maxAge) {
-      return false;
-    }
-
-    // Create data check string by sorting keys alphabetically
-    const dataCheckString = Object.keys(data)
-      .sort()
-      .map((key) => `${key}=${data[key]}`)
-      .join('\n');
-
-    // Generate secret key from bot token
-    const secretKey = crypto
-      .createHmac('sha256', 'WebAppData')
-      .update(botToken)
-      .digest();
-
-    // Calculate expected hash
-    const expectedHash = crypto
-      .createHmac('sha256', secretKey)
-      .update(dataCheckString)
-      .digest('hex');
-
-    // console.log('Data check string:', dataCheckString);
-    // console.log('Expected hash:', expectedHash);
-    // console.log('Received hash:', hash);
-
-    // Compare hashes
-    return hash === expectedHash;
+    // Use library's validate function with 24-hour expiration
+    validate(initData, botToken, { expiresIn: 24 * 60 * 60 });
+    return true;
   } catch (error) {
-    console.error('Error validating initData:', error);
+    // Library throws errors for invalid signatures, expired data, etc.
     return false;
   }
 }
@@ -230,34 +177,13 @@ export function createTestInitData(
   authDate?: number
 ): string {
   const timestamp = authDate || Math.floor(Date.now() / 1000);
-  const userParam = encodeURIComponent(JSON.stringify(userData));
 
-  const data = {
-    auth_date: timestamp.toString(),
-    user: userParam,
+  // Build init data object for signing
+  const initDataObject = {
+    user: userData,
+    auth_date: timestamp,
   };
 
-  // Create data check string by sorting keys alphabetically
-  const dataCheckString = Object.keys(data)
-    .sort()
-    .map((key) => `${key}=${data[key as keyof typeof data]}`)
-    .join('\n');
-
-  // console.log('Creating test data with dataCheckString:', dataCheckString);
-
-  // Generate secret key from bot token
-  const secretKey = crypto
-    .createHmac('sha256', 'WebAppData')
-    .update(botToken)
-    .digest();
-
-  // Calculate hash
-  const hash = crypto
-    .createHmac('sha256', secretKey)
-    .update(dataCheckString)
-    .digest('hex');
-
-  // console.log('Generated hash for test:', hash);
-
-  return `auth_date=${timestamp}&user=${userParam}&hash=${hash}`;
+  // Use library's sign function to create properly signed initData
+  return sign(initDataObject, botToken, new Date(timestamp * 1000));
 }
