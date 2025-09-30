@@ -2,6 +2,7 @@
 
 import { type PropsWithChildren, useEffect } from 'react';
 import {
+  init,
   initData,
   miniApp,
   useLaunchParams,
@@ -16,6 +17,12 @@ import { useDidMount } from '@/hooks/useDidMount';
 import { setLocale } from '@/core/i18n/locale';
 
 import './styles.css';
+
+// Initialize Telegram SDK
+// This must be called before using any SDK features like cloudStorage
+if (typeof window !== 'undefined') {
+  init();
+}
 
 function RootInner({ children }: PropsWithChildren) {
   const lp = useLaunchParams();

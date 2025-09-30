@@ -337,14 +337,20 @@ export function AuthProvider({
   }
 
   /**
-   * Get stored user data from cloud storage
+   * Get stored user data from cloud storage (with localStorage fallback)
    */
   async function getStoredUserData(): Promise<User | null> {
     try {
       const userData = await cloudStorage.getItem(STORAGE_KEYS.CLOUD.USER_DATA);
       return userData ? JSON.parse(userData) : null;
     } catch {
-      return null;
+      // Fallback to localStorage if cloudStorage is unavailable
+      try {
+        const localData = localStorage.getItem(STORAGE_KEYS.CLOUD.USER_DATA);
+        return localData ? JSON.parse(localData) : null;
+      } catch {
+        return null;
+      }
     }
   }
 
@@ -364,7 +370,7 @@ export function AuthProvider({
   }
 
   /**
-   * Store user data in cloud storage
+   * Store user data in cloud storage (with localStorage fallback)
    */
   async function storeUserData(user: User): Promise<void> {
     try {
@@ -373,7 +379,13 @@ export function AuthProvider({
         JSON.stringify(user)
       );
     } catch (error) {
-      console.error('Error storing user data:', error);
+      console.error('Error storing user data in cloudStorage:', error);
+      // Fallback to localStorage if cloudStorage is unavailable
+      try {
+        localStorage.setItem(STORAGE_KEYS.CLOUD.USER_DATA, JSON.stringify(user));
+      } catch (fallbackError) {
+        console.error('Error storing user data in localStorage fallback:', fallbackError);
+      }
     }
   }
 
@@ -386,7 +398,12 @@ export function AuthProvider({
       localStorage.removeItem(STORAGE_KEYS.SECURE.AUTH_TOKEN);
 
       // Clear cloud storage user data
-      await cloudStorage.deleteItem(STORAGE_KEYS.CLOUD.USER_DATA);
+      try {
+        await cloudStorage.deleteItem(STORAGE_KEYS.CLOUD.USER_DATA);
+      } catch {
+        // If cloudStorage fails, also clear from localStorage fallback
+        localStorage.removeItem(STORAGE_KEYS.CLOUD.USER_DATA);
+      }
     } catch (error) {
       console.error('Error clearing credentials:', error);
     }
