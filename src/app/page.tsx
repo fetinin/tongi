@@ -30,31 +30,53 @@ function MainAppContent() {
   return (
     <List>
       <Section header={`Welcome back, ${user.firstName}!`}>
-        <Cell subtitle="Find and pair with another user">
-          <Link href="/buddy">Buddy Management</Link>
+        <Cell
+          Component={Link}
+          href="/buddy"
+          subtitle="Find and pair with another user"
+        >
+          Buddy Management
         </Cell>
-        <Cell subtitle="Report corgi sightings for Corgi coins">
-          <Link href="/corgi">Corgi Spotting</Link>
+        <Cell
+          Component={Link}
+          href="/corgi"
+          subtitle="Report corgi sightings for Corgi coins"
+        >
+          Corgi Spotting
         </Cell>
       </Section>
 
       <Section header="Wishes & Marketplace">
-        <Cell subtitle="Create and manage your wish list">
-          <Link href="/wishes">My Wishes</Link>
+        <Cell
+          Component={Link}
+          href="/wishes"
+          subtitle="Create and manage your wish list"
+        >
+          My Wishes
         </Cell>
-        <Cell subtitle="Browse community wishes to fulfill">
-          <Link href="/marketplace">Marketplace</Link>
+        <Cell
+          Component={Link}
+          href="/marketplace"
+          subtitle="Browse community wishes to fulfill"
+        >
+          Marketplace
         </Cell>
       </Section>
 
       <Section header="Account">
         <Cell
+          Component={Link}
+          href="/wallet"
           subtitle={user.tonWalletAddress ? `Connected: ${user.tonWalletAddress.slice(0, 8)}...` : 'Connect your TON wallet'}
         >
           Wallet & Transactions
         </Cell>
-        <Cell subtitle="View your earning history">
-          <Link href="/transactions">Transaction History</Link>
+        <Cell
+          Component={Link}
+          href="/transactions"
+          subtitle="View your earning history"
+        >
+          Transaction History
         </Cell>
       </Section>
     </List>
