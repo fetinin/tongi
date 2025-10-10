@@ -53,7 +53,7 @@
 - [X] T007 [US1] Add `handleAccept()` function to `src/components/buddy/BuddyStatus.tsx` (calls /api/buddy/accept, sets processing state, refreshes buddy status on success)
 - [X] T008 [US1] Add Accept button UI to `src/components/buddy/BuddyStatus.tsx` (conditional render when status='pending' AND user is recipient, Button mode="filled", disabled={isProcessing})
 - [X] T009 [US1] Add error display UI to `src/components/buddy/BuddyStatus.tsx` (show actionError message if present)
-- [x] T010 [US1] Verify accept flow end-to-end: Manual test with two users, confirm status transitions to 'active', notification sent, UI updates
+- [X] T010 [US1] Verify accept flow end-to-end: Manual test with two users, confirm status transitions to 'active', notification sent, UI updates
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can accept buddy requests and see immediate UI feedback.
 
@@ -70,7 +70,7 @@
 - [X] T011 [P] [US2] Create API route `src/app/api/buddy/reject/route.ts` (POST endpoint, validates Telegram initData, calls buddyService.rejectBuddyRequest, returns BuddyPairWithProfile with status='dissolved')
 - [X] T012 [US2] Add `handleReject()` function to `src/components/buddy/BuddyStatus.tsx` (calls /api/buddy/reject, sets processing state, refreshes buddy status on success)
 - [X] T013 [US2] Add Reject button UI to `src/components/buddy/BuddyStatus.tsx` (conditional render when status='pending' AND user is recipient, Button mode="outline", disabled={isProcessing}, placed next to Accept button)
-- [ ] T014 [US2] Verify reject flow end-to-end: Manual test with two users, confirm status transitions to 'dissolved', notification sent, UI shows "No Buddy Yet"
+- [X] T014 [US2] Verify reject flow end-to-end: Manual test with two users, confirm status transitions to 'dissolved', notification sent, UI shows "No Buddy Yet"
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - users can accept OR reject buddy requests.
 
@@ -84,9 +84,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Verify existing "Request Sent" badge in `src/components/buddy/BuddyStatus.tsx` shows correctly for initiators (conditional render when status='pending' AND user.id === buddyStatus.initiatedBy)
-- [ ] T016 [US3] Confirm Accept/Reject buttons are hidden for initiators in `src/components/buddy/BuddyStatus.tsx` (verify condition user.id !== buddyStatus.initiatedBy)
-- [ ] T017 [US3] Test initiator view: Manual test as initiator user, confirm no action buttons visible, status indicator shows "Request Sent"
+- [X] T015 [US3] Verify existing "Request Sent" badge in `src/components/buddy/BuddyStatus.tsx` shows correctly for initiators (conditional render when status='pending' AND user.id === buddyStatus.initiatedBy)
+- [X] T016 [US3] Confirm Accept/Reject buttons are hidden for initiators in `src/components/buddy/BuddyStatus.tsx` (verify condition user.id !== buddyStatus.initiatedBy)
+- [X] T017 [US3] Test initiator view: Manual test as initiator user, confirm no action buttons visible, status indicator shows "Request Sent"
 
 **Checkpoint**: All user stories 1-3 should now be independently functional - recipients can act, initiators cannot.
 

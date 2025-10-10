@@ -292,9 +292,11 @@ export class BuddyService {
         return result;
       });
       // Best-effort notify target user about buddy request
-      await notificationService
-        .notifyBuddyRequest(targetUserId, requesterUser.first_name)
-        .catch(() => {});
+      if (requesterUser) {
+        await notificationService
+          .notifyBuddyRequest(targetUserId, requesterUser.first_name)
+          .catch(() => {});
+      }
     } catch (error) {
       if (
         error instanceof BuddyServiceError ||
@@ -441,7 +443,7 @@ export class BuddyService {
         throw new UserNotFoundError(buddyId);
       }
 
-      return withTransaction(() => {
+      const result = withTransaction(() => {
         // Re-get the buddy pair in case it changed
         const row = this.statements.getBuddyPairById!.get(buddyPairId);
         if (!row) {
@@ -492,14 +494,16 @@ export class BuddyService {
         };
         return result;
       });
+
       // Notify the initiator that their request was confirmed
-      const initiatorId = (await this.getBuddyPairById(buddyPairId))
-        ?.initiated_by;
-      if (initiatorId) {
+      const initiatorId = buddyPair.initiated_by;
+      if (initiatorId && confirmerUser) {
         await notificationService
           .notifyBuddyConfirmed(initiatorId, confirmerUser.first_name)
           .catch(() => {});
       }
+
+      return result;
     } catch (error) {
       if (
         error instanceof BuddyServiceError ||
