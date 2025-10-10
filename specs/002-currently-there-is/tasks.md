@@ -92,21 +92,25 @@
 
 ---
 
-## Phase 6: User Story 4 - Confirmation Dialog for Reject Action (Priority: P3)
+## Phase 6: User Story 4 - Confirmation Dialog for Reject Action (Priority: P3) ⏭️ SKIPPED
+
+**Status**: ⏭️ **SKIPPED** - Not required for MVP. Can be implemented in future iteration if needed.
 
 **Goal**: Add confirmation prompt before rejection to prevent accidental rejections and explain consequences.
 
 **Independent Test**: Tap "Reject" button, verify confirmation dialog appears with appropriate messaging, "Cancel" dismisses without changes, "Confirm" proceeds with rejection.
 
+**Skip Reason**: P3 priority feature. MVP is functional without confirmation dialog - reject action is already clear and reversible (users can send new request). This enhancement can be added based on user feedback.
+
 ### Implementation for User Story 4
 
-- [ ] T018 [US4] Add state management for rejection confirmation dialog to `src/components/buddy/BuddyStatus.tsx` (useState for showRejectConfirm)
-- [ ] T019 [US4] Update `handleReject()` to show confirmation dialog first in `src/components/buddy/BuddyStatus.tsx` (setShowRejectConfirm(true) instead of immediate API call)
-- [ ] T020 [US4] Add `handleConfirmReject()` function to `src/components/buddy/BuddyStatus.tsx` (performs actual rejection, calls API, closes dialog)
-- [ ] T021 [US4] Add confirmation dialog UI to `src/components/buddy/BuddyStatus.tsx` (use Telegram UI Modal component, message: "Are you sure you want to reject this buddy request?", buttons: "Cancel" and "Reject")
-- [ ] T022 [US4] Test confirmation dialog: Verify dialog shows, Cancel works, Confirm proceeds with rejection
+- [ ] T018 [US4] **SKIPPED**: Add state management for rejection confirmation dialog to `src/components/buddy/BuddyStatus.tsx` (useState for showRejectConfirm)
+- [ ] T019 [US4] **SKIPPED**: Update `handleReject()` to show confirmation dialog first in `src/components/buddy/BuddyStatus.tsx` (setShowRejectConfirm(true) instead of immediate API call)
+- [ ] T020 [US4] **SKIPPED**: Add `handleConfirmReject()` function to `src/components/buddy/BuddyStatus.tsx` (performs actual rejection, calls API, closes dialog)
+- [ ] T021 [US4] **SKIPPED**: Add confirmation dialog UI to `src/components/buddy/BuddyStatus.tsx` (use Telegram UI Modal component, message: "Are you sure you want to reject this buddy request?", buttons: "Cancel" and "Reject")
+- [ ] T022 [US4] **SKIPPED**: Test confirmation dialog: Verify dialog shows, Cancel works, Confirm proceeds with rejection
 
-**Checkpoint**: All user stories should now be complete with quality-of-life improvements.
+**Checkpoint**: MVP complete with User Stories 1-3. User Story 4 deferred for future enhancement.
 
 ---
 
@@ -279,7 +283,9 @@ With multiple developers:
 
 ## Success Criteria
 
-Before marking this feature complete, verify:
+**MVP Status**: ✅ **COMPLETE** - All P1 and P2 user stories implemented and verified
+
+### Completed (MVP)
 
 - ✅ Accept button works for recipients, changes status to 'active' (US1)
 - ✅ Reject button works for recipients, changes status to 'dissolved' (US2)
@@ -290,24 +296,31 @@ Before marking this feature complete, verify:
 - ✅ Type checking passes: `pnpm run type-check`
 - ✅ Code style passes: `pnpm run lint`
 
-**Optional for MVP:**
-- ⚪ Confirmation dialog shows before rejection (US4)
-- ⚪ All tests pass: `pnpm test` (Phase 7)
-- ⚪ Haptic feedback on button press (Phase 8)
+### Deferred (Future Enhancements)
+
+- ⏭️ Confirmation dialog shows before rejection (US4 - P3 priority)
+- ⏭️ All tests pass: `pnpm test` (Phase 7 - Optional)
+- ⏭️ Haptic feedback on button press (Phase 8 - Optional)
 
 ---
 
 ## Task Summary
 
 - **Total Tasks**: 46
-- **Setup & Foundational**: 4 tasks (T001-T004)
-- **User Story 1 (P1)**: 6 tasks (T005-T010)
-- **User Story 2 (P1)**: 4 tasks (T011-T014)
-- **User Story 3 (P2)**: 3 tasks (T015-T017)
-- **User Story 4 (P3)**: 5 tasks (T018-T022)
-- **Testing (Optional)**: 19 tasks (T023-T041)
-- **Polish (Optional)**: 5 tasks (T042-T046)
+- **Completed**: 17 tasks (T001-T017) ✅
+- **Skipped**: 5 tasks (T018-T022) ⏭️
+- **Deferred**: 24 tasks (T023-T046) ⏭️
 
-**MVP Scope**: T001-T014 (18 tasks) = Setup + Foundational + US1 + US2
-**Parallel Opportunities**: 14 tasks can run in parallel (marked with [P])
-**Independent Stories**: 4 user stories, each independently testable
+### Breakdown by Phase
+
+- **Setup & Foundational**: 4 tasks (T001-T004) ✅ COMPLETE
+- **User Story 1 (P1)**: 6 tasks (T005-T010) ✅ COMPLETE
+- **User Story 2 (P1)**: 4 tasks (T011-T014) ✅ COMPLETE
+- **User Story 3 (P2)**: 3 tasks (T015-T017) ✅ COMPLETE
+- **User Story 4 (P3)**: 5 tasks (T018-T022) ⏭️ SKIPPED
+- **Testing (Optional)**: 19 tasks (T023-T041) ⏭️ DEFERRED
+- **Polish (Optional)**: 5 tasks (T042-T046) ⏭️ DEFERRED
+
+**MVP Delivered**: T001-T017 (17 tasks) = Setup + Foundational + US1 + US2 + US3
+**Independent Stories Delivered**: 3 user stories (Accept, Reject, Initiator View)
+**Production Ready**: Yes - Core functionality complete and validated
