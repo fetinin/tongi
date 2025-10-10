@@ -35,4 +35,12 @@ jobs:
         run: pnpm run type-check
 
       - name: Run tests
-        run: pnpm run test
+        run: pnpm run test:coverage
+
+      - name: Upload test coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage
+          path: coverage/
+          retention-days: 7
