@@ -1,0 +1,287 @@
+openapi: 3.0.3
+info:
+  title: Buddy Accept API
+  description: API endpoint for accepting incoming buddy requests
+  version: 1.0.0
+  contact:
+    name: Tongi Development Team
+
+servers:
+  - url: https://localhost:3000
+    description: Local HTTPS development server (required for Telegram testing)
+  - url: http://localhost:3000
+    description: Local HTTP development server
+
+paths:
+  /api/buddy/accept:
+    post:
+      summary: Accept a pending buddy request
+      description: |
+        Allows the recipient of a buddy request to accept it, transitioning the
+        relationship status from 'pending' to 'active'. Only the recipient
+        (not the initiator) can accept the request.
+
+        **Authorization**: Requires valid Telegram initData in request body.
+
+        **Validation**:
+        - User must be authenticated via Telegram initData
+        - User must be the recipient (not the initiator) of the request
+        - Buddy pair status must be 'pending'
+        - Buddy pair must exist
+
+        **Side Effects**:
+        - Updates buddy_pairs.status to 'active'
+        - Sets buddy_pairs.confirmed_at to current timestamp
+        - Sends notification to request initiator via Telegram bot
+
+      operationId: acceptBuddyRequest
+      tags:
+        - Buddy Management
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - initData
+                - buddyPairId
+              properties:
+                initData:
+                  type: string
+                  description: |
+                    Telegram Mini App initData string for authentication.
+                    Contains user information and signature for server-side validation.
+                  example: "query_id=AAHdF6IQAAAAAN0XohDhrOrc&user=%7B%22id%22%3A279058397..."
+
+                buddyPairId:
+                  type: integer
+                  format: int64
+                  description: The ID of the buddy pair relationship to accept
+                  minimum: 1
+                  example: 42
+
+            examples:
+              validRequest:
+                summary: Valid accept request
+                value:
+                  initData: "query_id=AAHdF6IQAAAAAN0XohDhrOrc&user=%7B%22id%22%3A279058397..."
+                  buddyPairId: 42
+
+      responses:
+        '200':
+          description: Buddy request successfully accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuddyPairResponse'
+              examples:
+                success:
+                  summary: Successful acceptance
+                  value:
+                    id: 42
+                    buddy:
+                      id: 123456789
+                      telegramUsername: "johndoe"
+                      firstName: "John"
+                      tonWalletAddress: "EQD1234567890abcdef"
+                      createdAt: "2025-10-01T12:00:00.000Z"
+                    status: "active"
+                    createdAt: "2025-10-08T14:30:00.000Z"
+                    confirmedAt: "2025-10-09T10:15:30.000Z"
+                    initiatedBy: 123456789
+
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notRecipient:
+                  summary: Initiator trying to accept own request
+                  value:
+                    error: "Cannot accept your own buddy request"
+                    code: "INVALID_REQUEST"
+
+                alreadyProcessed:
+                  summary: Request already accepted or rejected
+                  value:
+                    error: "Buddy pair is not in pending status"
+                    code: "INVALID_REQUEST"
+
+                invalidStatus:
+                  summary: Relationship not pending
+                  value:
+                    error: "This request has already been processed"
+                    code: "INVALID_REQUEST"
+
+        '401':
+          description: Unauthorized - invalid or missing Telegram authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidInitData:
+                  summary: Invalid Telegram initData
+                  value:
+                    error: "Unauthorized"
+                    code: "UNAUTHORIZED"
+
+        '404':
+          description: Not found - buddy pair or user doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                buddyPairNotFound:
+                  summary: Buddy pair ID not found
+                  value:
+                    error: "Buddy pair not found"
+                    code: "BUDDY_NOT_FOUND"
+
+                userDeleted:
+                  summary: User account deleted
+                  value:
+                    error: "User not found"
+                    code: "USER_NOT_FOUND"
+
+        '409':
+          description: Conflict - concurrent modification detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                raceCondition:
+                  summary: Request was processed by another request
+                  value:
+                    error: "Request was already processed"
+                    code: "CONFLICT"
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Unexpected server error
+                  value:
+                    error: "Internal server error"
+                    code: "INTERNAL_ERROR"
+
+      security:
+        - telegramAuth: []
+
+components:
+  schemas:
+    BuddyPairResponse:
+      type: object
+      required:
+        - id
+        - buddy
+        - status
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the buddy pair
+          example: 42
+
+        buddy:
+          $ref: '#/components/schemas/UserProfile'
+
+        status:
+          type: string
+          enum: [pending, active, dissolved]
+          description: Current status of the buddy relationship
+          example: "active"
+
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the request was created
+          example: "2025-10-08T14:30:00.000Z"
+
+        confirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: ISO 8601 timestamp when the request was accepted (null if pending/rejected)
+          example: "2025-10-09T10:15:30.000Z"
+
+        initiatedBy:
+          type: integer
+          format: int64
+          description: User ID of the person who sent the buddy request
+          example: 123456789
+
+    UserProfile:
+      type: object
+      required:
+        - id
+        - firstName
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Telegram user ID
+          example: 123456789
+
+        telegramUsername:
+          type: string
+          nullable: true
+          description: Telegram @username (may be null if user hasn't set one)
+          example: "johndoe"
+
+        firstName:
+          type: string
+          description: User's first name from Telegram
+          example: "John"
+
+        tonWalletAddress:
+          type: string
+          nullable: true
+          description: Connected TON wallet address (null if not connected)
+          example: "EQD1234567890abcdef"
+
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when user joined the app
+          example: "2025-10-01T12:00:00.000Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Buddy pair not found"
+
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "BUDDY_NOT_FOUND"
+
+  securitySchemes:
+    telegramAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        Telegram Mini App authentication using initData validation.
+        The initData string is validated server-side using the bot token.
+
+tags:
+  - name: Buddy Management
+    description: Operations for managing buddy relationships
