@@ -56,6 +56,8 @@ export function BuddyStatus({
   const [buddyStatus, setBuddyStatus] = useState<BuddyStatusData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Fetch buddy status from API
   const fetchBuddyStatus = useCallback(async () => {
@@ -114,6 +116,86 @@ export function BuddyStatus({
   );
 
   /**
+   * Handle accept buddy request
+   */
+  const handleAccept = useCallback(async () => {
+    if (!buddyStatus || buddyStatus.status === 'no_buddy') return;
+    if (buddyStatus.status !== 'pending') return;
+    if (!token) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    try {
+      const response = await fetch('/api/buddy/accept', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          buddyPairId: buddyStatus.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to accept buddy request');
+      }
+
+      // Refresh buddy status to show updated state
+      await fetchBuddyStatus();
+    } catch (err) {
+      console.error('Accept buddy error:', err);
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to accept buddy request'
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [buddyStatus, token, fetchBuddyStatus]);
+
+  /**
+   * Handle reject buddy request
+   */
+  const handleReject = useCallback(async () => {
+    if (!buddyStatus || buddyStatus.status === 'no_buddy') return;
+    if (buddyStatus.status !== 'pending') return;
+    if (!token) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    try {
+      const response = await fetch('/api/buddy/reject', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          buddyPairId: buddyStatus.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to reject buddy request');
+      }
+
+      // Refresh buddy status to show updated state
+      await fetchBuddyStatus();
+    } catch (err) {
+      console.error('Reject buddy error:', err);
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to reject buddy request'
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [buddyStatus, token, fetchBuddyStatus]);
+
+  /**
    * Format username display
    */
   const formatUsername = (buddy: BuddyInfo): string => {
@@ -151,12 +233,12 @@ export function BuddyStatus({
           type: 'dot' as const,
           text: isInitiatedByCurrentUser
             ? 'Request Sent'
-            : 'Pending Your Response',
+            : 'Pending',
         };
       case 'active':
         return {
           type: 'number' as const,
-          text: 'Active Buddy',
+          text: 'Active',
         };
       case 'dissolved':
         return {
@@ -281,6 +363,38 @@ export function BuddyStatus({
           >
             Wallet Status
           </Cell>
+
+          {/* Accept/Reject Actions - Only show for pending requests where user is recipient */}
+          {buddyStatus.status === 'pending' &&
+            user?.id !== buddyStatus.initiatedBy && (
+              <>
+                {actionError && (
+                  <Cell>
+                    <div className="text-red-500 text-sm">{actionError}</div>
+                  </Cell>
+                )}
+                <Cell>
+                  <div className="flex gap-2">
+                    <Button
+                      mode="filled"
+                      size="m"
+                      onClick={handleAccept}
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? 'Processing...' : 'Accept'}
+                    </Button>
+                    <Button
+                      mode="outline"
+                      size="m"
+                      onClick={handleReject}
+                      disabled={isProcessing}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </Cell>
+              </>
+            )}
 
           {/* Action Buttons */}
           {buddyStatus.status === 'active' && (

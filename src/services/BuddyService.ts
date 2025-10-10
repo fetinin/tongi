@@ -515,6 +515,115 @@ export class BuddyService {
   }
 
   /**
+   * Reject a pending buddy request (set status to dissolved)
+   */
+  public async rejectBuddyRequest(
+    buddyPairId: number,
+    rejectingUserId: number
+  ): Promise<BuddyPairWithProfile> {
+    try {
+      // Fetch rejecting user name for notification
+      const rejecterUser = await userService.getUserById(rejectingUserId);
+      if (!rejecterUser) {
+        throw new UserNotFoundError(rejectingUserId);
+      }
+
+      // Get the buddy pair first to determine buddy user
+      const row = this.statements.getBuddyPairById!.get(buddyPairId);
+      if (!row) {
+        throw new BuddyNotFoundError('Buddy pair not found');
+      }
+
+      const buddyPair = this.mapRowToBuddyPair(row as Record<string, unknown>);
+      const buddyId = BuddyPairUtils.getBuddyId(buddyPair, rejectingUserId);
+      if (!buddyId) {
+        throw new BuddyServiceError(
+          'Could not determine buddy ID',
+          'INTERNAL_ERROR'
+        );
+      }
+
+      // Fetch buddy user before transaction
+      const buddyUser = await userService.getUserById(buddyId);
+      if (!buddyUser) {
+        throw new UserNotFoundError(buddyId);
+      }
+
+      const result = withTransaction(() => {
+        // Re-get the buddy pair in case it changed
+        const row = this.statements.getBuddyPairById!.get(buddyPairId);
+        if (!row) {
+          throw new BuddyNotFoundError('Buddy pair not found');
+        }
+
+        const buddyPair = this.mapRowToBuddyPair(
+          row as Record<string, unknown>
+        );
+
+        // Verify the rejecting user is part of this relationship
+        if (!BuddyPairUtils.isUserInPair(buddyPair, rejectingUserId)) {
+          throw new BuddyValidationError('User is not part of this buddy pair');
+        }
+
+        // Verify the relationship is pending
+        if (buddyPair.status !== BuddyPairStatus.PENDING) {
+          throw new BuddyConflictError('Buddy pair is not in pending status');
+        }
+
+        // Verify the rejecting user is not the one who initiated the request
+        if (buddyPair.initiated_by === rejectingUserId) {
+          throw new BuddyConflictError('Cannot reject your own buddy request');
+        }
+
+        // Update to dissolved status (no confirmed_at since it's rejection)
+        const updatedRow = this.statements.updateBuddyPairStatus!.get(
+          BuddyPairStatus.DISSOLVED,
+          null,
+          buddyPairId
+        );
+
+        const updatedBuddyPair = this.mapRowToBuddyPair(
+          updatedRow as Record<string, unknown>
+        );
+
+        // Convert buddy user to profile (already fetched outside transaction)
+        const buddyProfile: UserProfile = UserUtils.toProfile(buddyUser);
+
+        const result = {
+          id: updatedBuddyPair.id,
+          buddy: buddyProfile,
+          status: updatedBuddyPair.status,
+          createdAt: updatedBuddyPair.created_at,
+          confirmedAt: updatedBuddyPair.confirmed_at,
+          initiatedBy: updatedBuddyPair.initiated_by,
+        };
+        return result;
+      });
+
+      // Notify the initiator that their request was rejected
+      const initiatorId = buddyPair.initiated_by;
+      if (initiatorId) {
+        await notificationService
+          .notifyBuddyRejected(initiatorId, rejecterUser.first_name)
+          .catch(() => {});
+      }
+
+      return result;
+    } catch (error) {
+      if (
+        error instanceof BuddyServiceError ||
+        error instanceof UserNotFoundError
+      ) {
+        throw error;
+      }
+      throw new BuddyServiceError(
+        `Failed to reject buddy request: ${error}`,
+        'DATABASE_ERROR'
+      );
+    }
+  }
+
+  /**
    * Dissolve an active buddy relationship
    */
   public async dissolveBuddyRelationship(

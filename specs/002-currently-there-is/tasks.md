@@ -18,8 +18,8 @@
 
 **Purpose**: Verify project structure and dependencies (no new setup required)
 
-- [ ] T001 Verify development environment: `pnpm install` and `pnpm run type-check` pass
-- [ ] T002 Confirm existing BuddyService and NotificationService are functional
+- [X] T001 Verify development environment: `pnpm install` and `pnpm run type-check` pass
+- [X] T002 Confirm existing BuddyService and NotificationService are functional
 
 **Status**: ✅ No setup needed - project infrastructure already exists
 
@@ -33,8 +33,8 @@
 
 ### Service Layer Foundation
 
-- [ ] T003 [P] [Foundation] Add `rejectBuddyRequest()` method to `src/services/BuddyService.ts` (mirrors confirmBuddyRequest pattern, sets status to 'dissolved', validates recipient)
-- [ ] T004 [P] [Foundation] Add `notifyBuddyRejected()` method to `src/services/NotificationService.ts` (sends "❌ Buddy request: {rejecterName} declined your buddy request.")
+- [X] T003 [P] [Foundation] Add `rejectBuddyRequest()` method to `src/services/BuddyService.ts` (mirrors confirmBuddyRequest pattern, sets status to 'dissolved', validates recipient)
+- [X] T004 [P] [Foundation] Add `notifyBuddyRejected()` method to `src/services/NotificationService.ts` (sends "❌ Buddy request: {rejecterName} declined your buddy request.")
 
 **Checkpoint**: Foundation ready - service layer can accept and reject buddy requests. User story implementation can now begin in parallel.
 
@@ -48,12 +48,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Create API route `src/app/api/buddy/accept/route.ts` (POST endpoint, validates Telegram initData, calls buddyService.confirmBuddyRequest, returns BuddyPairWithProfile)
-- [ ] T006 [P] [US1] Add state management to `src/components/buddy/BuddyStatus.tsx` (useState for isProcessing and actionError)
-- [ ] T007 [US1] Add `handleAccept()` function to `src/components/buddy/BuddyStatus.tsx` (calls /api/buddy/accept, sets processing state, refreshes buddy status on success)
-- [ ] T008 [US1] Add Accept button UI to `src/components/buddy/BuddyStatus.tsx` (conditional render when status='pending' AND user is recipient, Button mode="primary", disabled={isProcessing})
-- [ ] T009 [US1] Add error display UI to `src/components/buddy/BuddyStatus.tsx` (show actionError message if present)
-- [ ] T010 [US1] Verify accept flow end-to-end: Manual test with two users, confirm status transitions to 'active', notification sent, UI updates
+- [X] T005 [P] [US1] Create API route `src/app/api/buddy/accept/route.ts` (POST endpoint, validates Telegram initData, calls buddyService.confirmBuddyRequest, returns BuddyPairWithProfile)
+- [X] T006 [P] [US1] Add state management to `src/components/buddy/BuddyStatus.tsx` (useState for isProcessing and actionError)
+- [X] T007 [US1] Add `handleAccept()` function to `src/components/buddy/BuddyStatus.tsx` (calls /api/buddy/accept, sets processing state, refreshes buddy status on success)
+- [X] T008 [US1] Add Accept button UI to `src/components/buddy/BuddyStatus.tsx` (conditional render when status='pending' AND user is recipient, Button mode="filled", disabled={isProcessing})
+- [X] T009 [US1] Add error display UI to `src/components/buddy/BuddyStatus.tsx` (show actionError message if present)
+- [x] T010 [US1] Verify accept flow end-to-end: Manual test with two users, confirm status transitions to 'active', notification sent, UI updates
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can accept buddy requests and see immediate UI feedback.
 
@@ -67,9 +67,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T011 [P] [US2] Create API route `src/app/api/buddy/reject/route.ts` (POST endpoint, validates Telegram initData, calls buddyService.rejectBuddyRequest, returns BuddyPairWithProfile with status='dissolved')
-- [ ] T012 [US2] Add `handleReject()` function to `src/components/buddy/BuddyStatus.tsx` (calls /api/buddy/reject, sets processing state, refreshes buddy status on success)
-- [ ] T013 [US2] Add Reject button UI to `src/components/buddy/BuddyStatus.tsx` (conditional render when status='pending' AND user is recipient, Button mode="outline", disabled={isProcessing}, placed next to Accept button)
+- [X] T011 [P] [US2] Create API route `src/app/api/buddy/reject/route.ts` (POST endpoint, validates Telegram initData, calls buddyService.rejectBuddyRequest, returns BuddyPairWithProfile with status='dissolved')
+- [X] T012 [US2] Add `handleReject()` function to `src/components/buddy/BuddyStatus.tsx` (calls /api/buddy/reject, sets processing state, refreshes buddy status on success)
+- [X] T013 [US2] Add Reject button UI to `src/components/buddy/BuddyStatus.tsx` (conditional render when status='pending' AND user is recipient, Button mode="outline", disabled={isProcessing}, placed next to Accept button)
 - [ ] T014 [US2] Verify reject flow end-to-end: Manual test with two users, confirm status transitions to 'dissolved', notification sent, UI shows "No Buddy Yet"
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - users can accept OR reject buddy requests.
