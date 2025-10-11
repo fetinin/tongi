@@ -2,7 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { GET as getTransactions } from '@/app/api/transactions/route';
 import { POST as confirmTransaction } from '@/app/api/transactions/[id]/confirm/route';
 import { createAuthenticatedRequest } from '../helpers/request';
-import { authenticateTestUser, TestUser, generateTestTonAddress } from '../helpers/auth';
+import {
+  authenticateTestUser,
+  TestUser,
+  generateTestTonAddress,
+} from '../helpers/auth';
 import { clearDatabase, initializeBankWallet } from '../helpers/database';
 import { transactionService } from '@/services/TransactionService';
 
@@ -32,8 +36,14 @@ describe('Transaction Confirmation Flow Integration', () => {
     initializeBankWallet(bankWalletAddress, 10000);
 
     // Authenticate test users with wallet addresses
-    user1Token = await authenticateTestUser(user1, generateTestTonAddress(user1.id));
-    user2Token = await authenticateTestUser(user2, generateTestTonAddress(user2.id));
+    user1Token = await authenticateTestUser(
+      user1,
+      generateTestTonAddress(user1.id)
+    );
+    user2Token = await authenticateTestUser(
+      user2,
+      generateTestTonAddress(user2.id)
+    );
   });
 
   afterEach(() => {

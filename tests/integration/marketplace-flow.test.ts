@@ -1,8 +1,5 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import {
-  authenticateTestUser,
-  generateTestTonAddress,
-} from '../helpers/auth';
+import { authenticateTestUser, generateTestTonAddress } from '../helpers/auth';
 import { createAuthenticatedRequest } from '../helpers/request';
 import { clearDatabase } from '../helpers/database';
 
