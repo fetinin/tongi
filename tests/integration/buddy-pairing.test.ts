@@ -105,7 +105,7 @@ describe('Buddy Pairing Flow Integration', () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userBToken}`,
+        Authorization: `Bearer ${_userBToken}`,
       },
     });
 

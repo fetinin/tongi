@@ -9,7 +9,7 @@ import {
   Badge,
 } from '@telegram-apps/telegram-ui';
 import { useAuth } from '@/components/Auth/AuthProvider';
-import { useTonWalletContext } from '@/components/Wallet';
+import { useTonWalletContext } from '@/components/wallet';
 
 // Types for marketplace wish data
 interface MarketplaceWishData {
@@ -171,6 +171,9 @@ export function PurchaseModal({
     wish,
     isAuthenticated,
     token,
+    isConnected,
+    connectWallet,
+    sendTransaction,
     onPurchaseStart,
     onPurchaseSuccess,
     onPurchaseError,

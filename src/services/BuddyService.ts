@@ -294,7 +294,7 @@ export class BuddyService {
       // Best-effort notify target user about buddy request
       if (requesterUser) {
         await notificationService
-          .notifyBuddyRequest(targetUserId, requesterUser.first_name)
+          .notifyBuddyRequest(targetUserId, requesterUser!.first_name)
           .catch(() => {});
       }
     } catch (error) {
