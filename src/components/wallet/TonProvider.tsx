@@ -113,7 +113,7 @@ export function TonProvider({ children, className }: TonProviderProps) {
     const result = await tonConnectUI.sendTransaction(request);
     // TON Connect returns an object with BOC; use it as a transaction proof/hash surrogate
     // In production, you might resolve actual tx hash from a backend or explorer
-     
+
     const boc = (result as unknown as { boc?: string }).boc;
     if (!boc) {
       throw new Error('Failed to obtain transaction BOC');

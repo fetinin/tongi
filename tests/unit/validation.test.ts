@@ -95,7 +95,7 @@ describe('Transaction validation helpers', () => {
       to_wallet: 'bad',
       amount: 0,
       // Intentionally pass an invalid type to trigger validation error
-       
+
       transaction_type: 'invalid' as any,
       related_entity_id: 1,
       // Omit related_entity_type to trigger dependency error
