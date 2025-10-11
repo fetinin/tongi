@@ -87,7 +87,10 @@ export class NotificationService {
     await this.sendMessage(initiatorUserId, message).catch(() => {});
   }
 
-  public async notifyBuddyRejected(initiatorUserId: number, rejecterName: string): Promise<void> {
+  public async notifyBuddyRejected(
+    initiatorUserId: number,
+    rejecterName: string
+  ): Promise<void> {
     const message = `❌ Buddy request: ${rejecterName} declined your buddy request.`;
     await this.sendMessage(initiatorUserId, message).catch(() => {});
   }
