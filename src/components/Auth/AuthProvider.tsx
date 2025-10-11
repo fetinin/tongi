@@ -157,6 +157,47 @@ export function AuthProvider({
   }, [initDataUser]);
 
   /**
+   * Store user data in cloud storage (with localStorage fallback)
+   */
+  const storeUserData = useCallback(async (user: User): Promise<void> => {
+    try {
+      await cloudStorage.setItem(
+        STORAGE_KEYS.CLOUD.USER_DATA,
+        JSON.stringify(user)
+      );
+    } catch (error) {
+      console.error('Error storing user data in cloudStorage:', error);
+      // Fallback to localStorage if cloudStorage is unavailable
+      try {
+        localStorage.setItem(
+          STORAGE_KEYS.CLOUD.USER_DATA,
+          JSON.stringify(user)
+        );
+      } catch (fallbackError) {
+        console.error(
+          'Error storing user data in localStorage fallback:',
+          fallbackError
+        );
+      }
+    }
+  }, []);
+
+  /**
+   * Store authentication credentials using available storage options
+   */
+  const storeCredentials = useCallback(async (token: string, user: User): Promise<void> => {
+    try {
+      // Store token in localStorage (fallback for secure storage)
+      localStorage.setItem(STORAGE_KEYS.SECURE.AUTH_TOKEN, token);
+
+      // Store user data in cloud storage for cross-device sync
+      await storeUserData(user);
+    } catch (error) {
+      console.error('Error storing credentials:', error);
+    }
+  }, [storeUserData]);
+
+  /**
    * Perform authentication with Telegram initData
    */
   const performAuthentication = useCallback(
@@ -227,9 +268,9 @@ export function AuthProvider({
         console.error('Authentication error:', error);
         throw error;
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+
     },
-    [tonConnectUI]
+    [tonConnectUI, storeCredentials]
   );
 
   /**
@@ -324,7 +365,7 @@ export function AuthProvider({
         console.error('Error updating wallet address:', error);
       }
     },
-    [authState.user, authState.token]
+    [authState.user, authState.token, storeUserData]
   );
 
   /**
@@ -353,47 +394,6 @@ export function AuthProvider({
         return localData ? JSON.parse(localData) : null;
       } catch {
         return null;
-      }
-    }
-  }
-
-  /**
-   * Store authentication credentials using available storage options
-   */
-  async function storeCredentials(token: string, user: User): Promise<void> {
-    try {
-      // Store token in localStorage (fallback for secure storage)
-      localStorage.setItem(STORAGE_KEYS.SECURE.AUTH_TOKEN, token);
-
-      // Store user data in cloud storage for cross-device sync
-      await storeUserData(user);
-    } catch (error) {
-      console.error('Error storing credentials:', error);
-    }
-  }
-
-  /**
-   * Store user data in cloud storage (with localStorage fallback)
-   */
-  async function storeUserData(user: User): Promise<void> {
-    try {
-      await cloudStorage.setItem(
-        STORAGE_KEYS.CLOUD.USER_DATA,
-        JSON.stringify(user)
-      );
-    } catch (error) {
-      console.error('Error storing user data in cloudStorage:', error);
-      // Fallback to localStorage if cloudStorage is unavailable
-      try {
-        localStorage.setItem(
-          STORAGE_KEYS.CLOUD.USER_DATA,
-          JSON.stringify(user)
-        );
-      } catch (fallbackError) {
-        console.error(
-          'Error storing user data in localStorage fallback:',
-          fallbackError
-        );
       }
     }
   }
