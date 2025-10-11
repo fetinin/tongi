@@ -185,17 +185,20 @@ export function AuthProvider({
   /**
    * Store authentication credentials using available storage options
    */
-  const storeCredentials = useCallback(async (token: string, user: User): Promise<void> => {
-    try {
-      // Store token in localStorage (fallback for secure storage)
-      localStorage.setItem(STORAGE_KEYS.SECURE.AUTH_TOKEN, token);
+  const storeCredentials = useCallback(
+    async (token: string, user: User): Promise<void> => {
+      try {
+        // Store token in localStorage (fallback for secure storage)
+        localStorage.setItem(STORAGE_KEYS.SECURE.AUTH_TOKEN, token);
 
-      // Store user data in cloud storage for cross-device sync
-      await storeUserData(user);
-    } catch (error) {
-      console.error('Error storing credentials:', error);
-    }
-  }, [storeUserData]);
+        // Store user data in cloud storage for cross-device sync
+        await storeUserData(user);
+      } catch (error) {
+        console.error('Error storing credentials:', error);
+      }
+    },
+    [storeUserData]
+  );
 
   /**
    * Perform authentication with Telegram initData
@@ -268,7 +271,6 @@ export function AuthProvider({
         console.error('Authentication error:', error);
         throw error;
       }
-
     },
     [tonConnectUI, storeCredentials]
   );
