@@ -579,7 +579,10 @@ export class CorgiService {
       const buddyStatus = await buddyService.getBuddyStatus(userId);
       return buddyStatus.status === 'active';
     } catch (error) {
-      console.warn('Failed to check buddy status for sighting eligibility:', error);
+      console.warn(
+        'Failed to check buddy status for sighting eligibility:',
+        error
+      );
       return false;
     }
   }

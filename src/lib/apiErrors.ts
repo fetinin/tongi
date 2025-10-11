@@ -52,5 +52,3 @@ function mapErrorCodeToStatus(code?: string): number {
       return 500;
   }
 }
-
-

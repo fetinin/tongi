@@ -1,12 +1,27 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { List, Section, Cell, Button, Placeholder } from '@telegram-apps/telegram-ui';
+import {
+  List,
+  Section,
+  Cell,
+  Button,
+  Placeholder,
+} from '@telegram-apps/telegram-ui';
 import { Root } from '@/components/Root/Root';
 import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
-import { SightingForm, useCorgiSighting } from '@/components/corgi/SightingForm';
-import { ConfirmationList, useCorgiConfirmations } from '@/components/corgi/ConfirmationList';
-import { SightingHistory, useCorgiSightingHistory } from '@/components/corgi/SightingHistory';
+import {
+  SightingForm,
+  useCorgiSighting,
+} from '@/components/corgi/SightingForm';
+import {
+  ConfirmationList,
+  useCorgiConfirmations,
+} from '@/components/corgi/ConfirmationList';
+import {
+  SightingHistory,
+  useCorgiSightingHistory,
+} from '@/components/corgi/SightingHistory';
 
 function CorgiSightingContent() {
   const { isAuthenticated, user } = useAuth();
@@ -15,7 +30,9 @@ function CorgiSightingContent() {
   const { triggerRefresh } = useCorgiSightingHistory();
 
   // State for managing view sections
-  const [activeSection, setActiveSection] = useState<'overview' | 'confirmations' | 'history'>('overview');
+  const [activeSection, setActiveSection] = useState<
+    'overview' | 'confirmations' | 'history'
+  >('overview');
 
   // Handle successful sighting report
   const handleSightingReported = useCallback(() => {
@@ -26,14 +43,17 @@ function CorgiSightingContent() {
   }, [triggerRefresh]);
 
   // Handle confirmation processed
-  const handleConfirmationComplete = useCallback((sightingId: number, confirmed: boolean) => {
-    // Call the original handler
-    handleConfirmationProcessed(sightingId, confirmed);
-    // Refresh history if the user confirmed a sighting (buddy earned coins)
-    if (confirmed) {
-      triggerRefresh();
-    }
-  }, [handleConfirmationProcessed, triggerRefresh]);
+  const handleConfirmationComplete = useCallback(
+    (sightingId: number, confirmed: boolean) => {
+      // Call the original handler
+      handleConfirmationProcessed(sightingId, confirmed);
+      // Refresh history if the user confirmed a sighting (buddy earned coins)
+      if (confirmed) {
+        triggerRefresh();
+      }
+    },
+    [handleConfirmationProcessed, triggerRefresh]
+  );
 
   // Handle sighting form error
   const handleSightingError = useCallback((error: string) => {
@@ -47,7 +67,7 @@ function CorgiSightingContent() {
         header="Authentication Required"
         description="Please log in to access corgi sighting features. You need an active buddy relationship to report and confirm sightings."
         action={
-          <Button size="l" onClick={() => window.location.href = '/'}>
+          <Button size="l" onClick={() => (window.location.href = '/')}>
             Go to Login
           </Button>
         }
@@ -88,7 +108,11 @@ function CorgiSightingContent() {
               </div>
             }
             after={
-              <Button size="s" mode="outline" onClick={() => setActiveSection('confirmations')}>
+              <Button
+                size="s"
+                mode="outline"
+                onClick={() => setActiveSection('confirmations')}
+              >
                 View Pending
               </Button>
             }
@@ -106,7 +130,11 @@ function CorgiSightingContent() {
               </div>
             }
             after={
-              <Button size="s" mode="outline" onClick={() => setActiveSection('history')}>
+              <Button
+                size="s"
+                mode="outline"
+                onClick={() => setActiveSection('history')}
+              >
                 View History
               </Button>
             }
@@ -122,7 +150,8 @@ function CorgiSightingContent() {
                 1
               </div>
               <div className="text-sm">
-                <strong>Spot Corgis:</strong> Report when you see corgis in real life
+                <strong>Spot Corgis:</strong> Report when you see corgis in real
+                life
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -130,7 +159,8 @@ function CorgiSightingContent() {
                 2
               </div>
               <div className="text-sm">
-                <strong>Buddy Confirms:</strong> Your buddy verifies your sighting
+                <strong>Buddy Confirms:</strong> Your buddy verifies your
+                sighting
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -138,7 +168,8 @@ function CorgiSightingContent() {
                 3
               </div>
               <div className="text-sm">
-                <strong>Earn Coins:</strong> Get Corgi coins for confirmed sightings
+                <strong>Earn Coins:</strong> Get Corgi coins for confirmed
+                sightings
               </div>
             </div>
           </div>
@@ -161,10 +192,18 @@ function CorgiSightingContent() {
       <List>
         <Section header="Navigation">
           <div className="p-4 flex gap-2">
-            <Button size="s" mode="outline" onClick={() => setActiveSection('overview')}>
+            <Button
+              size="s"
+              mode="outline"
+              onClick={() => setActiveSection('overview')}
+            >
               ← Overview
             </Button>
-            <Button size="s" mode="outline" onClick={() => setActiveSection('history')}>
+            <Button
+              size="s"
+              mode="outline"
+              onClick={() => setActiveSection('history')}
+            >
               History
             </Button>
           </div>
@@ -184,10 +223,18 @@ function CorgiSightingContent() {
       <List>
         <Section header="Navigation">
           <div className="p-4 flex gap-2">
-            <Button size="s" mode="outline" onClick={() => setActiveSection('overview')}>
+            <Button
+              size="s"
+              mode="outline"
+              onClick={() => setActiveSection('overview')}
+            >
               ← Overview
             </Button>
-            <Button size="s" mode="outline" onClick={() => setActiveSection('confirmations')}>
+            <Button
+              size="s"
+              mode="outline"
+              onClick={() => setActiveSection('confirmations')}
+            >
               Confirmations
             </Button>
           </div>

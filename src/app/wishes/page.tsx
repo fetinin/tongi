@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { List, Section, Cell, Button, Placeholder } from '@telegram-apps/telegram-ui';
+import {
+  List,
+  Section,
+  Cell,
+  Button,
+  Placeholder,
+} from '@telegram-apps/telegram-ui';
 import { Root } from '@/components/Root/Root';
 import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
 import { WishForm, useWishCreation } from '@/components/wish/WishForm';
@@ -29,7 +35,9 @@ function WishesContent() {
         header="Authentication Required"
         description="Please log in to manage your wishes."
         action={
-          <Button size="l" onClick={() => (window.location.href = '/')}>Go to Login</Button>
+          <Button size="l" onClick={() => (window.location.href = '/')}>
+            Go to Login
+          </Button>
         }
       >
         <div className="text-6xl mb-4">💝</div>
@@ -67,7 +75,11 @@ function WishesContent() {
               </div>
             }
             after={
-              <Button size="s" mode="outline" onClick={() => setActiveView('approvals')}>
+              <Button
+                size="s"
+                mode="outline"
+                onClick={() => setActiveView('approvals')}
+              >
                 View Pending
               </Button>
             }
@@ -85,7 +97,11 @@ function WishesContent() {
               </div>
             }
             after={
-              <Button size="s" mode="outline" onClick={() => setActiveView('my')}>
+              <Button
+                size="s"
+                mode="outline"
+                onClick={() => setActiveView('my')}
+              >
                 View List
               </Button>
             }
@@ -110,7 +126,11 @@ function WishesContent() {
       <List>
         <Section header="Navigation">
           <div className="p-4 flex gap-2">
-            <Button size="s" mode="outline" onClick={() => setActiveView('overview')}>
+            <Button
+              size="s"
+              mode="outline"
+              onClick={() => setActiveView('overview')}
+            >
               ← Overview
             </Button>
             <Button size="s" mode="outline" onClick={() => setActiveView('my')}>
@@ -119,7 +139,10 @@ function WishesContent() {
           </div>
         </Section>
 
-        <WishApproval onWishProcessed={handleWishProcessed} refreshInterval={15000} />
+        <WishApproval
+          onWishProcessed={handleWishProcessed}
+          refreshInterval={15000}
+        />
       </List>
     );
   }
@@ -129,7 +152,11 @@ function WishesContent() {
       <List>
         <Section header="Navigation">
           <div className="p-4 flex gap-2">
-            <Button size="s" mode="outline" onClick={() => setActiveView('overview')}>
+            <Button
+              size="s"
+              mode="outline"
+              onClick={() => setActiveView('overview')}
+            >
               ← Overview
             </Button>
             <Button size="s" onClick={openWishForm}>
@@ -163,5 +190,3 @@ export default function WishesPage() {
     </Root>
   );
 }
-
-
