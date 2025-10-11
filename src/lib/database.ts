@@ -5,14 +5,21 @@ let db: Database.Database | null = null;
 
 export function getDatabase(): Database.Database {
   if (!db) {
-    const dbPath = path.join(process.cwd(), 'data', 'app.db');
+    // Use in-memory database for tests, otherwise use file-based
+    const isTest = process.env.NODE_ENV === 'test';
+    const dbPath = isTest
+      ? ':memory:'
+      : path.join(process.cwd(), 'data', 'app.db');
+
     db = new Database(dbPath);
 
     // Enable foreign key constraints
     db.pragma('foreign_keys = ON');
 
-    // Set journal mode to WAL for better concurrency
-    db.pragma('journal_mode = WAL');
+    // Set journal mode to WAL for better concurrency (skip for in-memory)
+    if (!isTest) {
+      db.pragma('journal_mode = WAL');
+    }
 
     // Optimize for performance
     db.pragma('synchronous = NORMAL');
@@ -28,6 +35,14 @@ export function closeDatabase(): void {
     db.close();
     db = null;
   }
+}
+
+/**
+ * Reset database connection (useful for tests)
+ * Forces recreation of database on next getDatabase() call
+ */
+export function resetDatabase(): void {
+  closeDatabase();
 }
 
 // Helper function to handle database transactions

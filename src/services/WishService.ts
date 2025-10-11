@@ -16,6 +16,7 @@ import {
   WishWithUsers,
   WishQueryParams,
   WishValidator,
+  WishValidation,
   WishDefaults,
 } from '@/models/Wish';
 import { userService, UserNotFoundError } from '@/services/UserService';
@@ -308,17 +309,17 @@ export class WishService {
     description: string,
     proposedAmount: number
   ): Promise<WishWithUsers> {
-    // Validate input
-    const createInput: CreateWishInput = {
-      creator_id: creatorId,
-      buddy_id: 0, // Will be set below
-      description,
-      proposed_amount: proposedAmount,
-    };
+    // Validate description and amount first
+    if (!WishValidator.isValidDescription(description)) {
+      throw new WishValidationError(
+        `Description must be ${WishValidation.DESCRIPTION_MIN_LENGTH}-${WishValidation.DESCRIPTION_MAX_LENGTH} characters`
+      );
+    }
 
-    const validationErrors = WishValidator.validateCreateInput(createInput);
-    if (validationErrors.length > 0) {
-      throw new WishValidationError(validationErrors[0]);
+    if (!WishValidator.isValidAmount(proposedAmount)) {
+      throw new WishValidationError(
+        `Proposed amount must be between ${WishValidation.AMOUNT_MIN} and ${WishValidation.AMOUNT_MAX}`
+      );
     }
 
     try {
@@ -339,19 +340,31 @@ export class WishService {
         throw new UserNotFoundError(creatorId);
       }
 
+      const buddyId = buddyStatus.buddy!.id;
+
+      // Now validate the full input including buddy_id
+      const createInput: CreateWishInput = {
+        creator_id: creatorId,
+        buddy_id: buddyId,
+        description,
+        proposed_amount: proposedAmount,
+      };
+
+      const validationErrors = WishValidator.validateCreateInput(createInput);
+      if (validationErrors.length > 0) {
+        throw new WishValidationError(validationErrors[0]);
+      }
+
       const result = withTransaction(() => {
         // Check if creator exists
         if (!userService.userExists(creatorId)) {
           throw new UserNotFoundError(creatorId);
         }
 
-        const buddyId = buddyStatus.buddy!.id;
-        createInput.buddy_id = buddyId;
-
         // Create the wish
         const row = this.statements.createWish!.get(
           creatorId,
-          buddyId,
+          createInput.buddy_id,
           description,
           proposedAmount,
           WishDefaults.status
