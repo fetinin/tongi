@@ -342,29 +342,18 @@ export class WishService {
 
       const buddyId = buddyStatus.buddy!.id;
 
-      // Now validate the full input including buddy_id
-      const createInput: CreateWishInput = {
-        creator_id: creatorId,
-        buddy_id: buddyId,
-        description,
-        proposed_amount: proposedAmount,
-      };
-
-      const validationErrors = WishValidator.validateCreateInput(createInput);
-      if (validationErrors.length > 0) {
-        throw new WishValidationError(validationErrors[0]);
+      // Validate user pair (description and amount already validated above)
+      if (!WishValidator.isValidUserPair(creatorId, buddyId)) {
+        throw new WishValidationError(
+          'Creator and buddy must be different valid users'
+        );
       }
 
       const result = withTransaction(() => {
-        // Check if creator exists
-        if (!userService.userExists(creatorId)) {
-          throw new UserNotFoundError(creatorId);
-        }
-
         // Create the wish
         const row = this.statements.createWish!.get(
           creatorId,
-          createInput.buddy_id,
+          buddyId,
           description,
           proposedAmount,
           WishDefaults.status
