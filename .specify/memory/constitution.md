@@ -1,26 +1,22 @@
 <!--
 SYNC IMPACT REPORT:
-Version: 1.0.0 (initial constitution)
-Ratification: 2025-10-11 (initial adoption)
+Version: 1.0.0 → 1.1.0 (MINOR - material expansion of testing principle)
+Ratification: 2025-10-11 (original adoption)
+Last Amendment: 2025-10-11
 
-New Principles Added:
-- I. Security-First Development
-- II. Telegram Platform Integration
-- III. Type Safety & Code Quality
-- IV. Testing Before Implementation
-- V. Database Integrity
-
-New Sections Added:
-- Technology Stack & Constraints
-- Development Workflow
-- Governance
+Modified Principles:
+- IV. Testing Before Implementation → IV. Testing Strategy & Quality Gates
+  * Added mandatory integration test coverage for user stories
+  * Specified mock usage restrictions (external services only)
+  * Defined unit test scope (complex algorithms/validations only)
+  * Clarified test type hierarchy and requirements
 
 Templates Status:
-- plan-template.md: ✅ Constitution Check section aligns with new principles
-- spec-template.md: ✅ User Scenarios structure supports security and quality gates
-- tasks-template.md: ✅ Phase structure supports foundational security and type-safety checks
+- plan-template.md: ✅ Already aligned - Constitution Check section supports testing gates
+- spec-template.md: ✅ Already aligned - User Scenarios structure supports test coverage
+- tasks-template.md: ✅ Already aligned - Phase structure includes test tasks with proper grouping
 
-Follow-up: None - initial constitution complete
+Follow-up: None - all templates remain consistent with expanded testing requirements
 -->
 
 # Tongi (Corgi Buddy) Constitution
@@ -47,11 +43,20 @@ Follow-up: None - initial constitution complete
 
 **Pre-Commit Gate**: MUST run `pnpm run format:check` before committing changes to ensure code formatting standards are maintained.
 
-### IV. Testing Before Implementation
+### IV. Testing Strategy & Quality Gates
 
-**Tests MUST be written and verified to FAIL before implementing the feature they validate.** Contract tests verify API endpoint schemas. Integration tests validate complete user journeys. Unit tests (when included) verify isolated logic. Tests are OPTIONAL unless explicitly requested in feature specifications, but when present, they MUST follow the red-green-refactor cycle: write test → verify failure → implement → verify pass.
+**Integration tests MUST be written and MUST cover all user stories.** Integration tests validate complete user journeys from end to end, ensuring features work as specified. These tests MUST follow the red-green-refactor cycle: write test → verify failure → implement → verify pass.
 
-**Rationale**: Writing tests first clarifies requirements and prevents false positives (tests that pass without valid implementation). The red-green-refactor cycle ensures tests genuinely validate behavior rather than rubber-stamping existing code.
+**Mocking restrictions**: Avoid mocks whenever possible to ensure tests validate real behavior. Mocks are ONLY permitted for external service API calls (e.g., Telegram Bot API, TON blockchain RPC). Internal application logic, database operations, and component interactions MUST NOT be mocked in integration tests.
+
+**Unit tests are restricted to complex algorithms and complex validations only.** Unit tests MUST NOT use mocks—they should test the actual implementation with real dependencies. Simple CRUD operations, basic data transformations, and straightforward business logic do NOT require unit tests; integration tests provide sufficient coverage for these cases.
+
+**Test hierarchy**:
+1. **Integration tests** (mandatory for user stories): End-to-end user journeys with minimal mocking
+2. **Unit tests** (selective): Complex algorithms, intricate validation logic, edge case handling
+3. **Contract tests** (optional): API endpoint schema validation when external contracts matter
+
+**Rationale**: Integration tests catch real-world issues that unit tests miss—authentication flows, database transactions, API interactions. Excessive mocking creates false confidence by testing test doubles instead of actual code. Restricting unit tests to complex logic prevents test bloat and maintenance burden. The red-green-refactor cycle ensures tests validate requirements, not just existing implementation.
 
 ### V. Database Integrity
 
@@ -140,4 +145,4 @@ Follow-up: None - initial constitution complete
 
 **Agent-Specific Notes**: This constitution uses "CLAUDE" or generic "agent" terminology where tool-specific guidance is needed. Projects may use any compatible agent or tooling that respects these principles.
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-11 | **Last Amended**: 2025-10-11
+**Version**: 1.1.0 | **Ratified**: 2025-10-11 | **Last Amended**: 2025-10-11
