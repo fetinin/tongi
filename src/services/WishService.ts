@@ -667,18 +667,21 @@ export class WishService {
     purchaserId: number
   ): Promise<WishWithUsers> {
     try {
-      // Get the wish outside transaction
-      const wish = await this.getWishById(wishId);
-      if (!wish) {
-        throw new WishNotFoundError(wishId);
-      }
-
+      // Validate purchaser exists first (fast fail before transaction)
       const purchaser = await userService.getUserById(purchaserId);
       if (!purchaser) {
         throw new UserNotFoundError(purchaserId);
       }
 
+      // Execute entire purchase operation within transaction
       const result = withTransaction(() => {
+        // Fetch fresh wish data inside transaction with proper locking
+        const wishRow = this.statements.getWishById!.get(wishId);
+        if (!wishRow) {
+          throw new WishNotFoundError(wishId);
+        }
+        const wish = this.mapRowToWish(wishRow as Record<string, unknown>);
+
         // Verify the wish is in accepted status
         if (wish.status !== 'accepted') {
           if (wish.status === 'pending') {
@@ -694,11 +697,6 @@ export class WishService {
               `Cannot purchase wish in ${wish.status} status`
             );
           }
-        }
-
-        // Verify purchaser exists
-        if (!userService.userExists(purchaserId)) {
-          throw new UserNotFoundError(purchaserId);
         }
 
         // Verify purchaser is not the creator or buddy
@@ -751,6 +749,48 @@ export class WishService {
 
       throw new WishServiceError(
         `Failed to purchase wish: ${error}`,
+        'DATABASE_ERROR'
+      );
+    }
+  }
+
+  /**
+   * Revert a purchased wish back to accepted status (used for failed transactions)
+   */
+  public async revertPurchase(wishId: number): Promise<Wish> {
+    try {
+      // Get the wish outside transaction
+      const wish = await this.getWishById(wishId);
+      if (!wish) {
+        throw new WishNotFoundError(wishId);
+      }
+
+      return withTransaction(() => {
+        // Verify the wish is in purchased status
+        if (wish.status !== 'purchased') {
+          throw new WishStateError(
+            `Cannot revert wish in ${wish.status} status - only purchased wishes can be reverted`
+          );
+        }
+
+        // Update the wish back to accepted status and clear purchase fields
+        const updatedRow = this.statements.updateWishStatus!.get(
+          'accepted',
+          wish.accepted_at, // Keep original accepted_at
+          null, // Clear purchased_at
+          null, // Clear purchased_by
+          wishId
+        );
+
+        return this.mapRowToWish(updatedRow as Record<string, unknown>);
+      });
+    } catch (error) {
+      if (error instanceof WishServiceError) {
+        throw error;
+      }
+
+      throw new WishServiceError(
+        `Failed to revert wish purchase: ${error}`,
         'DATABASE_ERROR'
       );
     }

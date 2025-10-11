@@ -22,6 +22,7 @@ import {
   validateUpdateTransactionInput,
 } from '@/models/Transaction';
 import { BankWallet } from '@/models/BankWallet';
+import { wishService } from '@/services/WishService';
 import type Database from 'better-sqlite3';
 
 /**
@@ -163,8 +164,8 @@ export class TransactionService {
 
     this.statements.getTransactionsByUser = this.db.prepare(`
       SELECT t.* FROM transactions t
-      JOIN users u1 ON t.from_wallet = u1.ton_wallet_address
-      JOIN users u2 ON t.to_wallet = u2.ton_wallet_address
+      LEFT JOIN users u1 ON t.from_wallet = u1.ton_wallet_address
+      LEFT JOIN users u2 ON t.to_wallet = u2.ton_wallet_address
       WHERE u1.id = ? OR u2.id = ?
       ORDER BY t.created_at DESC
       LIMIT ? OFFSET ?
@@ -192,8 +193,8 @@ export class TransactionService {
 
     this.statements.countTransactionsByUser = this.db.prepare(`
       SELECT COUNT(*) as count FROM transactions t
-      JOIN users u1 ON t.from_wallet = u1.ton_wallet_address
-      JOIN users u2 ON t.to_wallet = u2.ton_wallet_address
+      LEFT JOIN users u1 ON t.from_wallet = u1.ton_wallet_address
+      LEFT JOIN users u2 ON t.to_wallet = u2.ton_wallet_address
       WHERE u1.id = ? OR u2.id = ?
     `);
 
@@ -493,8 +494,8 @@ export class TransactionService {
           // Apply additional filters
           let sql = `
             SELECT t.* FROM transactions t
-            JOIN users u1 ON t.from_wallet = u1.ton_wallet_address
-            JOIN users u2 ON t.to_wallet = u2.ton_wallet_address
+            LEFT JOIN users u1 ON t.from_wallet = u1.ton_wallet_address
+            LEFT JOIN users u2 ON t.to_wallet = u2.ton_wallet_address
             WHERE (u1.id = ? OR u2.id = ?)
           `;
 
@@ -760,15 +761,69 @@ export class TransactionService {
   }
 
   /**
-   * Mark transaction as failed
+   * Mark transaction as failed and revert related entity state if applicable
    */
   public async failTransaction(id: number): Promise<Transaction> {
-    const updateData: UpdateTransactionInput = {
-      status: TransactionStatus.FAILED,
-      completed_at: new Date(),
-    };
+    try {
+      // First, fetch the transaction to check if it has a related wish
+      const transaction = await this.getTransactionById(id);
+      if (!transaction) {
+        throw new TransactionNotFoundError(id);
+      }
 
-    return this.updateTransaction(id, updateData);
+      // Use withTransaction for atomic database operations
+      return withTransaction(() => {
+        // If transaction is related to a wish, revert the wish status
+        if (
+          transaction.related_entity_type === RelatedEntityType.WISH &&
+          transaction.related_entity_id
+        ) {
+          try {
+            // Revert the wish purchase status back to accepted (synchronously within transaction)
+            // Use direct database update to ensure atomicity with the transaction update
+            this.db
+              .prepare(
+                `
+                UPDATE wishes
+                SET status = 'accepted',
+                    purchased_at = NULL,
+                    purchased_by = NULL
+                WHERE id = ? AND status = 'purchased'
+              `
+              )
+              .run(transaction.related_entity_id);
+          } catch (error) {
+            // If wish doesn't exist or can't be reverted (e.g., already in different state),
+            // log but continue with transaction failure as this may be cleanup
+            console.warn(
+              `Failed to revert wish ${transaction.related_entity_id} during transaction ${id} failure:`,
+              error
+            );
+          }
+        }
+
+        // Update the transaction status to failed
+        const completedAt = new Date().toISOString();
+
+        const updatedRow = this.statements.updateTransaction!.get(
+          null, // transaction_hash
+          TransactionStatus.FAILED,
+          completedAt,
+          id
+        );
+
+        return this.mapRowToTransaction(updatedRow as Record<string, unknown>);
+      });
+    } catch (error) {
+      if (error instanceof TransactionServiceError) {
+        throw error;
+      }
+
+      throw new TransactionServiceError(
+        `Failed to mark transaction as failed: ${error}`,
+        'DATABASE_ERROR'
+      );
+    }
   }
 }
 

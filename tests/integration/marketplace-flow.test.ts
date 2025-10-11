@@ -462,7 +462,7 @@ describe('Marketplace Purchase Flow Integration', () => {
     for (const failedResponse of failed) {
       if (failedResponse.status === 400) {
         const errorData = await failedResponse.json();
-        expect(errorData.message).toMatch(/not available|already purchased/i);
+        expect(errorData.message).toMatch(/not available|already.*purchased/i);
       }
     }
   });

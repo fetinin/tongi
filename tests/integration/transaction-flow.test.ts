@@ -14,7 +14,7 @@ describe('Transaction Confirmation Flow Integration', () => {
   let user1Token: string;
   let user2Token: string;
   // Bank wallet address must be 48 characters to pass TON address validation
-  const bankWalletAddress = 'UQBankWallet123456789_0123456789ABCDEFabcdef-_';
+  const bankWalletAddress = 'UQBankWallet123456789_0123456789ABCDEFabcdef-_XY';
 
   const user1: TestUser = {
     id: 123456789,
