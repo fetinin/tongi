@@ -99,7 +99,8 @@ export function TonProvider({ children, className }: TonProviderProps) {
     }
 
     const request = {
-      validUntil: Math.floor(Date.now() / 1000) + TON_CONFIG.TRANSACTION_VALIDITY_SECONDS,
+      validUntil:
+        Math.floor(Date.now() / 1000) + TON_CONFIG.TRANSACTION_VALIDITY_SECONDS,
       messages: [
         {
           address: tx.to,

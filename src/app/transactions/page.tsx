@@ -14,7 +14,11 @@ function TransactionsContent() {
       <Placeholder
         header="Authentication Required"
         description="Please log in to view your transaction history."
-        action={<Button size="l" onClick={() => (window.location.href = '/')}>Go to Login</Button>}
+        action={
+          <Button size="l" onClick={() => (window.location.href = '/')}>
+            Go to Login
+          </Button>
+        }
       >
         <div className="text-6xl mb-4">💳</div>
       </Placeholder>
@@ -39,5 +43,3 @@ export default function TransactionsPage() {
     </Root>
   );
 }
-
-

@@ -84,10 +84,12 @@ describe('GET /api/corgi/confirmations', () => {
     expect(Array.isArray(data.confirmations)).toBe(true);
 
     // All confirmations should have pending status
-    data.confirmations.forEach((confirmation: { status: string; respondedAt: string | null }) => {
-      expect(confirmation.status).toBe('pending');
-      expect(confirmation.respondedAt).toBeNull();
-    });
+    data.confirmations.forEach(
+      (confirmation: { status: string; respondedAt: string | null }) => {
+        expect(confirmation.status).toBe('pending');
+        expect(confirmation.respondedAt).toBeNull();
+      }
+    );
   });
 
   test('should return 401 when no authorization token provided', async () => {

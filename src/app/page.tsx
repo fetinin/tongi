@@ -67,7 +67,11 @@ function MainAppContent() {
         <Cell
           Component={Link}
           href="/wallet"
-          subtitle={user.tonWalletAddress ? `Connected: ${user.tonWalletAddress.slice(0, 8)}...` : 'Connect your TON wallet'}
+          subtitle={
+            user.tonWalletAddress
+              ? `Connected: ${user.tonWalletAddress.slice(0, 8)}...`
+              : 'Connect your TON wallet'
+          }
         >
           Wallet & Transactions
         </Cell>

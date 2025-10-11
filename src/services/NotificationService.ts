@@ -71,17 +71,27 @@ export class NotificationService {
 
   // Convenience domain-specific notifications (best-effort, non-blocking)
 
-  public async notifyBuddyRequest(targetUserId: number, requesterName: string): Promise<void> {
+  public async notifyBuddyRequest(
+    targetUserId: number,
+    requesterName: string
+  ): Promise<void> {
     const message = `🤝 Buddy request: ${requesterName} wants to be your buddy.`;
     await this.sendMessage(targetUserId, message).catch(() => {});
   }
 
-  public async notifyBuddyConfirmed(initiatorUserId: number, confirmerName: string): Promise<void> {
+  public async notifyBuddyConfirmed(
+    initiatorUserId: number,
+    confirmerName: string
+  ): Promise<void> {
     const message = `✅ Buddy confirmed: ${confirmerName} accepted your buddy request.`;
     await this.sendMessage(initiatorUserId, message).catch(() => {});
   }
 
-  public async notifyNewSighting(buddyUserId: number, reporterName: string, corgiCount: number): Promise<void> {
+  public async notifyNewSighting(
+    buddyUserId: number,
+    reporterName: string,
+    corgiCount: number
+  ): Promise<void> {
     const message = `🐶 New corgi sighting from ${reporterName}: ${corgiCount} corgi(s) to confirm.`;
     await this.sendMessage(buddyUserId, message).catch(() => {});
   }
@@ -95,13 +105,19 @@ export class NotificationService {
     const base = confirmed
       ? `🎉 ${confirmerName} confirmed your corgi sighting.`
       : `❌ ${confirmerName} denied your corgi sighting.`;
-    const message = confirmed && typeof reward === 'number'
-      ? `${base} Reward: ${reward} Corgi coin(s).`
-      : base;
+    const message =
+      confirmed && typeof reward === 'number'
+        ? `${base} Reward: ${reward} Corgi coin(s).`
+        : base;
     await this.sendMessage(reporterUserId, message).catch(() => {});
   }
 
-  public async notifyWishCreated(buddyUserId: number, creatorName: string, description: string, amount: number): Promise<void> {
+  public async notifyWishCreated(
+    buddyUserId: number,
+    creatorName: string,
+    description: string,
+    amount: number
+  ): Promise<void> {
     const message = `📝 New wish from ${creatorName}: "${description}" (proposed ${amount} Corgi coins).`;
     await this.sendMessage(buddyUserId, message).catch(() => {});
   }
@@ -131,6 +147,3 @@ export class NotificationService {
 
 export const notificationService = NotificationService.getInstance();
 export default notificationService;
-
-
-

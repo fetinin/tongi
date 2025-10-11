@@ -4,8 +4,14 @@ import React from 'react';
 import { List, Section, Button, Placeholder } from '@telegram-apps/telegram-ui';
 import { Root } from '@/components/Root/Root';
 import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
-import { MarketplaceGrid, useMarketplaceGrid } from '@/components/marketplace/MarketplaceGrid';
-import { PurchaseModal, usePurchaseModal } from '@/components/marketplace/PurchaseModal';
+import {
+  MarketplaceGrid,
+  useMarketplaceGrid,
+} from '@/components/marketplace/MarketplaceGrid';
+import {
+  PurchaseModal,
+  usePurchaseModal,
+} from '@/components/marketplace/PurchaseModal';
 
 function MarketplaceContent() {
   const { isAuthenticated } = useAuth();
@@ -27,7 +33,11 @@ function MarketplaceContent() {
       <Placeholder
         header="Authentication Required"
         description="Please log in to browse and purchase wishes in the marketplace."
-        action={<Button size="l" onClick={() => (window.location.href = '/')}>Go to Login</Button>}
+        action={
+          <Button size="l" onClick={() => (window.location.href = '/')}>
+            Go to Login
+          </Button>
+        }
       >
         <div className="text-6xl mb-4">🏪</div>
       </Placeholder>
@@ -64,5 +74,3 @@ export default function MarketplacePage() {
     </Root>
   );
 }
-
-

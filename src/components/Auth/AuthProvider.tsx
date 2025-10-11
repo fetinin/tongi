@@ -159,75 +159,78 @@ export function AuthProvider({
   /**
    * Perform authentication with Telegram initData
    */
-  const performAuthentication = useCallback(async (rawInitData?: string): Promise<void> => {
-    try {
-      // Get raw init data from parameter or retrieve it
-      let rawLaunchParams = rawInitData;
-      if (!rawLaunchParams) {
-        try {
-          rawLaunchParams = retrieveRawLaunchParams();
-        } catch (error) {
+  const performAuthentication = useCallback(
+    async (rawInitData?: string): Promise<void> => {
+      try {
+        // Get raw init data from parameter or retrieve it
+        let rawLaunchParams = rawInitData;
+        if (!rawLaunchParams) {
+          try {
+            rawLaunchParams = retrieveRawLaunchParams();
+          } catch (error) {
+            throw new Error('No Telegram initData available');
+          }
+        }
+
+        if (!rawLaunchParams) {
           throw new Error('No Telegram initData available');
         }
+
+        // Extract tgWebAppData from launch params
+        // The launch params contain: tgWebAppData=...&tgWebAppVersion=...&tgWebAppPlatform=...
+        // We need to extract and decode the tgWebAppData parameter value
+        const params = new URLSearchParams(rawLaunchParams);
+        const tgWebAppData = params.get('tgWebAppData');
+
+        if (!tgWebAppData) {
+          throw new Error('No tgWebAppData found in launch params');
+        }
+
+        // The tgWebAppData is already URL-encoded, so we need to decode it
+        const initDataString = decodeURIComponent(tgWebAppData);
+
+        // Get TON wallet address if connected
+        const tonWalletAddress =
+          tonConnectUI.wallet?.account.address || undefined;
+
+        // Call authentication API
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            initData: initDataString,
+            tonWalletAddress,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Authentication failed');
+        }
+
+        const authResponse = await response.json();
+        const { user, token, isNewUser } = authResponse;
+
+        // Store credentials using three-tier storage strategy
+        await storeCredentials(token, user);
+
+        setAuthState({
+          user,
+          token,
+          isAuthenticated: true,
+          isLoading: false,
+          isNewUser,
+        });
+      } catch (error) {
+        console.error('Authentication error:', error);
+        throw error;
       }
-
-      if (!rawLaunchParams) {
-        throw new Error('No Telegram initData available');
-      }
-
-      // Extract tgWebAppData from launch params
-      // The launch params contain: tgWebAppData=...&tgWebAppVersion=...&tgWebAppPlatform=...
-      // We need to extract and decode the tgWebAppData parameter value
-      const params = new URLSearchParams(rawLaunchParams);
-      const tgWebAppData = params.get('tgWebAppData');
-
-      if (!tgWebAppData) {
-        throw new Error('No tgWebAppData found in launch params');
-      }
-
-      // The tgWebAppData is already URL-encoded, so we need to decode it
-      const initDataString = decodeURIComponent(tgWebAppData);
-
-      // Get TON wallet address if connected
-      const tonWalletAddress =
-        tonConnectUI.wallet?.account.address || undefined;
-
-      // Call authentication API
-      const response = await fetch('/api/auth/validate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          initData: initDataString,
-          tonWalletAddress,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Authentication failed');
-      }
-
-      const authResponse = await response.json();
-      const { user, token, isNewUser } = authResponse;
-
-      // Store credentials using three-tier storage strategy
-      await storeCredentials(token, user);
-
-      setAuthState({
-        user,
-        token,
-        isAuthenticated: true,
-        isLoading: false,
-        isNewUser,
-      });
-    } catch (error) {
-      console.error('Authentication error:', error);
-      throw error;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tonConnectUI]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [tonConnectUI]
+  );
 
   /**
    * Manually trigger login process
@@ -382,9 +385,15 @@ export function AuthProvider({
       console.error('Error storing user data in cloudStorage:', error);
       // Fallback to localStorage if cloudStorage is unavailable
       try {
-        localStorage.setItem(STORAGE_KEYS.CLOUD.USER_DATA, JSON.stringify(user));
+        localStorage.setItem(
+          STORAGE_KEYS.CLOUD.USER_DATA,
+          JSON.stringify(user)
+        );
       } catch (fallbackError) {
-        console.error('Error storing user data in localStorage fallback:', fallbackError);
+        console.error(
+          'Error storing user data in localStorage fallback:',
+          fallbackError
+        );
       }
     }
   }

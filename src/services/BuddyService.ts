@@ -493,7 +493,8 @@ export class BuddyService {
         return result;
       });
       // Notify the initiator that their request was confirmed
-      const initiatorId = (await this.getBuddyPairById(buddyPairId))?.initiated_by;
+      const initiatorId = (await this.getBuddyPairById(buddyPairId))
+        ?.initiated_by;
       if (initiatorId) {
         await notificationService
           .notifyBuddyConfirmed(initiatorId, confirmerUser.first_name)
