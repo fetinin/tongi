@@ -231,9 +231,7 @@ export function BuddyStatus({
       case 'pending':
         return {
           type: 'dot' as const,
-          text: isInitiatedByCurrentUser
-            ? 'Request Sent'
-            : 'Pending',
+          text: isInitiatedByCurrentUser ? 'Request Sent' : 'Pending',
         };
       case 'active':
         return {
