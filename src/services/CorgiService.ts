@@ -60,6 +60,12 @@ export class NoBuddyError extends CorgiServiceError {
   }
 }
 
+export class CorgiAuthorizationError extends CorgiServiceError {
+  constructor(message: string) {
+    super(message, 'NOT_AUTHORIZED', 400);
+  }
+}
+
 /**
  * Result type for sighting operations
  */
@@ -322,7 +328,7 @@ export class CorgiService {
 
         // Verify the buddy is authorized to confirm this sighting
         if (sighting.buddy_id !== buddyId) {
-          throw new CorgiValidationError(
+          throw new CorgiAuthorizationError(
             'User is not authorized to confirm this sighting'
           );
         }

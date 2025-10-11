@@ -1,85 +1,63 @@
 import { describe, test, expect } from '@jest/globals';
+import { POST as buddyRequestHandler } from '@/app/api/buddy/request/route';
+import { GET as buddyStatusHandler } from '@/app/api/buddy/status/route';
+import { GET as buddySearchHandler } from '@/app/api/buddy/search/route';
+import { authenticateTestUser } from '../helpers/auth';
+import {
+  createAuthenticatedRequest,
+  createMockRequest,
+} from '../helpers/request';
 
 // T011: Integration test buddy pairing flow
-// This test MUST FAIL until the actual API endpoints are implemented
 describe('Buddy Pairing Flow Integration', () => {
-  const baseUrl = 'http://localhost:3000';
-
   test('should complete full buddy pairing flow successfully', async () => {
     // Step 1: User A authenticates
-    const userAAuthResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Alice%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    const userAToken = await authenticateTestUser({
+      id: 123456789,
+      firstName: 'Alice',
     });
-
-    expect(userAAuthResponse.ok).toBe(true);
-    const userAAuth = await userAAuthResponse.json();
-    const userAToken = userAAuth.token;
 
     // Step 2: User B authenticates
-    const userBAuthResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A987654321%2C%22first_name%22%3A%22Bob%22%2C%22username%22%3A%22bob_user%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    const userBToken = await authenticateTestUser({
+      id: 987654321,
+      firstName: 'Bob',
+      username: 'bob_user',
     });
-
-    expect(userBAuthResponse.ok).toBe(true);
-    const userBAuth = await userBAuthResponse.json();
-    // TODO: Use userBToken for future User B perspective tests
-    const _userBToken = userBAuth.token;
-    void _userBToken; // Mark as intentionally unused for now
 
     // Step 3: User A checks initial buddy status (should be no_buddy)
-    const initialStatusResponse = await fetch(`${baseUrl}/api/buddy/status`, {
+    const initialStatusRequest = createAuthenticatedRequest(userAToken, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userAToken}`,
-      },
+      url: 'http://localhost:3000/api/buddy/status',
     });
 
-    expect(initialStatusResponse.ok).toBe(true);
+    const initialStatusResponse =
+      await buddyStatusHandler(initialStatusRequest);
+    expect(initialStatusResponse.status).toBe(200);
     const initialStatus = await initialStatusResponse.json();
     expect(initialStatus.status).toBe('no_buddy');
 
     // Step 4: User A searches for User B by username
-    const searchResponse = await fetch(
-      `${baseUrl}/api/buddy/search?username=bob_user`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userAToken}`,
-        },
-      }
-    );
+    const searchRequest = createAuthenticatedRequest(userAToken, {
+      method: 'GET',
+      url: 'http://localhost:3000/api/buddy/search',
+      query: { username: 'bob_user' },
+    });
 
-    expect(searchResponse.ok).toBe(true);
+    const searchResponse = await buddySearchHandler(searchRequest);
+    expect(searchResponse.status).toBe(200);
     const searchResults = await searchResponse.json();
     expect(searchResults.users).toHaveLength(1);
     expect(searchResults.users[0].id).toBe(987654321);
     expect(searchResults.users[0].firstName).toBe('Bob');
 
     // Step 5: User A sends buddy request to User B
-    const buddyRequestResponse = await fetch(`${baseUrl}/api/buddy/request`, {
+    const buddyRequestRequest = createAuthenticatedRequest(userAToken, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userAToken}`,
-      },
-      body: JSON.stringify({
-        targetUserId: 987654321,
-      }),
+      url: 'http://localhost:3000/api/buddy/request',
+      body: { targetUserId: 987654321 },
     });
 
-    expect(buddyRequestResponse.ok).toBe(true);
+    const buddyRequestResponse = await buddyRequestHandler(buddyRequestRequest);
     expect(buddyRequestResponse.status).toBe(201);
     const buddyRequest = await buddyRequestResponse.json();
     expect(buddyRequest.status).toBe('pending');
@@ -87,29 +65,26 @@ describe('Buddy Pairing Flow Integration', () => {
     expect(buddyRequest.initiatedBy).toBe(123456789);
 
     // Step 6: User A checks buddy status (should be pending)
-    const pendingStatusResponse = await fetch(`${baseUrl}/api/buddy/status`, {
+    const pendingStatusRequest = createAuthenticatedRequest(userAToken, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userAToken}`,
-      },
+      url: 'http://localhost:3000/api/buddy/status',
     });
 
-    expect(pendingStatusResponse.ok).toBe(true);
+    const pendingStatusResponse =
+      await buddyStatusHandler(pendingStatusRequest);
+    expect(pendingStatusResponse.status).toBe(200);
     const pendingStatus = await pendingStatusResponse.json();
     expect(pendingStatus.status).toBe('pending');
     expect(pendingStatus.buddy.id).toBe(987654321);
 
     // Step 7: User B checks their buddy status (should also be pending)
-    const userBStatusResponse = await fetch(`${baseUrl}/api/buddy/status`, {
+    const userBStatusRequest = createAuthenticatedRequest(userBToken, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${_userBToken}`,
-      },
+      url: 'http://localhost:3000/api/buddy/status',
     });
 
-    expect(userBStatusResponse.ok).toBe(true);
+    const userBStatusResponse = await buddyStatusHandler(userBStatusRequest);
+    expect(userBStatusResponse.status).toBe(200);
     const userBStatus = await userBStatusResponse.json();
     expect(userBStatus.status).toBe('pending');
     expect(userBStatus.buddy.id).toBe(123456789);
@@ -118,60 +93,36 @@ describe('Buddy Pairing Flow Integration', () => {
 
   test('should prevent duplicate buddy requests', async () => {
     // User A authenticates
-    const userAAuthResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A111222333%2C%22first_name%22%3A%22Charlie%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    const userAToken = await authenticateTestUser({
+      id: 111222333,
+      firstName: 'Charlie',
     });
-
-    const userAAuth = await userAAuthResponse.json();
-    const userAToken = userAAuth.token;
 
     // User B authenticates
-    const userBAuthResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A444555666%2C%22first_name%22%3A%22David%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    await authenticateTestUser({
+      id: 444555666,
+      firstName: 'David',
     });
-
-    const userBAuth = await userBAuthResponse.json();
-    // TODO: Use userBToken for future User B perspective tests
-    const _userBToken = userBAuth.token;
-    void _userBToken; // Mark as intentionally unused for now
 
     // First buddy request
-    const firstRequestResponse = await fetch(`${baseUrl}/api/buddy/request`, {
+    const firstRequestRequest = createAuthenticatedRequest(userAToken, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userAToken}`,
-      },
-      body: JSON.stringify({
-        targetUserId: 444555666,
-      }),
+      url: 'http://localhost:3000/api/buddy/request',
+      body: { targetUserId: 444555666 },
     });
 
+    const firstRequestResponse = await buddyRequestHandler(firstRequestRequest);
     expect(firstRequestResponse.status).toBe(201);
 
     // Second buddy request (should fail)
-    const secondRequestResponse = await fetch(`${baseUrl}/api/buddy/request`, {
+    const secondRequestRequest = createAuthenticatedRequest(userAToken, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userAToken}`,
-      },
-      body: JSON.stringify({
-        targetUserId: 444555666,
-      }),
+      url: 'http://localhost:3000/api/buddy/request',
+      body: { targetUserId: 444555666 },
     });
 
-    expect(secondRequestResponse.ok).toBe(false);
+    const secondRequestResponse =
+      await buddyRequestHandler(secondRequestRequest);
     expect(secondRequestResponse.status).toBe(400);
     const errorData = await secondRequestResponse.json();
     expect(errorData.error).toBe('INVALID_REQUEST');
@@ -180,31 +131,19 @@ describe('Buddy Pairing Flow Integration', () => {
 
   test('should prevent self-buddy requests', async () => {
     // User authenticates
-    const authResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A777888999%2C%22first_name%22%3A%22Eve%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    const token = await authenticateTestUser({
+      id: 777888999,
+      firstName: 'Eve',
     });
-
-    const auth = await authResponse.json();
-    const token = auth.token;
 
     // Try to send buddy request to self
-    const selfRequestResponse = await fetch(`${baseUrl}/api/buddy/request`, {
+    const selfRequestRequest = createAuthenticatedRequest(token, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        targetUserId: 777888999, // Same as authenticated user
-      }),
+      url: 'http://localhost:3000/api/buddy/request',
+      body: { targetUserId: 777888999 }, // Same as authenticated user
     });
 
-    expect(selfRequestResponse.ok).toBe(false);
+    const selfRequestResponse = await buddyRequestHandler(selfRequestRequest);
     expect(selfRequestResponse.status).toBe(400);
     const errorData = await selfRequestResponse.json();
     expect(errorData.error).toBe('INVALID_REQUEST');
@@ -213,31 +152,19 @@ describe('Buddy Pairing Flow Integration', () => {
 
   test('should handle buddy request to non-existent user', async () => {
     // User authenticates
-    const authResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A100200300%2C%22first_name%22%3A%22Frank%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    const token = await authenticateTestUser({
+      id: 100200300,
+      firstName: 'Frank',
     });
-
-    const auth = await authResponse.json();
-    const token = auth.token;
 
     // Try to send buddy request to non-existent user
-    const requestResponse = await fetch(`${baseUrl}/api/buddy/request`, {
+    const requestRequest = createAuthenticatedRequest(token, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        targetUserId: 999999999, // Non-existent user
-      }),
+      url: 'http://localhost:3000/api/buddy/request',
+      body: { targetUserId: 999999999 }, // Non-existent user
     });
 
-    expect(requestResponse.ok).toBe(false);
+    const requestResponse = await buddyRequestHandler(requestRequest);
     expect(requestResponse.status).toBe(404);
     const errorData = await requestResponse.json();
     expect(errorData.error).toBe('USER_NOT_FOUND');
@@ -245,31 +172,19 @@ describe('Buddy Pairing Flow Integration', () => {
 
   test('should handle search for non-existent username', async () => {
     // User authenticates
-    const authResponse = await fetch(`${baseUrl}/api/auth/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        initData:
-          'user=%7B%22id%22%3A400500600%2C%22first_name%22%3A%22Grace%22%7D&auth_date=1234567890&hash=abcdef123456',
-      }),
+    const token = await authenticateTestUser({
+      id: 400500600,
+      firstName: 'Grace',
     });
 
-    const auth = await authResponse.json();
-    const token = auth.token;
-
     // Search for non-existent username
-    const searchResponse = await fetch(
-      `${baseUrl}/api/buddy/search?username=nonexistentuser12345`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const searchRequest = createAuthenticatedRequest(token, {
+      method: 'GET',
+      url: 'http://localhost:3000/api/buddy/search',
+      query: { username: 'nonexistentuser12345' },
+    });
 
-    expect(searchResponse.ok).toBe(false);
+    const searchResponse = await buddySearchHandler(searchRequest);
     expect(searchResponse.status).toBe(404);
     const errorData = await searchResponse.json();
     expect(errorData).toHaveProperty('error');
@@ -278,28 +193,29 @@ describe('Buddy Pairing Flow Integration', () => {
 
   test('should require authentication for all buddy endpoints', async () => {
     // Test buddy search without auth
-    const searchResponse = await fetch(
-      `${baseUrl}/api/buddy/search?username=test`,
-      {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    const searchRequest = createMockRequest({
+      method: 'GET',
+      url: 'http://localhost:3000/api/buddy/search',
+      query: { username: 'test' },
+    });
+    const searchResponse = await buddySearchHandler(searchRequest);
     expect(searchResponse.status).toBe(401);
 
     // Test buddy request without auth
-    const requestResponse = await fetch(`${baseUrl}/api/buddy/request`, {
+    const requestRequest = createMockRequest({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetUserId: 123 }),
+      url: 'http://localhost:3000/api/buddy/request',
+      body: { targetUserId: 123 },
     });
+    const requestResponse = await buddyRequestHandler(requestRequest);
     expect(requestResponse.status).toBe(401);
 
     // Test buddy status without auth
-    const statusResponse = await fetch(`${baseUrl}/api/buddy/status`, {
+    const statusRequest = createMockRequest({
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      url: 'http://localhost:3000/api/buddy/status',
     });
+    const statusResponse = await buddyStatusHandler(statusRequest);
     expect(statusResponse.status).toBe(401);
   });
 });

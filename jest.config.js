@@ -16,6 +16,8 @@ const config = {
   },
   clearMocks: true,
   restoreMocks: true,
+  // Run tests sequentially to avoid database locking with in-memory SQLite
+  maxWorkers: 1,
 };
 
 module.exports = config;

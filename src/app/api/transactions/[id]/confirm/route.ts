@@ -78,10 +78,7 @@ export async function POST(
     }
 
     // Validate required fields
-    if (
-      !requestBody.transactionHash ||
-      typeof requestBody.transactionHash !== 'string'
-    ) {
+    if (typeof requestBody.transactionHash !== 'string') {
       return NextResponse.json(
         {
           error: 'VALIDATION_ERROR',
