@@ -87,6 +87,11 @@ export class NotificationService {
     await this.sendMessage(initiatorUserId, message).catch(() => {});
   }
 
+  /**
+   * Send a notification when a buddy request is rejected
+   * @param initiatorUserId - The user who initiated the request
+   * @param rejecterName - Name of the user who rejected the request
+   */
   public async notifyBuddyRejected(
     initiatorUserId: number,
     rejecterName: string
