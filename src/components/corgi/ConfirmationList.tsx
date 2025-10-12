@@ -105,13 +105,16 @@ export function ConfirmationList({
       setProcessingIds((prev) => new Set(prev).add(sightingId));
 
       try {
-        const response = await authenticatedFetch(`/api/corgi/confirm/${sightingId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ confirmed }),
-        });
+        const response = await authenticatedFetch(
+          `/api/corgi/confirm/${sightingId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ confirmed }),
+          }
+        );
 
         if (!response.ok) {
           const errorData: ErrorResponse = await response.json();

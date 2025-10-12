@@ -109,13 +109,16 @@ export function WishApproval({
       setProcessingIds((prev) => new Set(prev).add(wishId));
 
       try {
-        const response = await authenticatedFetch(`/api/wishes/${wishId}/respond`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ accepted }),
-        });
+        const response = await authenticatedFetch(
+          `/api/wishes/${wishId}/respond`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ accepted }),
+          }
+        );
 
         if (!response.ok) {
           const errorData: ErrorResponse = await response.json();
