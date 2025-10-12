@@ -61,7 +61,7 @@ export function TransactionStatus({
   showDetails = true,
   compact = false,
 }: TransactionStatusProps) {
-  const { token, isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, authenticatedFetch } = useAuth();
   const [transaction, setTransaction] = useState<TransactionData | null>(
     initialTransaction || null
   );
@@ -72,18 +72,14 @@ export function TransactionStatus({
   // Fetch transaction data by ID
   const fetchTransactionById = useCallback(
     async (id: number) => {
-      if (!isAuthenticated || !token) {
+      if (!isAuthenticated) {
         setError('Authentication required');
         setIsLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`/api/transactions`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await authenticatedFetch(`/api/transactions`);
 
         if (!response.ok) {
           const errorData: ErrorResponse = await response.json();
@@ -105,7 +101,7 @@ export function TransactionStatus({
         throw err;
       }
     },
-    [isAuthenticated, token]
+    [isAuthenticated, authenticatedFetch]
   );
 
   // Load transaction data

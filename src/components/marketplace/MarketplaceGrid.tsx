@@ -68,7 +68,7 @@ export function MarketplaceGrid({
   onRefresh,
   emptyMessage,
 }: MarketplaceGridProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [wishes, setWishes] = useState<MarketplaceWishData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -80,7 +80,7 @@ export function MarketplaceGrid({
   // Fetch marketplace wishes from API
   const fetchWishes = useCallback(
     async (loadMore: boolean = false) => {
-      if (!isAuthenticated || !token) {
+      if (!isAuthenticated) {
         setError('Authentication required');
         setIsLoading(false);
         return;
@@ -101,11 +101,7 @@ export function MarketplaceGrid({
           offset: currentOffset.toString(),
         });
 
-        const response = await fetch(`/api/marketplace?${params}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await authenticatedFetch(`/api/marketplace?${params}`);
 
         if (!response.ok) {
           const errorData: ErrorResponse = await response.json();
@@ -140,7 +136,7 @@ export function MarketplaceGrid({
         setIsLoadingMore(false);
       }
     },
-    [isAuthenticated, token, pageSize, offset, onRefresh]
+    [isAuthenticated, authenticatedFetch, pageSize, offset, onRefresh]
   );
 
   // Initial load and refresh setup

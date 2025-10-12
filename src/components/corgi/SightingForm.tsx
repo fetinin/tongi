@@ -41,7 +41,7 @@ export function SightingForm({
   onSightingReported,
   onError,
 }: SightingFormProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [corgiCount, setCorgiCount] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [sightingResult, setSightingResult] =
@@ -77,7 +77,7 @@ export function SightingForm({
    * Submit corgi sighting report
    */
   const submitSighting = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       const error = 'Authentication required to report sighting';
       onError?.(error);
       return;
@@ -94,11 +94,10 @@ export function SightingForm({
     setValidationError('');
 
     try {
-      const response = await fetch('/api/corgi/sightings', {
+      const response = await authenticatedFetch('/api/corgi/sightings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           corgiCount,
@@ -126,7 +125,7 @@ export function SightingForm({
   }, [
     corgiCount,
     isAuthenticated,
-    token,
+    authenticatedFetch,
     validateCorgiCount,
     onSightingReported,
     onError,

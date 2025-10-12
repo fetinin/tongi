@@ -47,7 +47,7 @@ export function ConfirmationList({
   refreshInterval = 15000,
   showEmptyState = true,
 }: ConfirmationListProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [confirmations, setConfirmations] = useState<CorgiSightingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,18 +55,14 @@ export function ConfirmationList({
 
   // Fetch pending confirmations from API
   const fetchConfirmations = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setError('Authentication required');
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/corgi/confirmations', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/api/corgi/confirmations');
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
@@ -84,7 +80,7 @@ export function ConfirmationList({
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, authenticatedFetch]);
 
   // Initial load and refresh setup
   useEffect(() => {
@@ -100,7 +96,7 @@ export function ConfirmationList({
    */
   const handleConfirmSighting = useCallback(
     async (sightingId: number, confirmed: boolean) => {
-      if (!isAuthenticated || !token) {
+      if (!isAuthenticated) {
         setError('Authentication required');
         return;
       }
@@ -109,11 +105,10 @@ export function ConfirmationList({
       setProcessingIds((prev) => new Set(prev).add(sightingId));
 
       try {
-        const response = await fetch(`/api/corgi/confirm/${sightingId}`, {
+        const response = await authenticatedFetch(`/api/corgi/confirm/${sightingId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ confirmed }),
         });
@@ -146,7 +141,7 @@ export function ConfirmationList({
         });
       }
     },
-    [isAuthenticated, token, onConfirmationProcessed]
+    [isAuthenticated, authenticatedFetch, onConfirmationProcessed]
   );
 
   /**

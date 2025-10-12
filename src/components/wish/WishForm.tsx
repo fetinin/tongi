@@ -45,7 +45,7 @@ export function WishForm({
   onWishCreated,
   onError,
 }: WishFormProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [description, setDescription] = useState<string>('');
   const [proposedAmount, setProposedAmount] = useState<string>('1.00');
   const [isLoading, setIsLoading] = useState(false);
@@ -148,7 +148,7 @@ export function WishForm({
    * Submit wish creation
    */
   const submitWish = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       const error = 'Authentication required to create wish';
       onError?.(error);
       return;
@@ -162,11 +162,10 @@ export function WishForm({
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/wishes', {
+      const response = await authenticatedFetch('/api/wishes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           description: description.trim(),
@@ -196,7 +195,7 @@ export function WishForm({
     description,
     proposedAmount,
     isAuthenticated,
-    token,
+    authenticatedFetch,
     validateForm,
     onWishCreated,
     onError,
