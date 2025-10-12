@@ -116,12 +116,15 @@ export function PurchaseModal({
       setPurchaseState('processing');
 
       // Call the purchase API
-      const response = await authenticatedFetch(`/api/marketplace/${wish.id}/purchase`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch(
+        `/api/marketplace/${wish.id}/purchase`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();

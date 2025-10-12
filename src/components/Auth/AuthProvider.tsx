@@ -506,11 +506,7 @@ export function AuthProvider({
    * Create authenticated fetch instance with automatic retry logic
    */
   const authenticatedFetch = useMemo(
-    () =>
-      createAuthenticatedFetch(
-        () => authState.token,
-        reAuthenticate
-      ),
+    () => createAuthenticatedFetch(() => authState.token, reAuthenticate),
     [authState.token, reAuthenticate]
   );
 

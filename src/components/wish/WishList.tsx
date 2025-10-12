@@ -128,7 +128,14 @@ export function WishList({
         setIsLoadingMore(false);
       }
     },
-    [isAuthenticated, authenticatedFetch, statusFilter, pageSize, offset, onRefresh]
+    [
+      isAuthenticated,
+      authenticatedFetch,
+      statusFilter,
+      pageSize,
+      offset,
+      onRefresh,
+    ]
   );
 
   // Initial load and refresh setup
