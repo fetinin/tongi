@@ -79,7 +79,8 @@ class ConsoleCaptureEnvironment extends NodeEnvironment {
 
       if (testFailed && this.buffer.length > 0) {
         // Output captured logs only if test failed
-        const originalConsole = this.global.__ORIGINAL_CONSOLE__ as OriginalConsole;
+        const originalConsole = this.global
+          .__ORIGINAL_CONSOLE__ as OriginalConsole;
         originalConsole.log(
           `\n📋 Captured ${this.buffer.length} log entries from failed test:`
         );
