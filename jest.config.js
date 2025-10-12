@@ -1,7 +1,7 @@
 /** @type {import('jest').Config} */
 const config = {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: '<rootDir>/tests/helpers/console-capture-environment.ts',
   roots: ['<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
@@ -15,7 +15,7 @@ const config = {
     '^@public/(.*)$': '<rootDir>/public/$1',
   },
   clearMocks: true,
-  restoreMocks: true,
+  restoreMocks: false, // Don't restore mocks - we need our console spies to persist
   // Run tests sequentially to avoid database locking with in-memory SQLite
   maxWorkers: 1,
 };
