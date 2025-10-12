@@ -5,7 +5,10 @@
  */
 
 import NodeEnvironment from 'jest-environment-node';
-import type { EnvironmentContext, JestEnvironmentConfig } from '@jest/environment';
+import type {
+  EnvironmentContext,
+  JestEnvironmentConfig,
+} from '@jest/environment';
 import type { Circus } from '@jest/types';
 
 interface LogEntry {
@@ -64,7 +67,9 @@ class ConsoleCaptureEnvironment extends NodeEnvironment {
 
       if (testFailed && this.buffer.length > 0) {
         // Output captured logs only if test failed
-        this.originalConsole.log(`\n📋 Captured ${this.buffer.length} log entries from failed test:`);
+        this.originalConsole.log(
+          `\n📋 Captured ${this.buffer.length} log entries from failed test:`
+        );
         this.buffer.forEach(({ method, args }) => {
           this.originalConsole[method](...args);
         });
