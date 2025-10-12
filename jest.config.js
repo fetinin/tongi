@@ -15,7 +15,7 @@ const config = {
     '^@public/(.*)$': '<rootDir>/public/$1',
   },
   clearMocks: true,
-  restoreMocks: false, // Don't restore mocks - we need our console spies to persist
+  restoreMocks: true,
   // Run tests sequentially to avoid database locking with in-memory SQLite
   maxWorkers: 1,
 };
