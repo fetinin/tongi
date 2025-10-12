@@ -41,7 +41,7 @@ export function BuddySearch({
   emptyPlaceholder,
   noResultsPlaceholder,
 }: BuddySearchProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchedUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +69,7 @@ export function BuddySearch({
    */
   const performSearch = useCallback(
     async (query: string) => {
-      if (!isAuthenticated || !token) {
+      if (!isAuthenticated) {
         setError('Authentication required');
         return;
       }
@@ -78,13 +78,8 @@ export function BuddySearch({
       setError(null);
 
       try {
-        const response = await fetch(
-          `/api/buddy/search?username=${encodeURIComponent(query)}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const response = await authenticatedFetch(
+          `/api/buddy/search?username=${encodeURIComponent(query)}`
         );
 
         if (!response.ok) {
@@ -104,7 +99,7 @@ export function BuddySearch({
         setIsLoading(false);
       }
     },
-    [isAuthenticated, token]
+    [isAuthenticated, authenticatedFetch]
   );
 
   /**

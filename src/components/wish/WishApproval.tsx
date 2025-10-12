@@ -51,7 +51,7 @@ export function WishApproval({
   refreshInterval = 15000,
   showEmptyState = true,
 }: WishApprovalProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [wishes, setWishes] = useState<WishData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,18 +59,14 @@ export function WishApproval({
 
   // Fetch pending wishes from API
   const fetchPendingWishes = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setError('Authentication required');
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/wishes/pending', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/api/wishes/pending');
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
@@ -88,7 +84,7 @@ export function WishApproval({
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, authenticatedFetch]);
 
   // Initial load and refresh setup
   useEffect(() => {
@@ -104,7 +100,7 @@ export function WishApproval({
    */
   const handleWishResponse = useCallback(
     async (wishId: number, accepted: boolean) => {
-      if (!isAuthenticated || !token) {
+      if (!isAuthenticated) {
         setError('Authentication required');
         return;
       }
@@ -113,11 +109,10 @@ export function WishApproval({
       setProcessingIds((prev) => new Set(prev).add(wishId));
 
       try {
-        const response = await fetch(`/api/wishes/${wishId}/respond`, {
+        const response = await authenticatedFetch(`/api/wishes/${wishId}/respond`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ accepted }),
         });
@@ -148,7 +143,7 @@ export function WishApproval({
         });
       }
     },
-    [isAuthenticated, token, onWishProcessed]
+    [isAuthenticated, authenticatedFetch, onWishProcessed]
   );
 
   /**

@@ -55,7 +55,7 @@ export function SightingHistory({
   limit,
   initialFilter = 'all',
 }: SightingHistoryProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [sightings, setSightings] = useState<CorgiSightingData[]>([]);
   const [filteredSightings, setFilteredSightings] = useState<
     CorgiSightingData[]
@@ -66,7 +66,7 @@ export function SightingHistory({
 
   // Fetch sighting history from API
   const fetchSightingHistory = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setError('Authentication required');
       setIsLoading(false);
       return;
@@ -78,11 +78,7 @@ export function SightingHistory({
         url.searchParams.set('limit', limit.toString());
       }
 
-      const response = await fetch(url.toString(), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch(url.toString());
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
@@ -105,7 +101,7 @@ export function SightingHistory({
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, token, limit, onHistoryUpdated]);
+  }, [isAuthenticated, authenticatedFetch, limit, onHistoryUpdated]);
 
   // Initial load and refresh setup
   useEffect(() => {

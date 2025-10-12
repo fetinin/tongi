@@ -59,7 +59,7 @@ export function TransactionHistory({
   limit = 20,
   initialFilter = 'all',
 }: TransactionHistoryProps) {
-  const { token, isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, authenticatedFetch } = useAuth();
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<
     TransactionData[]
@@ -71,7 +71,7 @@ export function TransactionHistory({
 
   // Fetch transaction history from API
   const fetchTransactionHistory = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setError('Authentication required');
       setIsLoading(false);
       return;
@@ -83,11 +83,7 @@ export function TransactionHistory({
         url.searchParams.set('limit', limit.toString());
       }
 
-      const response = await fetch(url.toString(), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch(url.toString());
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
@@ -112,7 +108,7 @@ export function TransactionHistory({
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, token, limit, onHistoryUpdated]);
+  }, [isAuthenticated, authenticatedFetch, limit, onHistoryUpdated]);
 
   // Initial load and refresh setup
   useEffect(() => {

@@ -73,7 +73,7 @@ export function PurchaseModal({
   onPurchaseSuccess,
   onPurchaseError,
 }: PurchaseModalProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const { isConnected, connectWallet, sendTransaction } = useTonWalletContext();
   const [purchaseState, setPurchaseState] = useState<PurchaseState>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +92,7 @@ export function PurchaseModal({
    * Handle purchase initiation
    */
   const handlePurchase = useCallback(async () => {
-    if (!wish || !isAuthenticated || !token) {
+    if (!wish || !isAuthenticated) {
       setError('Authentication required');
       return;
     }
@@ -116,10 +116,9 @@ export function PurchaseModal({
       setPurchaseState('processing');
 
       // Call the purchase API
-      const response = await fetch(`/api/marketplace/${wish.id}/purchase`, {
+      const response = await authenticatedFetch(`/api/marketplace/${wish.id}/purchase`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -140,12 +139,11 @@ export function PurchaseModal({
       });
 
       // Confirm transaction on the server with returned BOC/hash
-      const confirmRes = await fetch(
+      const confirmRes = await authenticatedFetch(
         `/api/transactions/${purchaseData.transactionId}/confirm`,
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ transactionHash: boc }),
@@ -170,7 +168,7 @@ export function PurchaseModal({
   }, [
     wish,
     isAuthenticated,
-    token,
+    authenticatedFetch,
     isConnected,
     connectWallet,
     sendTransaction,

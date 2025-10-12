@@ -53,7 +53,7 @@ export function BuddyStatus({
   onDissolveBuddy,
   refreshInterval = 30000,
 }: BuddyStatusProps) {
-  const { token, isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, authenticatedFetch } = useAuth();
   const [buddyStatus, setBuddyStatus] = useState<BuddyStatusData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,18 +62,14 @@ export function BuddyStatus({
 
   // Fetch buddy status from API
   const fetchBuddyStatus = useCallback(async () => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       setError('Authentication required');
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/buddy/status', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/api/buddy/status');
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -91,7 +87,7 @@ export function BuddyStatus({
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, authenticatedFetch]);
 
   // Initial load and refresh setup
   useEffect(() => {
@@ -122,7 +118,6 @@ export function BuddyStatus({
   const handleAccept = useCallback(async () => {
     if (!buddyStatus || buddyStatus.status === 'no_buddy') return;
     if (buddyStatus.status !== 'pending') return;
-    if (!token) return;
 
     if (hapticFeedback.impactOccurred.isAvailable()) {
       hapticFeedback.impactOccurred('medium');
@@ -131,11 +126,10 @@ export function BuddyStatus({
     setActionError(null);
 
     try {
-      const response = await fetch('/api/buddy/accept', {
+      const response = await authenticatedFetch('/api/buddy/accept', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           buddyPairId: buddyStatus.id,
@@ -157,7 +151,7 @@ export function BuddyStatus({
     } finally {
       setIsProcessing(false);
     }
-  }, [buddyStatus, token, fetchBuddyStatus]);
+  }, [buddyStatus, authenticatedFetch, fetchBuddyStatus]);
 
   /**
    * Handle reject buddy request
@@ -165,7 +159,6 @@ export function BuddyStatus({
   const handleReject = useCallback(async () => {
     if (!buddyStatus || buddyStatus.status === 'no_buddy') return;
     if (buddyStatus.status !== 'pending') return;
-    if (!token) return;
 
     if (hapticFeedback.impactOccurred.isAvailable()) {
       hapticFeedback.impactOccurred('medium');
@@ -174,11 +167,10 @@ export function BuddyStatus({
     setActionError(null);
 
     try {
-      const response = await fetch('/api/buddy/reject', {
+      const response = await authenticatedFetch('/api/buddy/reject', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           buddyPairId: buddyStatus.id,
@@ -200,7 +192,7 @@ export function BuddyStatus({
     } finally {
       setIsProcessing(false);
     }
-  }, [buddyStatus, token, fetchBuddyStatus]);
+  }, [buddyStatus, authenticatedFetch, fetchBuddyStatus]);
 
   /**
    * Format username display

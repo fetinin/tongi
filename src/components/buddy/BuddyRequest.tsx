@@ -60,7 +60,7 @@ export function BuddyRequest({
   onRequestSent,
   onError,
 }: BuddyRequestProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [requestResult, setRequestResult] = useState<BuddyRequestResult | null>(
     null
@@ -70,7 +70,7 @@ export function BuddyRequest({
    * Send buddy request to target user
    */
   const sendBuddyRequest = useCallback(async () => {
-    if (!targetUser || !isAuthenticated || !token) {
+    if (!targetUser || !isAuthenticated) {
       const error = 'Authentication required to send buddy request';
       onError?.(error);
       return;
@@ -79,11 +79,10 @@ export function BuddyRequest({
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/buddy/request', {
+      const response = await authenticatedFetch('/api/buddy/request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           targetUserId: targetUser.id,
@@ -108,7 +107,7 @@ export function BuddyRequest({
     } finally {
       setIsLoading(false);
     }
-  }, [targetUser, isAuthenticated, token, onRequestSent, onError]);
+  }, [targetUser, isAuthenticated, authenticatedFetch, onRequestSent, onError]);
 
   /**
    * Handle modal close

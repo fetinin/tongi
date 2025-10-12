@@ -62,7 +62,7 @@ export function WishList({
   onRefresh,
   emptyMessage,
 }: WishListProps) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated, authenticatedFetch } = useAuth();
   const [wishes, setWishes] = useState<WishData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -74,7 +74,7 @@ export function WishList({
   // Fetch wishes from API
   const fetchWishes = useCallback(
     async (loadMore: boolean = false) => {
-      if (!isAuthenticated || !token) {
+      if (!isAuthenticated) {
         setError('Authentication required');
         setIsLoading(false);
         return;
@@ -99,11 +99,7 @@ export function WishList({
           params.append('status', statusFilter);
         }
 
-        const response = await fetch(`/api/wishes?${params}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await authenticatedFetch(`/api/wishes?${params}`);
 
         if (!response.ok) {
           const errorData: ErrorResponse = await response.json();
@@ -132,7 +128,7 @@ export function WishList({
         setIsLoadingMore(false);
       }
     },
-    [isAuthenticated, token, statusFilter, pageSize, offset, onRefresh]
+    [isAuthenticated, authenticatedFetch, statusFilter, pageSize, offset, onRefresh]
   );
 
   // Initial load and refresh setup

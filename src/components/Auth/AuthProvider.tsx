@@ -6,12 +6,19 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useRef,
+  useMemo,
   type PropsWithChildren,
 } from 'react';
 import { initData, useSignal, cloudStorage } from '@telegram-apps/sdk-react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Placeholder, Spinner } from '@telegram-apps/telegram-ui';
 import { retrieveRawLaunchParams } from '@tma.js/bridge';
+import {
+  createAuthenticatedFetch,
+  AuthMutex,
+  type AuthenticatedFetchOptions,
+} from '@/lib/api';
 
 // Types for authentication state
 interface User {
@@ -35,6 +42,10 @@ interface AuthContextValue extends AuthState {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   updateWalletAddress: (address: string | null) => Promise<void>;
+  authenticatedFetch: (
+    input: RequestInfo | URL,
+    init?: AuthenticatedFetchOptions
+  ) => Promise<Response>;
 }
 
 // Create authentication context
@@ -81,6 +92,9 @@ export function AuthProvider({
 
   const initDataUser = useSignal(initData.user);
   const [tonConnectUI] = useTonConnectUI();
+
+  // Mutex to prevent concurrent re-authentication attempts
+  const authMutexRef = useRef(new AuthMutex());
 
   // Monitor TON Connect wallet changes
   useEffect(() => {
@@ -293,6 +307,53 @@ export function AuthProvider({
   }
 
   /**
+   * Re-authenticate silently and return new token
+   * Used by authenticatedFetch when receiving 401 errors
+   * Uses mutex to prevent concurrent re-authentication attempts
+   */
+  const reAuthenticate = useCallback(async (): Promise<string | null> => {
+    const mutex = authMutexRef.current;
+
+    try {
+      // Acquire mutex lock to prevent concurrent re-auth attempts
+      await mutex.acquire();
+
+      // Check if another request already refreshed the token
+      const currentToken = authState.token;
+      if (currentToken) {
+        const storedToken = await getStoredToken();
+        if (storedToken && storedToken !== currentToken) {
+          // Token was already refreshed by another request
+          mutex.release();
+          return storedToken;
+        }
+      }
+
+      console.log('Starting silent re-authentication...');
+
+      // Perform authentication without showing loading UI
+      await performAuthentication();
+
+      // Get the new token from state
+      const newToken = await getStoredToken();
+
+      if (!newToken) {
+        console.error('Re-authentication completed but no token found');
+        mutex.release();
+        return null;
+      }
+
+      console.log('Silent re-authentication successful');
+      mutex.release();
+      return newToken;
+    } catch (error) {
+      console.error('Re-authentication failed:', error);
+      mutex.release();
+      return null;
+    }
+  }, [authState.token, performAuthentication]);
+
+  /**
    * Logout and clear stored credentials
    */
   async function logout(): Promise<void> {
@@ -441,12 +502,25 @@ export function AuthProvider({
     }
   }
 
+  /**
+   * Create authenticated fetch instance with automatic retry logic
+   */
+  const authenticatedFetch = useMemo(
+    () =>
+      createAuthenticatedFetch(
+        () => authState.token,
+        reAuthenticate
+      ),
+    [authState.token, reAuthenticate]
+  );
+
   // Provide context value
   const contextValue: AuthContextValue = {
     ...authState,
     login,
     logout,
     updateWalletAddress,
+    authenticatedFetch,
   };
 
   // Show loading state with telegram-ui components
