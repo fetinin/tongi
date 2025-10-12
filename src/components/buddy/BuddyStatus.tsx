@@ -11,6 +11,7 @@ import {
   Spinner,
   Caption,
 } from '@telegram-apps/telegram-ui';
+import { hapticFeedback } from '@telegram-apps/sdk-react';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 // Types for buddy status
@@ -123,6 +124,9 @@ export function BuddyStatus({
     if (buddyStatus.status !== 'pending') return;
     if (!token) return;
 
+    if (hapticFeedback.impactOccurred.isAvailable()) {
+      hapticFeedback.impactOccurred('medium');
+    }
     setIsProcessing(true);
     setActionError(null);
 
@@ -163,6 +167,9 @@ export function BuddyStatus({
     if (buddyStatus.status !== 'pending') return;
     if (!token) return;
 
+    if (hapticFeedback.impactOccurred.isAvailable()) {
+      hapticFeedback.impactOccurred('medium');
+    }
     setIsProcessing(true);
     setActionError(null);
 
