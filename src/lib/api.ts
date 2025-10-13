@@ -5,6 +5,8 @@
  * that receive 401 Unauthorized responses.
  */
 
+import { logger } from '@/lib/logger';
+
 export interface AuthenticatedFetchOptions extends RequestInit {
   /** Skip automatic retry on 401 (useful for auth endpoints) */
   skipRetry?: boolean;
@@ -58,17 +60,26 @@ export function createAuthenticatedFetch(
     // If we get a 401 and retry is not disabled, attempt re-authentication
     if (response.status === 401 && !skipRetry) {
       try {
-        console.log('Received 401, attempting automatic re-authentication...');
+        logger.debug(
+          'authenticatedFetch',
+          'Received 401, attempting automatic re-authentication'
+        );
 
         // Trigger re-authentication to get new token
         const newToken = await reAuthCallback();
 
         if (!newToken) {
-          console.error('Re-authentication failed: no token returned');
+          logger.error(
+            'authenticatedFetch',
+            'Re-authentication failed: no token returned'
+          );
           return response; // Return original 401 response
         }
 
-        console.log('Re-authentication successful, retrying request...');
+        logger.debug(
+          'authenticatedFetch',
+          'Re-authentication successful, retrying request'
+        );
 
         // Update authorization header with new token
         headers.set('Authorization', `Bearer ${newToken}`);
@@ -82,14 +93,22 @@ export function createAuthenticatedFetch(
         response = await fetch(input, retryOptions);
 
         if (response.ok) {
-          console.log('Request retry successful after re-authentication');
+          logger.debug(
+            'authenticatedFetch',
+            'Request retry successful after re-authentication'
+          );
         } else if (response.status === 401) {
-          console.error(
+          logger.error(
+            'authenticatedFetch',
             'Request still failed with 401 after re-authentication'
           );
         }
       } catch (error) {
-        console.error('Error during automatic re-authentication:', error);
+        logger.error(
+          'authenticatedFetch',
+          'Error during automatic re-authentication',
+          error
+        );
         // Return original 401 response if re-auth fails
       }
     }
