@@ -216,9 +216,10 @@ export function AuthProvider({
 
   /**
    * Perform authentication with Telegram initData
+   * Returns the JWT token directly to avoid race conditions
    */
   const performAuthentication = useCallback(
-    async (rawInitData?: string): Promise<void> => {
+    async (rawInitData?: string): Promise<string> => {
       try {
         // Get raw init data from parameter or retrieve it
         let rawLaunchParams = rawInitData;
@@ -281,6 +282,9 @@ export function AuthProvider({
           isLoading: false,
           isNewUser,
         });
+
+        // Return token directly to avoid race conditions
+        return token;
       } catch (error) {
         console.error('Authentication error:', error);
         throw error;
@@ -314,42 +318,38 @@ export function AuthProvider({
   const reAuthenticate = useCallback(async (): Promise<string | null> => {
     const mutex = authMutexRef.current;
 
-    try {
-      // Acquire mutex lock to prevent concurrent re-auth attempts
-      await mutex.acquire();
+    // Acquire mutex lock to prevent concurrent re-auth attempts
+    await mutex.acquire();
 
+    try {
       // Check if another request already refreshed the token
       const currentToken = authState.token;
       if (currentToken) {
         const storedToken = await getStoredToken();
         if (storedToken && storedToken !== currentToken) {
           // Token was already refreshed by another request
-          mutex.release();
           return storedToken;
         }
       }
 
       console.log('Starting silent re-authentication...');
 
-      // Perform authentication without showing loading UI
-      await performAuthentication();
-
-      // Get the new token from state
-      const newToken = await getStoredToken();
+      // Perform authentication and get token directly to avoid race conditions
+      const newToken = await performAuthentication();
 
       if (!newToken) {
-        console.error('Re-authentication completed but no token found');
-        mutex.release();
+        console.error('Re-authentication completed but no token returned');
         return null;
       }
 
       console.log('Silent re-authentication successful');
-      mutex.release();
       return newToken;
     } catch (error) {
       console.error('Re-authentication failed:', error);
-      mutex.release();
       return null;
+    } finally {
+      // Always release mutex, even if errors occur
+      mutex.release();
     }
   }, [authState.token, performAuthentication]);
 
