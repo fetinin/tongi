@@ -1,0 +1,458 @@
+openapi: 3.0.3
+info:
+  title: Tongi Wallet API
+  description: |
+    API endpoints for TON wallet connection management in the Tongi (Corgi Buddy) Telegram Mini App.
+
+    ## Authentication
+    All endpoints require Telegram authentication via `initData` parameter containing HMAC-signed Telegram user data.
+
+    ## Security
+    - Server-side HMAC validation for all requests
+    - No private keys stored or transmitted
+    - TON Connect SDK handles all cryptographic operations
+  version: 1.0.0
+  contact:
+    name: Tongi Development Team
+
+servers:
+  - url: https://127.0.0.1:3000/api
+    description: Development server (HTTPS required for Telegram)
+  - url: https://tongi.example.com/api
+    description: Production server (replace with actual domain)
+
+tags:
+  - name: wallet
+    description: TON wallet connection management
+
+paths:
+  /wallet/connect:
+    post:
+      tags:
+        - wallet
+      summary: Connect TON wallet to user account
+      description: |
+        Persists a TON wallet address to the user's account after successful TON Connect authentication.
+
+        ## Flow
+        1. Client initiates TON Connect via SDK
+        2. User approves connection in wallet app
+        3. Client receives wallet address from TON Connect
+        4. Client calls this endpoint to persist address
+        5. Server validates address and stores in database
+
+        ## Authorization
+        Requires valid Telegram `initData` with HMAC signature.
+      operationId: connectWallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectWalletRequest'
+            examples:
+              success:
+                summary: Valid wallet connection request
+                value:
+                  walletAddress: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+                  initData: "query_id=AAHdF6IQ..."
+      responses:
+        '200':
+          description: Wallet connected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectWalletResponse'
+              examples:
+                success:
+                  value:
+                    success: true
+                    user:
+                      id: 123456789
+                      ton_wallet_address: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+                      updated_at: "2025-10-13T10:30:00.000Z"
+        '400':
+          description: Invalid request (bad wallet address or malformed data)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidAddress:
+                  summary: Invalid wallet address format
+                  value:
+                    success: false
+                    error: "Invalid TON wallet address format"
+                    code: "INVALID_ADDRESS"
+                missingWallet:
+                  summary: Missing wallet address
+                  value:
+                    success: false
+                    error: "Wallet address is required"
+                    code: "MISSING_WALLET"
+        '401':
+          description: Unauthorized (invalid or missing Telegram authentication)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                authFailed:
+                  value:
+                    success: false
+                    error: "Telegram authentication failed"
+                    code: "AUTH_FAILED"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  value:
+                    success: false
+                    error: "Failed to save wallet address"
+                    code: "DATABASE_ERROR"
+
+  /wallet/disconnect:
+    post:
+      tags:
+        - wallet
+      summary: Disconnect TON wallet from user account
+      description: |
+        Removes the TON wallet address from the user's account. This operation is idempotent.
+
+        ## Flow
+        1. Client initiates disconnect (user clicks disconnect button)
+        2. Client calls TON Connect SDK disconnect
+        3. Client calls this endpoint to clear database
+        4. Server removes wallet address from user record
+
+        ## Authorization
+        Requires valid Telegram `initData` with HMAC signature.
+
+        ## Idempotency
+        Multiple disconnect requests succeed even if no wallet is connected.
+      operationId: disconnectWallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisconnectWalletRequest'
+            examples:
+              success:
+                summary: Valid disconnect request
+                value:
+                  initData: "query_id=AAHdF6IQ..."
+      responses:
+        '200':
+          description: Wallet disconnected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisconnectWalletResponse'
+              examples:
+                success:
+                  value:
+                    success: true
+                    user:
+                      id: 123456789
+                      ton_wallet_address: null
+                      updated_at: "2025-10-13T10:35:00.000Z"
+        '401':
+          description: Unauthorized (invalid or missing Telegram authentication)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                authFailed:
+                  value:
+                    success: false
+                    error: "Telegram authentication failed"
+                    code: "AUTH_FAILED"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  value:
+                    success: false
+                    error: "Failed to disconnect wallet"
+                    code: "DATABASE_ERROR"
+
+  /wallet/status:
+    get:
+      tags:
+        - wallet
+      summary: Get wallet connection status
+      description: |
+        Retrieves the current wallet connection status for the authenticated user.
+
+        ## Use Cases
+        - Check if user has connected wallet
+        - Verify wallet address persistence
+        - Sync client-side state with server
+
+        ## Authorization
+        Requires valid Telegram `initData` with HMAC signature.
+
+        ## Read-Only
+        This endpoint has no side effects and can be called repeatedly.
+      operationId: getWalletStatus
+      parameters:
+        - name: initData
+          in: query
+          required: true
+          description: Telegram initData string with HMAC signature for authentication
+          schema:
+            type: string
+          example: "query_id=AAHdF6IQ..."
+      responses:
+        '200':
+          description: Wallet status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletStatusResponse'
+              examples:
+                connected:
+                  summary: User has connected wallet
+                  value:
+                    success: true
+                    connected: true
+                    address: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+                    user:
+                      id: 123456789
+                      first_name: "Alice"
+                      updated_at: "2025-10-13T10:30:00.000Z"
+                disconnected:
+                  summary: User has no connected wallet
+                  value:
+                    success: true
+                    connected: false
+                    address: null
+                    user:
+                      id: 123456789
+                      first_name: "Bob"
+                      updated_at: "2025-10-13T09:00:00.000Z"
+        '401':
+          description: Unauthorized (invalid or missing Telegram authentication)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                authFailed:
+                  value:
+                    success: false
+                    error: "Telegram authentication failed"
+                    code: "AUTH_FAILED"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                userNotFound:
+                  value:
+                    success: false
+                    error: "User not found"
+                    code: "USER_NOT_FOUND"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  value:
+                    success: false
+                    error: "Failed to retrieve wallet status"
+                    code: "DATABASE_ERROR"
+
+components:
+  schemas:
+    ConnectWalletRequest:
+      type: object
+      required:
+        - walletAddress
+        - initData
+      properties:
+        walletAddress:
+          type: string
+          description: |
+            User-friendly TON wallet address from TON Connect SDK.
+            Supported formats:
+            - User-friendly: `EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2`
+            - Raw: 64 hex characters
+          example: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+          minLength: 48
+          maxLength: 64
+        initData:
+          type: string
+          description: Telegram initData string containing HMAC-signed user authentication data
+          example: "query_id=AAHdF6IQ...&user=%7B%22id%22%3A123456789..."
+
+    ConnectWalletResponse:
+      type: object
+      required:
+        - success
+        - user
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Always true for successful responses
+        user:
+          type: object
+          required:
+            - id
+            - ton_wallet_address
+            - updated_at
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: Telegram user ID
+              example: 123456789
+            ton_wallet_address:
+              type: string
+              description: Connected wallet address (user-friendly format)
+              example: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+            updated_at:
+              type: string
+              format: date-time
+              description: ISO 8601 timestamp of when wallet was connected
+              example: "2025-10-13T10:30:00.000Z"
+
+    DisconnectWalletRequest:
+      type: object
+      required:
+        - initData
+      properties:
+        initData:
+          type: string
+          description: Telegram initData string containing HMAC-signed user authentication data
+          example: "query_id=AAHdF6IQ...&user=%7B%22id%22%3A123456789..."
+
+    DisconnectWalletResponse:
+      type: object
+      required:
+        - success
+        - user
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Always true for successful responses
+        user:
+          type: object
+          required:
+            - id
+            - ton_wallet_address
+            - updated_at
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: Telegram user ID
+              example: 123456789
+            ton_wallet_address:
+              type: "null"
+              description: Wallet address cleared (always null after disconnect)
+              example: null
+            updated_at:
+              type: string
+              format: date-time
+              description: ISO 8601 timestamp of when wallet was disconnected
+              example: "2025-10-13T10:35:00.000Z"
+
+    WalletStatusResponse:
+      type: object
+      required:
+        - success
+        - connected
+        - address
+        - user
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Always true for successful responses
+        connected:
+          type: boolean
+          description: Whether user has a connected wallet
+          example: true
+        address:
+          type: string
+          nullable: true
+          description: Connected wallet address (user-friendly format) or null if not connected
+          example: "EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2"
+        user:
+          type: object
+          required:
+            - id
+            - first_name
+            - updated_at
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: Telegram user ID
+              example: 123456789
+            first_name:
+              type: string
+              description: User's first name from Telegram
+              example: "Alice"
+            updated_at:
+              type: string
+              format: date-time
+              description: ISO 8601 timestamp of last user update
+              example: "2025-10-13T10:30:00.000Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - code
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Always false for error responses
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Invalid TON wallet address format"
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - INVALID_ADDRESS
+            - MISSING_WALLET
+            - AUTH_FAILED
+            - USER_NOT_FOUND
+            - DATABASE_ERROR
+            - INVALID_INITDATA
+          example: "INVALID_ADDRESS"
+
+  securitySchemes:
+    TelegramAuth:
+      type: apiKey
+      in: query
+      name: initData
+      description: |
+        Telegram Mini App authentication using initData parameter.
+        The initData contains HMAC-signed user information verified server-side using the bot token.
+
+security:
+  - TelegramAuth: []
