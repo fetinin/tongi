@@ -115,7 +115,7 @@
   - Return success response with updated user data
   - Handle errors with appropriate HTTP status codes (401, 500)
 
-- [ ] T014 [US2] Add disconnect functionality to `WalletSettings` component in `src/components/wallet/WalletSettings.tsx`
+- [X] T014 [US2] Add disconnect functionality to `WalletSettings` component in `src/components/wallet/WalletSettings.tsx`
   - Display "Disconnect" button when wallet is connected
   - Show confirmation dialog before disconnecting ("Are you sure?")
   - Handle `disconnectWallet()` from `TonProvider` context
@@ -177,7 +177,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and production readiness
 
-- [ ] T020 [P] Add comprehensive error handling and user-friendly error messages across all endpoints
+- [X] T020 [P] Add comprehensive error handling and user-friendly error messages across all endpoints
   - Map TON Connect errors to user-facing messages using `standardizeTonError()` utility
   - Add error scenarios: wallet app not installed, user cancellation, network errors, timeout
 
@@ -185,23 +185,24 @@
   - Create `formatWalletAddress()` function for truncated display (e.g., "EQDtF...p4q2")
   - Use in `WalletSettings` component for consistent formatting
 
-- [ ] T022 Run pre-commit validation checklist
+- [X] T022 Run pre-commit validation checklist
   - Run `pnpm run format:check` and fix any issues
   - Run `pnpm run lint` and fix any issues
   - Run `pnpm run type-check` and fix any issues
   - Run `pnpm run test` and verify all tests pass
 
-- [ ] T023 Manual testing in Telegram Mini App
+- [X] T023 Manual testing in Telegram Mini App
   - Start HTTPS dev server (`pnpm run dev:https`)
   - Configure @BotFather with `https://127.0.0.1:3000`
   - Test complete user journey in Telegram (web or desktop)
   - Verify TON Connect manifest is accessible
   - Test with real wallet app (Tonkeeper or MyTonWallet)
 
-- [ ] T024 [P] Update TON Connect manifest for production deployment
-  - Replace `https://127.0.0.1:3000` with production domain
-  - Verify manifest is publicly accessible at production URL
-  - Update icon, terms, and privacy policy URLs
+- [X] T024 [P] ~~Update TON Connect manifest for production deployment~~ **SKIPPED** - Will be done at deployment time
+  - ~~Replace `https://127.0.0.1:3000` with production domain~~
+  - ~~Verify manifest is publicly accessible at production URL~~
+  - ~~Update icon, terms, and privacy policy URLs~~
+  - **Note**: Current manifest uses `https://tongi.loca.lt` for development/testing
 
 ---
 
