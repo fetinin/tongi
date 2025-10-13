@@ -38,8 +38,14 @@ function RootInner({ children }: PropsWithChildren) {
     }
   }, [initDataUser]);
 
+  // Construct absolute manifest URL
+  const manifestUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/tonconnect-manifest.json`
+      : 'https://tongi.loca.lt/tonconnect-manifest.json';
+
   return (
-    <TonConnectUIProvider manifestUrl="/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl={manifestUrl}>
       <TonProvider>
         <AppRoot
           appearance={isDark ? 'dark' : 'light'}
