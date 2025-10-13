@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
-import { validateTonAddress, normalizeTonAddress } from '@/lib/ton';
 import { getDatabase } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
@@ -20,41 +19,12 @@ export async function POST(request: NextRequest) {
 
     const userId = authResult.user!.id;
 
-    // Parse request body
-    const body = await request.json();
-    const { walletAddress } = body;
-
-    // Validate wallet address
-    if (!walletAddress || !validateTonAddress(walletAddress)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid wallet address',
-          code: 'INVALID_ADDRESS',
-        },
-        { status: 400 }
-      );
-    }
-
-    // Normalize address to user-friendly format
-    const normalizedAddress = normalizeTonAddress(walletAddress);
-    if (!normalizedAddress) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to normalize wallet address',
-          code: 'INVALID_ADDRESS',
-        },
-        { status: 400 }
-      );
-    }
-
-    // Update database
+    // Clear wallet address (idempotent operation)
     const db = getDatabase();
     const stmt = db.prepare(
-      'UPDATE users SET ton_wallet_address = ? WHERE id = ?'
+      'UPDATE users SET ton_wallet_address = NULL WHERE id = ?'
     );
-    stmt.run(normalizedAddress, userId);
+    stmt.run(userId);
 
     // Fetch updated user
     const updatedUser = db
@@ -68,11 +38,11 @@ export async function POST(request: NextRequest) {
       user: updatedUser,
     });
   } catch (error) {
-    console.error('Wallet connect error:', error);
+    console.error('Wallet disconnect error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to connect wallet',
+        error: 'Failed to disconnect wallet',
         code: 'DATABASE_ERROR',
       },
       { status: 500 }

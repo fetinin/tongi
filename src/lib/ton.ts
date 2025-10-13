@@ -514,6 +514,19 @@ export function serviceTransactionToTonTransaction(
 }
 
 /**
+ * Formats wallet address for display (truncated)
+ * @param address Wallet address
+ * @returns Formatted address (e.g., "EQDtFp...p4q2")
+ */
+export function formatWalletAddress(address: string): string {
+  if (!address || address.length < 12) {
+    return address;
+  }
+
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+/**
  * Formats transaction hash for display
  * @param hash Transaction hash
  * @returns Formatted hash (shortened for display)
