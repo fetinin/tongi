@@ -156,13 +156,13 @@
   - Return status response with `connected` boolean and `address` (or null)
   - Handle errors with appropriate HTTP status codes (401, 404, 500)
 
-- [ ] T018 [US3] Add wallet status synchronization to `WalletSettings` component in `src/components/wallet/WalletSettings.tsx`
-  - Call GET `/api/wallet/status` on component mount with JWT auth header
-  - Sync server-side wallet address with client-side TON Connect state
-  - Display wallet provider name (client-side from TON Connect, not stored in database)
-  - Add "Copy Address" button with clipboard functionality
-  - Show success notification after copying address
-  - Handle session restoration and expired sessions
+- [X] T018 [US3] ~~Add wallet status synchronization to `WalletSettings` component in `src/components/wallet/WalletSettings.tsx`~~ **SKIPPED** - Functionality not needed
+  - ~~Call GET `/api/wallet/status` on component mount with JWT auth header~~
+  - ~~Sync server-side wallet address with client-side TON Connect state~~
+  - ~~Display wallet provider name (client-side from TON Connect, not stored in database)~~
+  - ~~Add "Copy Address" button with clipboard functionality~~
+  - ~~Show success notification after copying address~~
+  - ~~Handle session restoration and expired sessions~~
 
 - [X] T019 [US3] Verify integration tests now PASS (green phase)
   - Run `pnpm run test tests/integration/wallet/wallet-persistence.test.ts`
