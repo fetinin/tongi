@@ -1,7 +1,7 @@
 {
-  "url": "https://127.0.0.1:3000",
+  "url": "https://tongi.loca.lt",
   "name": "Tongi (Corgi Buddy)",
-  "iconUrl": "https://127.0.0.1:3000/icon-192x192.png",
-  "termsOfUseUrl": "https://127.0.0.1:3000/terms",
-  "privacyPolicyUrl": "https://127.0.0.1:3000/privacy"
+  "iconUrl": "https://tongi.loca.lt/icon-192x192.png",
+  "termsOfUseUrl": "https://tongi.loca.lt/terms",
+  "privacyPolicyUrl": "https://tongi.loca.lt/privacy"
 }

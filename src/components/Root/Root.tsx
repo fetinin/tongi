@@ -39,10 +39,7 @@ function RootInner({ children }: PropsWithChildren) {
   }, [initDataUser]);
 
   // Construct absolute manifest URL
-  const manifestUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/tonconnect-manifest.json`
-      : 'https://tongi.loca.lt/tonconnect-manifest.json';
+  const manifestUrl = 'https://raw.githubusercontent.com/fetinin/tongi/refs/heads/master/public/tonconnect-manifest.json';
 
   return (
     <TonConnectUIProvider manifestUrl={manifestUrl}>
