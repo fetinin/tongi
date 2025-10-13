@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { POST as walletConnectHandler } from '@/app/api/wallet/connect/route';
 import { getDatabase } from '@/lib/database';
 import { createTestInitData } from '@/lib/telegram';
+import { createMockRequest } from '../../helpers/request';
 
 describe('POST /api/wallet/connect', () => {
   const db = getDatabase();
@@ -29,15 +31,16 @@ describe('POST /api/wallet/connect', () => {
       botToken
     );
 
-    const response = await fetch('http://localhost:3000/api/wallet/connect', {
+    const request = createMockRequest({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      url: 'http://localhost:3000/api/wallet/connect',
+      body: {
         walletAddress: testWalletAddress,
         initData,
-      }),
+      },
     });
 
+    const response = await walletConnectHandler(request);
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.success).toBe(true);
@@ -59,15 +62,16 @@ describe('POST /api/wallet/connect', () => {
       botToken
     );
 
-    const response = await fetch('http://localhost:3000/api/wallet/connect', {
+    const request = createMockRequest({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      url: 'http://localhost:3000/api/wallet/connect',
+      body: {
         walletAddress: 'invalid-address',
         initData,
-      }),
+      },
     });
 
+    const response = await walletConnectHandler(request);
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.success).toBe(false);
@@ -75,15 +79,16 @@ describe('POST /api/wallet/connect', () => {
   });
 
   it('should reject request without authentication', async () => {
-    const response = await fetch('http://localhost:3000/api/wallet/connect', {
+    const request = createMockRequest({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      url: 'http://localhost:3000/api/wallet/connect',
+      body: {
         walletAddress: testWalletAddress,
         initData: 'invalid-init-data',
-      }),
+      },
     });
 
+    const response = await walletConnectHandler(request);
     expect(response.status).toBe(401);
     const data = await response.json();
     expect(data.success).toBe(false);
@@ -107,15 +112,16 @@ describe('POST /api/wallet/connect', () => {
     );
 
     // Connect new wallet
-    const response = await fetch('http://localhost:3000/api/wallet/connect', {
+    const request = createMockRequest({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      url: 'http://localhost:3000/api/wallet/connect',
+      body: {
         walletAddress: testWalletAddress,
         initData,
-      }),
+      },
     });
 
+    const response = await walletConnectHandler(request);
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.success).toBe(true);
