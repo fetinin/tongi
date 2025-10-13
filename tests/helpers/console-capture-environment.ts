@@ -26,7 +26,6 @@ interface OriginalConsole {
 
 // Extend the global namespace to include our custom property
 declare global {
-  // eslint-disable-next-line no-var
   var __ORIGINAL_CONSOLE__: OriginalConsole | undefined;
 }
 

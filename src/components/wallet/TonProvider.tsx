@@ -13,7 +13,7 @@ import {
   useTonWallet,
 } from '@tonconnect/ui-react';
 import { Cell, Section, Placeholder, Button } from '@telegram-apps/telegram-ui';
-import { TON_CONFIG } from '@/lib/ton';
+import { TON_CONFIG, standardizeTonError } from '@/lib/ton';
 
 // TON Connect wallet state interface
 interface TonWalletState {
@@ -70,8 +70,7 @@ export function TonProvider({ children, className }: TonProviderProps) {
       setConnectionError(null);
       await tonConnectUI.connectWallet();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to connect wallet';
+      const errorMessage = standardizeTonError(error);
       setConnectionError(errorMessage);
       console.error('TON Connect error:', error);
     } finally {
@@ -85,8 +84,7 @@ export function TonProvider({ children, className }: TonProviderProps) {
       setConnectionError(null);
       await tonConnectUI.disconnect();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to disconnect wallet';
+      const errorMessage = standardizeTonError(error);
       setConnectionError(errorMessage);
       console.error('TON Disconnect error:', error);
     }
