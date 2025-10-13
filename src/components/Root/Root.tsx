@@ -15,6 +15,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorPage } from '@/components/ErrorPage';
 import { useDidMount } from '@/hooks/useDidMount';
 import { setLocale } from '@/core/i18n/locale';
+import { TonProvider } from '@/components/wallet/TonProvider';
 
 import './styles.css';
 
@@ -39,14 +40,16 @@ function RootInner({ children }: PropsWithChildren) {
 
   return (
     <TonConnectUIProvider manifestUrl="/tonconnect-manifest.json">
-      <AppRoot
-        appearance={isDark ? 'dark' : 'light'}
-        platform={
-          ['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'
-        }
-      >
-        {children}
-      </AppRoot>
+      <TonProvider>
+        <AppRoot
+          appearance={isDark ? 'dark' : 'light'}
+          platform={
+            ['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'
+          }
+        >
+          {children}
+        </AppRoot>
+      </TonProvider>
     </TonConnectUIProvider>
   );
 }
