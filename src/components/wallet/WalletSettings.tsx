@@ -8,8 +8,7 @@ import {
   Snackbar,
 } from '@telegram-apps/telegram-ui';
 import { useTonWalletContext } from './TonProvider';
-import { useState, useEffect } from 'react';
-import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
+import { useState } from 'react';
 
 export function WalletSettings() {
   const {
@@ -21,77 +20,20 @@ export function WalletSettings() {
     connectionError,
   } = useTonWalletContext();
 
-  const [isPersisting, setIsPersisting] = useState(false);
-  const [persistError, setPersistError] = useState<string | null>(null);
   const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
-
-  // Get Telegram initData for API calls
-  const getInitData = () => {
-    try {
-      const { initDataRaw } = retrieveLaunchParams();
-      return initDataRaw || '';
-    } catch {
-      return '';
-    }
-  };
 
   // Handle wallet connection
   const handleConnect = async () => {
     try {
-      setPersistError(null);
       await connectWallet();
-
-      // After TON Connect succeeds, persist to database
-      // Note: friendlyAddress will be updated after connectWallet() completes
+      // AuthProvider automatically persists wallet address via onStatusChange listener
+      setShowSuccessSnackbar(true);
+      setTimeout(() => setShowSuccessSnackbar(false), 3000);
     } catch (error) {
       console.error('Connection error:', error);
     }
   };
-
-  // Persist wallet address to database after TON Connect succeeds
-  useEffect(() => {
-    const persistWalletAddress = async () => {
-      if (!isConnected || !friendlyAddress || isPersisting) {
-        return;
-      }
-
-      setIsPersisting(true);
-      setPersistError(null);
-
-      try {
-        const initData = getInitData();
-        const response = await fetch('/api/wallet/connect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            walletAddress: friendlyAddress,
-            initData,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Failed to persist wallet address');
-        }
-
-        setShowSuccessSnackbar(true);
-        setTimeout(() => setShowSuccessSnackbar(false), 3000);
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Failed to save wallet address';
-        setPersistError(errorMessage);
-        console.error('Persist error:', error);
-      } finally {
-        setIsPersisting(false);
-      }
-    };
-
-    persistWalletAddress();
-  }, [isConnected, friendlyAddress, isPersisting]);
 
   // Handle disconnect
   const handleDisconnect = () => {
@@ -100,8 +42,8 @@ export function WalletSettings() {
 
   const confirmDisconnect = async () => {
     try {
-      setPersistError(null);
       await disconnectWallet();
+      // AuthProvider automatically clears wallet address via onStatusChange listener
       setShowDisconnectConfirm(false);
     } catch (error) {
       console.error('Disconnect error:', error);
@@ -115,19 +57,6 @@ export function WalletSettings() {
         <Placeholder header="Connection Error" description={connectionError}>
           <Button size="m" onClick={handleConnect} disabled={isConnecting}>
             Try Again
-          </Button>
-        </Placeholder>
-      </Section>
-    );
-  }
-
-  // Show persist error
-  if (persistError) {
-    return (
-      <Section header="Wallet Connection">
-        <Placeholder header="Failed to Save" description={persistError}>
-          <Button size="m" onClick={handleConnect}>
-            Retry
           </Button>
         </Placeholder>
       </Section>
@@ -165,12 +94,8 @@ export function WalletSettings() {
           header="No Wallet Connected"
           description="Connect your TON wallet to receive Corgi coin rewards"
         >
-          <Button
-            size="m"
-            onClick={handleConnect}
-            disabled={isConnecting || isPersisting}
-          >
-            {isConnecting || isPersisting ? 'Connecting...' : 'Connect Wallet'}
+          <Button size="m" onClick={handleConnect} disabled={isConnecting}>
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </Button>
         </Placeholder>
       </Section>
