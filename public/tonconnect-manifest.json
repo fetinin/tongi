@@ -1,7 +1,7 @@
 {
-  "url": "https://localhost:3000",
-  "name": "Corgi Buddy TON Mini-App",
-  "iconUrl": "https://localhost:3000/icon-192x192.png",
-  "termsOfUseUrl": "https://localhost:3000/terms",
-  "privacyPolicyUrl": "https://localhost:3000/privacy"
+  "url": "https://tongi.loca.lt",
+  "name": "Tongi (Corgi Buddy)",
+  "iconUrl": "https://tongi.loca.lt/icon-192x192.png",
+  "termsOfUseUrl": "https://tongi.loca.lt/terms",
+  "privacyPolicyUrl": "https://tongi.loca.lt/privacy"
 }

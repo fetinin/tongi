@@ -184,7 +184,12 @@ export function normalizeTonAddress(address: string): string | null {
     return null;
   }
 
-  // Return user-friendly format for consistency
+  // If address is already in user-friendly format (EQ/UQ prefix), return as-is
+  if (/^(EQ|UQ)[A-Za-z0-9+/\-_]{46}$/.test(address.trim())) {
+    return address.trim();
+  }
+
+  // Otherwise, convert raw format to user-friendly
   const formatted = formatUserFriendlyAddress(address);
   return formatted;
 }

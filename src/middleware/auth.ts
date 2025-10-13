@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractUserFromAuth, type AuthTokenPayload } from '@/lib/telegram';
+import {
+  extractUserFromAuth,
+  validateInitData,
+  extractUserData,
+  type AuthTokenPayload,
+} from '@/lib/telegram';
 
 export interface AuthenticatedRequest extends NextRequest {
   user: AuthTokenPayload;
@@ -139,4 +144,39 @@ export function isCurrentUser(
   targetUserId: number
 ): boolean {
   return request.user.id === targetUserId;
+}
+
+/**
+ * Validates Telegram initData and extracts user information
+ * Used for API endpoints that receive raw Telegram authentication data
+ * @param initData Telegram initData string from client
+ * @returns User data if valid, null if invalid
+ */
+export async function validateTelegramAuth(
+  initData: string
+): Promise<AuthTokenPayload | null> {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+  if (!botToken) {
+    console.error('TELEGRAM_BOT_TOKEN not configured');
+    return null;
+  }
+
+  // Validate initData signature
+  if (!validateInitData(initData, botToken)) {
+    return null;
+  }
+
+  // Extract user data
+  const userData = extractUserData(initData);
+  if (!userData) {
+    return null;
+  }
+
+  // Return in AuthTokenPayload format for consistency
+  return {
+    id: userData.id,
+    firstName: userData.firstName,
+    username: userData.username || undefined,
+  };
 }
