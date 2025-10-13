@@ -19,7 +19,6 @@ import {
   AuthMutex,
   type AuthenticatedFetchOptions,
 } from '@/lib/api';
-import { logger } from '@/lib/logger';
 
 // Types for authentication state
 interface User {
@@ -333,23 +332,20 @@ export function AuthProvider({
         }
       }
 
-      logger.debug('reAuthenticate', 'Starting silent re-authentication');
+      console.log('Starting silent re-authentication...');
 
       // Perform authentication and get token directly to avoid race conditions
       const newToken = await performAuthentication();
 
       if (!newToken) {
-        logger.error(
-          'reAuthenticate',
-          'Re-authentication completed but no token returned'
-        );
+        console.error('Re-authentication completed but no token returned');
         return null;
       }
 
-      logger.debug('reAuthenticate', 'Silent re-authentication successful');
+      console.log('Silent re-authentication successful');
       return newToken;
     } catch (error) {
-      logger.error('reAuthenticate', 'Re-authentication failed', error);
+      console.error('Re-authentication failed:', error);
       return null;
     } finally {
       // Always release mutex, even if errors occur
