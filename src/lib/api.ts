@@ -58,17 +58,12 @@ export function createAuthenticatedFetch(
     // If we get a 401 and retry is not disabled, attempt re-authentication
     if (response.status === 401 && !skipRetry) {
       try {
-        console.log('Received 401, attempting automatic re-authentication...');
-
         // Trigger re-authentication to get new token
         const newToken = await reAuthCallback();
 
         if (!newToken) {
-          console.error('Re-authentication failed: no token returned');
           return response; // Return original 401 response
         }
-
-        console.log('Re-authentication successful, retrying request...');
 
         // Update authorization header with new token
         headers.set('Authorization', `Bearer ${newToken}`);
@@ -80,16 +75,7 @@ export function createAuthenticatedFetch(
         };
 
         response = await fetch(input, retryOptions);
-
-        if (response.ok) {
-          console.log('Request retry successful after re-authentication');
-        } else if (response.status === 401) {
-          console.error(
-            'Request still failed with 401 after re-authentication'
-          );
-        }
       } catch (error) {
-        console.error('Error during automatic re-authentication:', error);
         // Return original 401 response if re-auth fails
       }
     }

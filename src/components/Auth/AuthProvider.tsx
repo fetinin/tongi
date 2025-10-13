@@ -332,20 +332,15 @@ export function AuthProvider({
         }
       }
 
-      console.log('Starting silent re-authentication...');
-
       // Perform authentication and get token directly to avoid race conditions
       const newToken = await performAuthentication();
 
       if (!newToken) {
-        console.error('Re-authentication completed but no token returned');
         return null;
       }
 
-      console.log('Silent re-authentication successful');
       return newToken;
     } catch (error) {
-      console.error('Re-authentication failed:', error);
       return null;
     } finally {
       // Always release mutex, even if errors occur
