@@ -23,8 +23,8 @@
 
 **Purpose**: Project initialization and TON Connect manifest setup
 
-- [ ] T001 Create TON Connect manifest file at `public/tonconnect-manifest.json` with development URL configuration
-- [ ] T002 [P] Create directory structure: `src/app/api/wallet/`, `src/app/wallet/`, `tests/integration/wallet/`
+- [X] T001 Create TON Connect manifest file at `public/tonconnect-manifest.json` with development URL configuration
+- [X] T002 [P] Create directory structure: `src/app/api/wallet/`, `src/app/wallet/`, `tests/integration/wallet/`
 
 **Checkpoint**: Basic project structure and manifest ready
 
@@ -36,10 +36,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Verify existing authentication middleware at `src/middleware/auth.ts` exports `validateTelegramAuth()` function
-- [ ] T004 Verify existing TON utilities at `src/lib/ton.ts` export TON address utility functions (if any)
-- [ ] T005 Verify existing database connection at `src/lib/database.ts` exports `db` instance
-- [ ] T006 Verify existing `TonProvider` component at `src/components/wallet/TonProvider.tsx` exports wallet hooks
+- [X] T003 Verify existing authentication middleware at `src/middleware/auth.ts` exports `validateTelegramAuth()` function
+- [X] T004 Verify existing TON utilities at `src/lib/ton.ts` export TON address utility functions (if any)
+- [X] T005 Verify existing database connection at `src/lib/database.ts` exports `db` instance
+- [X] T006 Verify existing `TonProvider` component at `src/components/wallet/TonProvider.tsx` exports wallet hooks
 
 **Checkpoint**: Foundation verified - user story implementation can now begin in parallel
 
@@ -53,7 +53,7 @@
 
 ### Tests for User Story 1 (REQUIRED - Write FIRST, ensure they FAIL)
 
-- [ ] T007 [P] [US1] Write integration test for wallet connection flow in `tests/integration/wallet/wallet-connection.test.ts`
+- [X] T007 [P] [US1] Write integration test for wallet connection flow in `tests/integration/wallet/wallet-connection.test.ts`
   - Test successful wallet connection with TON Connect-provided address
   - Test authentication failure handling
   - Test database persistence verification
@@ -61,7 +61,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement POST `/api/wallet/connect` endpoint in `src/app/api/wallet/connect/route.ts`
+- [X] T008 [US1] Implement POST `/api/wallet/connect` endpoint in `src/app/api/wallet/connect/route.ts`
   - Accept `walletAddress` and `initData` in request body
   - Validate Telegram authentication using `validateTelegramAuth()`
   - Store wallet address directly (TON Connect SDK guarantees valid addresses)
@@ -69,7 +69,7 @@
   - Return success response with updated user data
   - Handle errors with appropriate HTTP status codes (400, 401, 500)
 
-- [ ] T009 [US1] Create `WalletSettings` UI component in `src/components/wallet/WalletSettings.tsx`
+- [X] T009 [US1] Create `WalletSettings` UI component in `src/components/wallet/WalletSettings.tsx`
   - Display "Connect Wallet" button when no wallet connected
   - Handle `connectWallet()` from `TonProvider` context
   - Display loading state during connection (`isConnecting`)
@@ -78,12 +78,12 @@
   - Handle connection errors with user-friendly messages
   - Use `@telegram-apps/telegram-ui` components (Section, Button, Cell, Placeholder)
 
-- [ ] T010 [US1] Create wallet settings page in `src/app/wallet/page.tsx`
+- [X] T010 [US1] Create wallet settings page in `src/app/wallet/page.tsx`
   - Import and render `WalletSettings` component
   - Add page title "Wallet Settings"
   - Use proper Next.js 15 App Router conventions
 
-- [ ] T011 [US1] Verify integration tests now PASS (green phase)
+- [X] T011 [US1] Verify integration tests now PASS (green phase)
   - Run `pnpm run test tests/integration/wallet/wallet-connection.test.ts`
   - Confirm all test scenarios pass
   - Verify database persistence works correctly
