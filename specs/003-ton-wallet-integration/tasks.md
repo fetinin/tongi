@@ -100,7 +100,7 @@
 
 ### Tests for User Story 2 (REQUIRED - Write FIRST, ensure they FAIL)
 
-- [ ] T012 [P] [US2] Write integration test for wallet disconnection flow in `tests/integration/wallet/wallet-disconnect.test.ts`
+- [X] T012 [P] [US2] Write integration test for wallet disconnection flow in `tests/integration/wallet/wallet-disconnect.test.ts`
   - Test successful disconnection with valid authentication
   - Test idempotency (multiple disconnect calls succeed)
   - Test that user remains authenticated after disconnect
@@ -109,9 +109,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Implement POST `/api/wallet/disconnect` endpoint in `src/app/api/wallet/disconnect/route.ts`
-  - Accept `initData` in request body
-  - Validate Telegram authentication using `validateTelegramAuth()`
+- [X] T013 [US2] Implement POST `/api/wallet/disconnect` endpoint in `src/app/api/wallet/disconnect/route.ts`
+  - Use JWT authentication with `authenticateRequest()`
   - Set `users.ton_wallet_address = NULL` in database (idempotent operation)
   - Return success response with updated user data
   - Handle errors with appropriate HTTP status codes (401, 500)
@@ -120,11 +119,11 @@
   - Display "Disconnect" button when wallet is connected
   - Show confirmation dialog before disconnecting ("Are you sure?")
   - Handle `disconnectWallet()` from `TonProvider` context
-  - Call POST `/api/wallet/disconnect` after TON Connect session ends
+  - Call POST `/api/wallet/disconnect` with JWT auth header
   - Update UI to show disconnected state
   - Handle disconnection errors gracefully
 
-- [ ] T015 [US2] Verify integration tests now PASS (green phase)
+- [X] T015 [US2] Verify integration tests now PASS (green phase)
   - Run `pnpm run test tests/integration/wallet/wallet-disconnect.test.ts`
   - Confirm all test scenarios pass including idempotency
   - Verify database clearing works correctly
@@ -141,7 +140,7 @@
 
 ### Tests for User Story 3 (REQUIRED - Write FIRST, ensure they FAIL)
 
-- [ ] T016 [P] [US3] Write integration test for wallet status persistence in `tests/integration/wallet/wallet-persistence.test.ts`
+- [X] T016 [P] [US3] Write integration test for wallet status persistence in `tests/integration/wallet/wallet-persistence.test.ts`
   - Test status endpoint returns correct connection state
   - Test status for connected wallet (returns address)
   - Test status for disconnected wallet (returns null)
@@ -151,22 +150,21 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Implement GET `/api/wallet/status` endpoint in `src/app/api/wallet/status/route.ts`
-  - Accept `initData` as query parameter
-  - Validate Telegram authentication using `validateTelegramAuth()`
+- [X] T017 [US3] Implement GET `/api/wallet/status` endpoint in `src/app/api/wallet/status/route.ts`
+  - Use JWT authentication with `authenticateRequest()`
   - Fetch user data from database including `ton_wallet_address`
   - Return status response with `connected` boolean and `address` (or null)
   - Handle errors with appropriate HTTP status codes (401, 404, 500)
 
 - [ ] T018 [US3] Add wallet status synchronization to `WalletSettings` component in `src/components/wallet/WalletSettings.tsx`
-  - Call GET `/api/wallet/status` on component mount
+  - Call GET `/api/wallet/status` on component mount with JWT auth header
   - Sync server-side wallet address with client-side TON Connect state
   - Display wallet provider name (client-side from TON Connect, not stored in database)
   - Add "Copy Address" button with clipboard functionality
   - Show success notification after copying address
   - Handle session restoration and expired sessions
 
-- [ ] T019 [US3] Verify integration tests now PASS (green phase)
+- [X] T019 [US3] Verify integration tests now PASS (green phase)
   - Run `pnpm run test tests/integration/wallet/wallet-persistence.test.ts`
   - Confirm status endpoint returns correct data
   - Verify wallet status persists across sessions
@@ -183,7 +181,7 @@
   - Map TON Connect errors to user-facing messages using `standardizeTonError()` utility
   - Add error scenarios: wallet app not installed, user cancellation, network errors, timeout
 
-- [ ] T021 [P] Add wallet address display utility function in `src/lib/ton.ts`
+- [X] T021 [P] Add wallet address display utility function in `src/lib/ton.ts`
   - Create `formatWalletAddress()` function for truncated display (e.g., "EQDtF...p4q2")
   - Use in `WalletSettings` component for consistent formatting
 

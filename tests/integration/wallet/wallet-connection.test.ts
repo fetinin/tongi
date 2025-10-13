@@ -1,20 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { POST as walletConnectHandler } from '@/app/api/wallet/connect/route';
 import { getDatabase } from '@/lib/database';
-import { createTestInitData } from '@/lib/telegram';
-import { createMockRequest } from '../../helpers/request';
+import { authenticateTestUser } from '../../helpers/auth';
+import {
+  createAuthenticatedRequest,
+  createMockRequest,
+} from '../../helpers/request';
 
 describe('POST /api/wallet/connect', () => {
   const db = getDatabase();
   const testUserId = 999999;
   const testWalletAddress = 'EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2';
-  const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test-bot-token';
+  let authToken: string;
 
-  beforeEach(() => {
-    // Create test user
+  beforeEach(async () => {
+    // Create test user and get auth token
     db.prepare(
       'INSERT OR IGNORE INTO users (id, first_name) VALUES (?, ?)'
     ).run(testUserId, 'TestUser');
+
+    authToken = await authenticateTestUser({
+      id: testUserId,
+      firstName: 'TestUser',
+    });
   });
 
   afterEach(() => {
@@ -22,21 +30,12 @@ describe('POST /api/wallet/connect', () => {
     db.prepare('DELETE FROM users WHERE id = ?').run(testUserId);
   });
 
-  it('should connect wallet successfully with valid initData', async () => {
-    const initData = createTestInitData(
-      {
-        id: testUserId,
-        first_name: 'TestUser',
-      },
-      botToken
-    );
-
-    const request = createMockRequest({
+  it('should connect wallet successfully with valid authentication', async () => {
+    const request = createAuthenticatedRequest(authToken, {
       method: 'POST',
       url: 'http://localhost:3000/api/wallet/connect',
       body: {
         walletAddress: testWalletAddress,
-        initData,
       },
     });
 
@@ -54,20 +53,11 @@ describe('POST /api/wallet/connect', () => {
   });
 
   it('should reject invalid wallet address', async () => {
-    const initData = createTestInitData(
-      {
-        id: testUserId,
-        first_name: 'TestUser',
-      },
-      botToken
-    );
-
-    const request = createMockRequest({
+    const request = createAuthenticatedRequest(authToken, {
       method: 'POST',
       url: 'http://localhost:3000/api/wallet/connect',
       body: {
         walletAddress: 'invalid-address',
-        initData,
       },
     });
 
@@ -84,7 +74,6 @@ describe('POST /api/wallet/connect', () => {
       url: 'http://localhost:3000/api/wallet/connect',
       body: {
         walletAddress: testWalletAddress,
-        initData: 'invalid-init-data',
       },
     });
 
@@ -97,13 +86,6 @@ describe('POST /api/wallet/connect', () => {
 
   it('should update existing wallet address when connecting new wallet', async () => {
     const oldAddress = 'EQAaGHUHfkpWFGs428ETmym4vbvRNPZnjaxidyMuur0w_OKb';
-    const initData = createTestInitData(
-      {
-        id: testUserId,
-        first_name: 'TestUser',
-      },
-      botToken
-    );
 
     // Set initial wallet address
     db.prepare('UPDATE users SET ton_wallet_address = ? WHERE id = ?').run(
@@ -112,12 +94,11 @@ describe('POST /api/wallet/connect', () => {
     );
 
     // Connect new wallet
-    const request = createMockRequest({
+    const request = createAuthenticatedRequest(authToken, {
       method: 'POST',
       url: 'http://localhost:3000/api/wallet/connect',
       body: {
         walletAddress: testWalletAddress,
-        initData,
       },
     });
 
