@@ -46,12 +46,15 @@ interface BuddyStatusProps {
   onDissolveBuddy?: (buddyId: number) => void;
   /** Auto-refresh interval in milliseconds (default: 30000) */
   refreshInterval?: number;
+  /** Callback when buddy status changes (provides whether user has a buddy) */
+  onStatusChange?: (hasBuddy: boolean) => void;
 }
 
 export function BuddyStatus({
   onFindBuddy,
   onDissolveBuddy,
   refreshInterval = 30000,
+  onStatusChange,
 }: BuddyStatusProps) {
   const { isAuthenticated, user, authenticatedFetch } = useAuth();
   const [buddyStatus, setBuddyStatus] = useState<BuddyStatusData | null>(null);
@@ -97,6 +100,14 @@ export function BuddyStatus({
     const interval = setInterval(fetchBuddyStatus, refreshInterval);
     return () => clearInterval(interval);
   }, [fetchBuddyStatus, refreshInterval]);
+
+  // Notify parent when buddy status changes
+  useEffect(() => {
+    if (buddyStatus) {
+      const hasBuddy = buddyStatus.status !== 'no_buddy';
+      onStatusChange?.(hasBuddy);
+    }
+  }, [buddyStatus, onStatusChange]);
 
   /**
    * Handle buddy dissolution
@@ -304,11 +315,7 @@ export function BuddyStatus({
           <Placeholder
             header="No Buddy Yet"
             description="You don't have a buddy relationship yet. Find someone to be your corgi-spotting partner!"
-          >
-            <Button size="m" onClick={onFindBuddy}>
-              Find a Buddy
-            </Button>
-          </Placeholder>
+          />
         </div>
       </Section>
     );

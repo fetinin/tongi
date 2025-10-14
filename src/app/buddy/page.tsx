@@ -11,6 +11,7 @@ import { BuddyRequest, useBuddyRequest } from '@/components/buddy/BuddyRequest';
 function BuddyManagementContent() {
   const { isAuthenticated, user } = useAuth();
   const { targetUser, isOpen, openRequest, closeRequest } = useBuddyRequest();
+  const [hasBuddy, setHasBuddy] = React.useState(true); // Default to true to hide search initially
 
   if (!isAuthenticated || !user) {
     return null; // AuthProvider will handle redirecting to login
@@ -19,13 +20,13 @@ function BuddyManagementContent() {
   return (
     <>
       <List>
-        <Section header="Buddy Status">
-          <BuddyStatus />
-        </Section>
+        <BuddyStatus onStatusChange={setHasBuddy} />
 
-        <Section header="Find & Connect">
-          <BuddySearch onUserSelect={openRequest} />
-        </Section>
+        {!hasBuddy && (
+          <Section header="Find & Connect">
+            <BuddySearch onUserSelect={openRequest} />
+          </Section>
+        )}
       </List>
 
       <BuddyRequest
