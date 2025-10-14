@@ -46,7 +46,8 @@ function MainAppContent() {
         </Cell>
       </Section>
 
-      <Section header="Wishes & Marketplace">
+      {/* TODO: Uncomment when Wishes & Marketplace features are ready */}
+      {/* <Section header="Wishes & Marketplace">
         <Cell
           Component={Link}
           href="/wishes"
@@ -61,7 +62,7 @@ function MainAppContent() {
         >
           Marketplace
         </Cell>
-      </Section>
+      </Section> */}
 
       <Section header="Account">
         <Cell
@@ -75,13 +76,14 @@ function MainAppContent() {
         >
           Wallet & Transactions
         </Cell>
-        <Cell
+        {/* TODO: Uncomment when Transaction History feature is ready */}
+        {/* <Cell
           Component={Link}
           href="/transactions"
           subtitle="View your earning history"
         >
           Transaction History
-        </Cell>
+        </Cell> */}
       </Section>
     </List>
   );
