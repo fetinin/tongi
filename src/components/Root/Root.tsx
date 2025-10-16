@@ -7,6 +7,7 @@ import {
   miniApp,
   useLaunchParams,
   useSignal,
+  backButton,
 } from '@telegram-apps/sdk-react';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { AppRoot } from '@telegram-apps/telegram-ui';
@@ -14,6 +15,7 @@ import { AppRoot } from '@telegram-apps/telegram-ui';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorPage } from '@/components/ErrorPage';
 import { useDidMount } from '@/hooks/useDidMount';
+import { useBackButton } from '@/hooks/useBackButton';
 import { setLocale } from '@/core/i18n/locale';
 import { TonProvider } from '@/components/wallet/TonProvider';
 
@@ -23,6 +25,7 @@ import './styles.css';
 // This must be called before using any SDK features like cloudStorage
 if (typeof window !== 'undefined') {
   init();
+  backButton.mount();
 }
 
 function RootInner({ children }: PropsWithChildren) {
@@ -30,6 +33,9 @@ function RootInner({ children }: PropsWithChildren) {
 
   const isDark = useSignal(miniApp.isDark);
   const initDataUser = useSignal(initData.user);
+
+  // Manage back button visibility and navigation
+  useBackButton();
 
   // Set the user locale based on Telegram user data
   useEffect(() => {
