@@ -1,26 +1,42 @@
 @import 'tailwindcss';
 
+/* Corgi Color Palette - Centralized color configuration */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary corgi colors */
+  --corgi-orange: #e67e22; /* Warm orange - corgi fur color */
+  --corgi-white: #ffffff; /* Pure white */
+  --corgi-black: #2c3e50; /* Dark but readable */
+
+  /* Main theme colors - same for light and dark modes */
+  --background: var(--corgi-orange);
+  --foreground: var(--corgi-black);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Corgi theme colors available in Tailwind */
+  --color-corgi-orange: var(--corgi-orange);
+  --color-corgi-white: var(--corgi-white);
+  --color-corgi-black: var(--corgi-black);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Override Telegram UI colors for corgi theme - with higher specificity */
+body,
+body * {
+  --tgui--section_header_text_color: var(--corgi-black);
+  --tgui--link_color: var(--corgi-black);
+  --tgui--hint_color: var(--corgi-black);
+  --tgui--subtitle_text_color: var(--corgi-black);
+  --tgui--text_color: var(--corgi-black);
 }
