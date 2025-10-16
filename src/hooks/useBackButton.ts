@@ -16,7 +16,7 @@ export function useBackButton() {
   useEffect(() => {
     // Only run if back button methods are available
     if (!backButton.show.isAvailable() || !backButton.hide.isAvailable()) {
-      return;
+      return () => {}; // Return no-op cleanup to prevent dangling subscriptions
     }
 
     // Register click handler once (not conditional on pathname)
