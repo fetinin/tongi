@@ -19,26 +19,24 @@ export function useBackButton() {
       return;
     }
 
-    const isHomePage = pathname === '/';
+    // Register click handler once (not conditional on pathname)
+    const handleBackClick = () => {
+      window.history.back();
+    };
 
+    const unsubscribe = backButton.onClick(handleBackClick);
+
+    // Control visibility based on pathname
+    const isHomePage = pathname === '/';
     if (isHomePage) {
-      // Hide back button on homepage
       backButton.hide();
     } else {
-      // Show back button on other pages
       backButton.show();
-
-      // Set up click handler to navigate back
-      const handleBackClick = () => {
-        window.history.back();
-      };
-
-      const unsubscribe = backButton.onClick(handleBackClick);
-
-      // Cleanup: remove click listener when component unmounts or route changes
-      return () => {
-        unsubscribe();
-      };
     }
+
+    // Always return cleanup to properly unsubscribe
+    return () => {
+      unsubscribe();
+    };
   }, [pathname]);
 }
