@@ -16,7 +16,7 @@ function MainAppContent() {
         action={
           <button
             onClick={login}
-            className="bg-blue-500 text-white px-6 py-2 rounded-full"
+            className="bg-corgi-black text-corgi-white px-6 py-2 rounded-full hover:opacity-90 transition-opacity"
           >
             Get Started
           </button>
