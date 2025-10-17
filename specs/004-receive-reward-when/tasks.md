@@ -19,8 +19,8 @@
 
 **Purpose**: Project initialization and dependency installation
 
-- [ ] T001 Install @ton/ton SDK packages: `pnpm add @ton/ton @ton/core @ton/crypto`
-- [ ] T002 Configure environment variables in `.env.local` (TON_NETWORK, TON_BANK_WALLET_MNEMONIC, JETTON_MASTER_ADDRESS, JETTON_DECIMALS, TON_API_KEY, TONAPI_WEBHOOK_SECRET, CORGI_BANK_TON_MIN_BALANCE, CORGI_BANK_JETTON_MIN_BALANCE)
+- [x] T001 Install @ton/ton SDK packages: `pnpm add @ton/ton @ton/core @ton/crypto`
+- [x] T002 Configure environment variables in `.env.local` (TON_NETWORK, TON_BANK_WALLET_MNEMONIC, JETTON_MASTER_ADDRESS, JETTON_DECIMALS, TON_API_KEY, TONAPI_WEBHOOK_SECRET, CORGI_BANK_TON_MIN_BALANCE, CORGI_BANK_JETTON_MIN_BALANCE)
 - [ ] T003 Verify testnet setup (bank wallet funded with test TON and Jettons, TONAPI key registered)
 
 ---
@@ -31,17 +31,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create database migration 004_transactions.sql in `src/lib/database/migrations/` with transactions table schema (columns: id, from_wallet, to_wallet, amount, status, transaction_hash, sighting_id, created_at, broadcast_at, confirmed_at, retry_count, last_retry_at, last_error, failure_reason) and indexes
-- [ ] T005 Create database migration 005_pending_rewards.sql in `src/lib/database/migrations/` with pending_rewards table schema (columns: id, user_id, sighting_id, amount, status, created_at, processed_at, transaction_id) and indexes
+- [x] T004 Create database migration 004_transactions.sql in `src/lib/database/migrations/` with transactions table schema (columns: id, from_wallet, to_wallet, amount, status, transaction_hash, sighting_id, created_at, broadcast_at, confirmed_at, retry_count, last_retry_at, last_error, failure_reason) and indexes
+- [x] T005 Create database migration 005_pending_rewards.sql in `src/lib/database/migrations/` with pending_rewards table schema (columns: id, user_id, sighting_id, amount, status, created_at, processed_at, transaction_id) and indexes
 - [ ] T006 Run database migrations: `pnpm run db:migrate`
-- [ ] T007 [P] Create TypeScript transaction model interface in `src/lib/database/models/transaction.ts` with Transaction, CreateTransactionInput, UpdateTransactionStatusInput types
-- [ ] T008 [P] Create TypeScript pending reward model interface in `src/lib/database/models/pending-reward.ts` with PendingReward, CreatePendingRewardInput, ProcessPendingRewardInput types
-- [ ] T009 [P] Create TON blockchain types in `src/types/blockchain.ts` (transaction status, network config, wallet types)
-- [ ] T010 [P] Create Jetton-specific types in `src/types/jetton.ts` (Jetton transfer params, wallet address types)
-- [ ] T011 Create TON client initialization module in `src/lib/blockchain/ton-client.ts` (initialize TonClient with testnet/mainnet endpoint, create WalletContractV4 from mnemonic, export client and wallet contract instances)
-- [ ] T012 [P] Create reward calculator module in `src/lib/rewards/calculator.ts` with calculateRewardAmount function (1 corgi = 1 coin, 2-5 = 2x, 6+ = 3x)
-- [ ] T013 [P] Create error classification module in `src/lib/rewards/error-classifier.ts` (classify retryable vs non-retryable errors: network errors, exit codes, rate limiting)
-- [ ] T014 [P] Create exponential backoff retry logic in `src/lib/rewards/retry.ts` (2s initial delay, 2x multiplier, 3 max attempts, ±10% jitter)
+- [x] T007 [P] Create TypeScript transaction model interface in `src/lib/database/models/transaction.ts` with Transaction, CreateTransactionInput, UpdateTransactionStatusInput types
+- [x] T008 [P] Create TypeScript pending reward model interface in `src/lib/database/models/pending-reward.ts` with PendingReward, CreatePendingRewardInput, ProcessPendingRewardInput types
+- [x] T009 [P] Create TON blockchain types in `src/types/blockchain.ts` (transaction status, network config, wallet types)
+- [x] T010 [P] Create Jetton-specific types in `src/types/jetton.ts` (Jetton transfer params, wallet address types)
+- [x] T011 Create TON client initialization module in `src/lib/blockchain/ton-client.ts` (initialize TonClient with testnet/mainnet endpoint, create WalletContractV4 from mnemonic, export client and wallet contract instances)
+- [x] T012 [P] Create reward calculator module in `src/lib/rewards/calculator.ts` with calculateRewardAmount function (1 corgi = 1 coin, 2-5 = 2x, 6+ = 3x)
+- [x] T013 [P] Create error classification module in `src/lib/rewards/error-classifier.ts` (classify retryable vs non-retryable errors: network errors, exit codes, rate limiting)
+- [x] T014 [P] Create exponential backoff retry logic in `src/lib/rewards/retry.ts` (2s initial delay, 2x multiplier, 3 max attempts, ±10% jitter)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
