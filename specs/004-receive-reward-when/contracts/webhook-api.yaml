@@ -1,0 +1,106 @@
+openapi: 3.0.3
+info:
+  title: TONAPI Webhook Handler
+  description: |
+    Webhook endpoint for receiving real-time transaction confirmations from TONAPI.
+    TONAPI sends POST requests when transactions occur on subscribed TON addresses (bank wallet).
+  version: 1.0.0
+
+servers:
+  - url: https://tongi.app/api/webhooks
+    description: Production webhook endpoint
+
+paths:
+  /ton-transactions:
+    post:
+      summary: Handle TONAPI transaction webhook
+      description: |
+        Receives webhook notifications from TONAPI when transactions occur on the bank wallet.
+        Verifies transaction status on blockchain and updates local transaction records accordingly.
+
+        **Security**: Webhook requests must include valid signature for verification.
+        **Idempotency**: Safe to receive multiple notifications for the same transaction.
+      operationId: handleTonApiWebhook
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account_id
+                - lt
+                - tx_hash
+              properties:
+                account_id:
+                  type: string
+                  description: TON account address (bank wallet)
+                  example: "0:8f2d840ec05d118f..."
+                lt:
+                  type: integer
+                  format: int64
+                  description: Logical time of the transaction
+                  example: 49739623000001
+                tx_hash:
+                  type: string
+                  description: Transaction hash on TON blockchain
+                  example: "653e593d581ad40d5d0868fe5d60008e1bfe9d2d4c4fa6b2ee5cd458741d7b59"
+      responses:
+        '200':
+          description: Webhook processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  processed:
+                    type: boolean
+                    description: Whether a matching pending transaction was found and updated
+                    example: true
+                  transaction_id:
+                    type: integer
+                    nullable: true
+                    description: Local transaction ID that was updated (if found)
+                    example: 123
+        '400':
+          description: Invalid webhook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Webhook signature verification failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "INVALID_SIGNATURE"
+                message: "Webhook signature verification failed"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type/code
+        message:
+          type: string
+          description: Human-readable error message
+
+tags:
+  - name: Webhooks
+    description: External webhook handlers for real-time notifications
