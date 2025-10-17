@@ -1,0 +1,510 @@
+openapi: 3.0.3
+info:
+  title: Corgi Reward Distribution API
+  description: |
+    API for distributing Corgi coin Jetton rewards when buddies confirm corgi sightings.
+    Handles Jetton transfers from bank wallet to user wallets, pending rewards for users without wallets,
+    and transaction history tracking.
+  version: 1.0.0
+  contact:
+    name: Tongi Development Team
+
+servers:
+  - url: https://localhost:3000/api
+    description: Local development (HTTPS required for Telegram)
+  - url: https://tongi.app/api
+    description: Production
+
+security:
+  - TelegramAuth: []
+
+paths:
+  /corgi/confirm:
+    post:
+      summary: Confirm corgi sighting and distribute reward
+      description: |
+        Confirms a corgi sighting and automatically distributes Jetton reward to the reporter.
+        If reporter has no connected wallet, creates a pending reward instead.
+
+        **Authorization**: Only the designated buddy can confirm their paired user's sightings.
+        **Idempotency**: Multiple confirmations of the same sighting are ignored (no duplicate rewards).
+      operationId: confirmSightingAndReward
+      tags:
+        - Rewards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sighting_id
+                - initData
+              properties:
+                sighting_id:
+                  type: integer
+                  description: ID of the corgi sighting to confirm
+                  example: 42
+                initData:
+                  type: string
+                  description: Telegram initData for server-side authentication
+                  example: "query_id=AAHdF6IQAAAAAN0XohDhrOrc&user=%7B%22id%22%3A279058397..."
+      responses:
+        '200':
+          description: Sighting confirmed and reward distributed or pending
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/RewardDistributedResponse'
+                  - $ref: '#/components/schemas/RewardPendingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/AlreadyConfirmed'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /transactions:
+    get:
+      summary: Get user's transaction history
+      description: |
+        Returns all Jetton reward transactions for the authenticated user.
+        Includes transaction status, amounts, blockchain hashes, and sighting references.
+      operationId: getUserTransactions
+      tags:
+        - Transactions
+      parameters:
+        - name: initData
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Telegram initData for authentication
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, broadcasting, completed, failed]
+          description: Filter by transaction status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Maximum number of transactions to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Pagination offset
+      responses:
+        '200':
+          description: List of user transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  total:
+                    type: integer
+                    description: Total number of transactions matching filter
+                  hasMore:
+                    type: boolean
+                    description: Whether more results are available
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /transactions/{id}:
+    get:
+      summary: Get transaction details
+      description: |
+        Returns detailed information about a specific transaction.
+        Includes full blockchain details and related sighting information.
+      operationId: getTransactionById
+      tags:
+        - Transactions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Transaction ID
+        - name: initData
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Telegram initData for authentication
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /pending-rewards:
+    get:
+      summary: Get user's pending rewards
+      description: |
+        Returns all pending rewards for the authenticated user (awaiting wallet connection).
+        Includes total pending amount and individual reward details.
+      operationId: getUserPendingRewards
+      tags:
+        - Pending Rewards
+      parameters:
+        - name: initData
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Telegram initData for authentication
+      responses:
+        '200':
+          description: List of pending rewards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pending_rewards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PendingReward'
+                  total_count:
+                    type: integer
+                    description: Number of pending rewards
+                  total_amount:
+                    type: string
+                    description: Total pending Corgi coins (human-readable)
+                    example: "12.5"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /wallet/connect:
+    post:
+      summary: Process pending rewards after wallet connection
+      description: |
+        Called when a user connects their TON wallet. Automatically processes all pending rewards
+        by creating and broadcasting Jetton transactions for each pending reward.
+
+        **Idempotency**: Safe to call multiple times; already-processed rewards are skipped.
+      operationId: processWalletConnect
+      tags:
+        - Wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - wallet_address
+                - initData
+              properties:
+                wallet_address:
+                  type: string
+                  description: TON wallet address that was connected
+                  example: "EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales"
+                initData:
+                  type: string
+                  description: Telegram initData for authentication
+      responses:
+        '200':
+          description: Pending rewards processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed_count:
+                    type: integer
+                    description: Number of pending rewards processed
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                    description: Created transactions for processed rewards
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    TelegramAuth:
+      type: apiKey
+      in: query
+      name: initData
+      description: Telegram Mini Apps initData validated server-side using HMAC
+
+  schemas:
+    RewardDistributedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [distributed]
+        message:
+          type: string
+          example: "Sighting confirmed! Reward of 6 Corgi coins is being distributed to your wallet."
+        transaction:
+          $ref: '#/components/schemas/Transaction'
+        sighting:
+          $ref: '#/components/schemas/SightingReference'
+
+    RewardPendingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending]
+        message:
+          type: string
+          example: "Sighting confirmed! Connect your TON wallet to receive 6 Corgi coins."
+        pending_reward:
+          $ref: '#/components/schemas/PendingReward'
+        sighting:
+          $ref: '#/components/schemas/SightingReference'
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        from_wallet:
+          type: string
+          description: Bank wallet TON address
+          example: "EQBank1234567890abcdefghijklmnopqrstuvwxyz"
+        to_wallet:
+          type: string
+          description: User wallet TON address
+          example: "EQUser9876543210zyxwvutsrqponmlkjihgfedcba"
+        amount:
+          type: string
+          description: Jetton amount in Corgi coins (human-readable)
+          example: "6.0"
+        status:
+          type: string
+          enum: [pending, broadcasting, completed, failed]
+          example: "broadcasting"
+        transaction_hash:
+          type: string
+          nullable: true
+          description: TON blockchain transaction hash
+          example: "abc123def456789..."
+        blockchain_explorer_url:
+          type: string
+          nullable: true
+          description: Link to view transaction on TON explorer
+          example: "https://tonviewer.com/transaction/abc123def456789"
+        sighting_id:
+          type: integer
+          example: 42
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-10-16T10:00:00Z"
+        broadcast_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-10-16T10:00:05Z"
+        confirmed_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-10-16T10:00:15Z"
+        retry_count:
+          type: integer
+          example: 0
+        failure_reason:
+          type: string
+          nullable: true
+          description: Reason for failure (if status is failed)
+
+    TransactionDetails:
+      allOf:
+        - $ref: '#/components/schemas/Transaction'
+        - type: object
+          properties:
+            sighting:
+              $ref: '#/components/schemas/SightingDetails'
+            last_error:
+              type: string
+              nullable: true
+              description: Last error message (for debugging)
+            last_retry_at:
+              type: string
+              format: date-time
+              nullable: true
+
+    PendingReward:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 45
+        amount:
+          type: string
+          description: Jetton amount in Corgi coins (human-readable)
+          example: "4.0"
+        sighting:
+          $ref: '#/components/schemas/SightingReference'
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-10-16T12:00:00Z"
+
+    SightingReference:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+        corgi_count:
+          type: integer
+          example: 3
+        confirmed_at:
+          type: string
+          format: date-time
+          example: "2025-10-16T10:00:00Z"
+
+    SightingDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        corgi_count:
+          type: integer
+        photo_url:
+          type: string
+        location:
+          type: string
+        reported_at:
+          type: string
+          format: date-time
+        confirmed_at:
+          type: string
+          format: date-time
+        buddy_id:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type/code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error context (optional)
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INVALID_REQUEST"
+            message: "Invalid wallet address format"
+
+    Unauthorized:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Invalid Telegram initData signature"
+
+    Forbidden:
+      description: User not authorized to perform this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "FORBIDDEN"
+            message: "Only the designated buddy can confirm this sighting"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "NOT_FOUND"
+            message: "Sighting not found"
+
+    AlreadyConfirmed:
+      description: Sighting already confirmed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "ALREADY_CONFIRMED"
+            message: "This sighting has already been confirmed and rewarded"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INTERNAL_ERROR"
+            message: "An unexpected error occurred"
+
+tags:
+  - name: Rewards
+    description: Corgi sighting confirmation and reward distribution
+  - name: Transactions
+    description: Jetton transaction history and status
+  - name: Pending Rewards
+    description: Rewards awaiting wallet connection
+  - name: Wallet
+    description: Wallet connection and pending reward processing
