@@ -20,8 +20,8 @@ A user reports a corgi sighting, their buddy confirms the sighting, and the syst
 1. **Given** a user has reported a corgi sighting and has a connected TON wallet, **When** their buddy confirms the sighting, **Then** the system creates a transaction record and broadcasts it to the TON blockchain
 2. **Given** a user has multiple confirmed sightings, **When** checking their transaction history, **Then** all reward transactions are visible with blockchain hashes and sighting references
 3. **Given** a user with 1 corgi in their sighting, **When** confirmed by buddy, **Then** a transaction for 1 Corgi coin Jetton is created
-4. **Given** a user with 3 corgis in their sighting, **When** confirmed by buddy, **Then** a transaction for 6 Corgi coin Jettons (3 × 2) is created
-5. **Given** a user with 7 corgis in their sighting, **When** confirmed by buddy, **Then** a transaction for 21 Corgi coin Jettons (7 × 3) is created
+4. **Given** a user with 3 corgis in their sighting, **When** confirmed by buddy, **Then** a transaction for 3 Corgi coin Jettons is created
+5. **Given** a user with 7 corgis in their sighting, **When** confirmed by buddy, **Then** a transaction for 7 Corgi coin Jettons is created
 
 ---
 
@@ -90,7 +90,7 @@ System administrators can monitor the bank wallet balance and receive alerts whe
 ### Functional Requirements
 
 - **FR-001**: System MUST sign and broadcast blockchain transactions from the bank wallet using the bank wallet private key when rewards are distributed
-- **FR-002**: System MUST calculate reward amount based on confirmed corgi count (1 corgi = 1 Corgi coin Jetton, 2-5 corgis = 2 Corgi coin Jettons each, 6+ corgis = 3 Corgi coin Jettons each) and MUST reject sightings with 0 corgis
+- **FR-002**: System MUST calculate reward amount based on confirmed corgi count using 1-to-1 mapping (1 corgi = 1 Corgi coin Jetton, 2 corgis = 2 Corgi coin Jettons, etc.) and MUST reject sightings with 0 corgis
 - **FR-003**: System MUST create a transaction record in the database when a buddy confirms a corgi sighting, linking the transaction to the sighting and including recipient wallet address and reward amount
 - **FR-004**: System MUST validate that the reporter has a connected TON wallet address before attempting blockchain transaction
 - **FR-005**: System MUST transfer Corgi coin Jettons from the bank wallet to the reporter's TON wallet on the blockchain when confirmation occurs
