@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   broadcast_at DATETIME NULL,
   confirmed_at DATETIME NULL,
+  -- Max retry limit: MUST match DEFAULT_RETRY_CONFIG.maxAttempts in src/lib/rewards/retry.ts
   retry_count INTEGER NOT NULL DEFAULT 0 CHECK(retry_count <= 3),
   last_retry_at DATETIME NULL,
   last_error TEXT NULL,

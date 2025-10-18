@@ -5,6 +5,8 @@
  * transfer parameters, wallet address resolution, and Jetton-specific operations.
  */
 
+import type { Cell } from '@ton/core';
+
 /**
  * Jetton Master Contract Address
  * Represents the master contract address for a specific Jetton token
@@ -47,7 +49,7 @@ export interface JettonTransferParams {
  */
 export interface JettonTransferMessageResult {
   jettonWalletAddress: string; // Jetton wallet that initiates transfer
-  transferBody: any; // Serialized transfer body (Cell)
+  transferBody: Cell; // Serialized transfer body
   queryId: number; // Query ID used for this transfer
   amount: bigint; // Amount being transferred
 }

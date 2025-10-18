@@ -12,7 +12,17 @@ export interface TONClientConfig {
   network: 'testnet' | 'mainnet';
   bankWalletMnemonic: string;
   apiKey?: string;
+  endpoint?: string; // Custom endpoint (overrides default)
 }
+
+/**
+ * Default TON network endpoints
+ * Can be overridden via config or environment variables
+ */
+const DEFAULT_ENDPOINTS: Record<'testnet' | 'mainnet', string> = {
+  mainnet: 'https://toncenter.com/api/v2/jsonRPC',
+  testnet: 'https://testnet.toncenter.com/api/v2/jsonRPC',
+};
 
 class TONClientManager {
   private static instance: TONClientManager;
@@ -35,11 +45,8 @@ class TONClientManager {
    */
   async initialize(config: TONClientConfig): Promise<void> {
     try {
-      // Get TON network endpoint
-      const endpoint =
-        config.network === 'mainnet'
-          ? 'https://toncenter.com/api/v2/jsonRPC'
-          : 'https://testnet.toncenter.com/api/v2/jsonRPC';
+      // Get TON network endpoint (use custom if provided, otherwise use default)
+      const endpoint = config.endpoint || DEFAULT_ENDPOINTS[config.network];
 
       console.log(`[TON] Connecting to ${config.network} network: ${endpoint}`);
 
@@ -147,6 +154,12 @@ export function ensureTONClientInitialized(): void {
 /**
  * Initialize TON client from environment variables
  * Call this during application startup (e.g., in root layout or API middleware)
+ *
+ * Environment variables:
+ * - TON_NETWORK: 'testnet' or 'mainnet' (default: 'testnet')
+ * - TON_BANK_WALLET_MNEMONIC: 24-word mnemonic for bank wallet
+ * - TON_API_KEY: Optional API key for rate limiting
+ * - TON_ENDPOINT: Optional custom endpoint URL (overrides default)
  */
 export async function initializeTONClient(): Promise<void> {
   const network = (process.env.TON_NETWORK || 'testnet') as
@@ -165,5 +178,6 @@ export async function initializeTONClient(): Promise<void> {
     network,
     bankWalletMnemonic: mnemonic,
     apiKey: process.env.TON_API_KEY,
+    endpoint: process.env.TON_ENDPOINT,
   });
 }
