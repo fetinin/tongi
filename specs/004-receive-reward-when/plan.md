@@ -66,7 +66,7 @@ Complete the implementation of the corgi reward distribution system. When a budd
   - User Story 3: Missing wallet handling (P2)
   - User Story 4: Bank wallet monitoring (P3)
 - **Mocking restrictions**: ✅ Will only mock external services (TON blockchain RPC, Telegram Bot API)
-- **Unit test scope**: ✅ Will write unit tests only for reward calculation algorithm (complex logic: 1 coin, 2-5 = 2x, 6+ = 3x)
+- **Unit test scope**: ✅ Will write unit tests only for reward calculation algorithm (simple 1-to-1 mapping)
 - **Red-green-refactor cycle**: 🔴 REQUIRED - Must follow TDD for all new functionality
 
 **GATE STATUS**: ⚠️ CONDITIONAL PASS - Feature can proceed to Phase 0 research, but implementation phase MUST NOT begin until integration tests are written per TDD cycle.
@@ -119,7 +119,7 @@ src/
 │   │   ├── jetton-wallet.ts               # NEW: Get user's Jetton wallet address
 │   │   └── balance-monitor.ts             # NEW: Check TON and Jetton balances
 │   ├── rewards/
-│   │   ├── calculator.ts                  # NEW: Calculate reward amounts (1/2x/3x logic)
+│   │   ├── calculator.ts                  # NEW: Calculate reward amounts (1-to-1 mapping)
 │   │   ├── distributor.ts                 # NEW: Orchestrate Jetton reward distribution
 │   │   └── retry.ts                       # NEW: Exponential backoff retry logic
 │   ├── monitoring/
@@ -143,7 +143,7 @@ tests/
 │   ├── pending-rewards.test.ts            # NEW: User Story 3 tests
 │   └── bank-monitoring.test.ts            # NEW: User Story 4 (TON + Jetton balance)
 └── unit/
-    ├── reward-calculator.test.ts          # NEW: Reward calculation (1/2x/3x tiers)
+    ├── reward-calculator.test.ts          # NEW: Reward calculation (1-to-1 mapping)
     └── retry-logic.test.ts                # NEW: Exponential backoff tests
 
 data/
