@@ -137,8 +137,8 @@ VALUES (
 ### Phase 2: Reward Logic
 
 - [ ] **Create `src/lib/rewards/calculator.ts`**:
-  - Implement reward calculation: 1 corgi = 1 coin, 2-5 = 2x, 6+ = 3x
-  - Unit tests for all tiers and boundaries
+  - Implement reward calculation: 1-to-1 mapping (1 corgi = 1 Corgi coin, 2 corgis = 2 Corgi coins, etc.)
+  - Unit tests for various corgi counts and boundary cases
 
 - [ ] **Create `src/lib/rewards/distributor.ts`**:
   - Orchestrate reward distribution flow
@@ -228,11 +228,10 @@ pnpm run test tests/unit/reward-calculator.test.ts
 ```
 
 Test cases for reward calculator:
-- 1 corgi → 1 coin
-- 2 corgis → 4 coins (2x)
-- 5 corgis → 10 coins (2x)
-- 6 corgis → 18 coins (3x)
-- 10 corgis → 30 coins (3x)
+- 1 corgi → 1 Corgi coin
+- 2 corgis → 2 Corgi coins
+- 5 corgis → 5 Corgi coins
+- 10 corgis → 10 Corgi coins
 - 0 corgis → throws error
 
 ### Integration Tests (Mandatory per Constitution)
@@ -252,7 +251,7 @@ pnpm run test tests/integration/
 1. Create test user with connected TON wallet
 2. Create corgi sighting (3 corgis)
 3. Buddy confirms sighting
-4. Verify transaction created with correct amount (6 coins)
+4. Verify transaction created with correct amount (3 Corgi coins)
 5. Mock blockchain broadcast
 6. Verify transaction status updates
 
@@ -405,7 +404,7 @@ git commit -m "feat: implement Jetton reward distribution for confirmed sighting
 
 - Add @ton/ton SDK integration for server-side Jetton transfers
 - Create transaction and pending reward database models
-- Implement reward calculation (1/2x/3x tiers)
+- Implement reward calculation (1-to-1 mapping: 1 corgi = 1 Corgi coin)
 - Add API endpoints for transactions and pending rewards
 - Add TONAPI webhook for real-time confirmations
 - Add exponential backoff retry logic

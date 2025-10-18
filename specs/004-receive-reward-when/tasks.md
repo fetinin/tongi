@@ -39,7 +39,7 @@
 - [x] T009 [P] Create TON blockchain types in `src/types/blockchain.ts` (transaction status, network config, wallet types)
 - [x] T010 [P] Create Jetton-specific types in `src/types/jetton.ts` (Jetton transfer params, wallet address types)
 - [x] T011 Create TON client initialization module in `src/lib/blockchain/ton-client.ts` (initialize TonClient with testnet/mainnet endpoint, create WalletContractV4 from mnemonic, export client and wallet contract instances)
-- [x] T012 [P] Create reward calculator module in `src/lib/rewards/calculator.ts` with calculateRewardAmount function (1 corgi = 1 coin, 2-5 = 2x, 6+ = 3x)
+- [x] T012 [P] Create reward calculator module in `src/lib/rewards/calculator.ts` with calculateRewardAmount function (1-to-1 mapping: 1 corgi = 1 Corgi coin)
 - [x] T013 [P] Create error classification module in `src/lib/rewards/error-classifier.ts` (classify retryable vs non-retryable errors: network errors, exit codes, rate limiting)
 - [x] T014 [P] Create exponential backoff retry logic in `src/lib/rewards/retry.ts` (2s initial delay, 2x multiplier, 3 max attempts, ±10% jitter)
 
@@ -51,11 +51,11 @@
 
 **Goal**: When a buddy confirms a corgi sighting, the system automatically transfers Corgi coin Jettons from the bank wallet to the reporter's connected TON wallet on the blockchain.
 
-**Independent Test**: Create test user with connected wallet, report sighting with 3 corgis, buddy confirms, verify transaction created with 6 coins, mock blockchain broadcast, verify status updates.
+**Independent Test**: Create test user with connected wallet, report sighting with 3 corgis, buddy confirms, verify transaction created with 3 Corgi coins, mock blockchain broadcast, verify status updates.
 
 ### Tests for User Story 1 (Write FIRST, ensure they FAIL before implementation) ⚠️
 
-- [ ] T015 [P] [US1] Unit test for reward calculator in `tests/unit/reward-calculator.test.ts` (test cases: 1 corgi → 1 Corgi coin Jetton, 2 → 4, 5 → 10, 6 → 18, 10 → 30, 0 → throws error per FR-002)
+- [ ] T015 [P] [US1] Unit test for reward calculator in `tests/unit/reward-calculator.test.ts` (test cases: 1 corgi → 1 Corgi coin Jetton, 2 → 2, 5 → 5, 10 → 10, 0 → throws error per FR-002)
 - [ ] T016 [P] [US1] Unit test for retry logic in `tests/unit/retry-logic.test.ts` (test exponential backoff timing, error classification, max retries)
 - [ ] T017 [US1] Integration test for Jetton reward distribution in `tests/integration/jetton-reward-distribution.test.ts` (test buddy confirmation triggers transaction creation, correct amount calculation, blockchain broadcast, status updates, duplicate confirmation prevention)
 
