@@ -188,7 +188,7 @@ ALTER TABLE corgi_sightings ADD COLUMN reward_distributed_at DATETIME;
 ### Reward Distribution Logic
 
 1. **When buddy confirms sighting**:
-   - Calculate reward amount using formula (1 corgi = 1 coin, 2-5 = 2x, 6+ = 3x)
+   - Calculate reward amount using 1-to-1 mapping (1 corgi = 1 Corgi coin, 2 corgis = 2 Corgi coins, etc.)
    - Check if user has connected TON wallet:
      - **If yes**: Create `Transaction` record with `status = 'pending'`, update sighting `reward_status = 'distributed'`
      - **If no**: Create `PendingReward` record, update sighting `reward_status = 'pending'`

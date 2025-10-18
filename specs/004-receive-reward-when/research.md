@@ -318,11 +318,11 @@ TONAPI_WEBHOOK_SECRET=...    # For webhook signature verification
 ## Decision 6: Reward Calculation Algorithm
 
 ### Decision
-Implement reward calculation as pure function with unit tests (complex logic per constitution).
+Implement reward calculation as pure function with 1-to-1 mapping (simple: corgi count = reward amount).
 
 ### Rationale
-- Reward formula has conditional logic (1 corgi = 1 coin, 2-5 = 2x, 6+ = 3x)
-- Business-critical calculation requiring accuracy
+- Simplified reward formula: 1 corgi = 1 coin, no multipliers
+- Direct, easy-to-understand payment model
 - Pure function enables comprehensive unit testing
 
 ### Implementation
@@ -334,23 +334,16 @@ export function calculateRewardAmount(corgiCount: number): number {
     throw new Error('Corgi count must be at least 1');
   }
 
-  if (corgiCount === 1) {
-    return 1; // 1 corgi = 1 coin
-  } else if (corgiCount >= 2 && corgiCount <= 5) {
-    return corgiCount * 2; // 2-5 corgis = 2 coins each
-  } else {
-    return corgiCount * 3; // 6+ corgis = 3 coins each
-  }
+  return corgiCount; // 1-to-1 mapping: N corgis = N coins
 }
 ```
 
 ### Test Coverage
 
 Unit tests required for:
-- Edge case: 1 corgi → 1 coin
-- Lower tier: 2-5 corgis → 2x multiplier
-- Upper tier: 6+ corgis → 3x multiplier
-- Boundary: 5 corgis → 10 coins, 6 corgis → 18 coins
+- Basic case: 1 corgi → 1 coin
+- Mid-range: 5 corgis → 5 coins
+- Large sighting: 10 corgis → 10 coins
 - Error: 0 or negative corgis → throws error
 
 ### Jetton Decimals Conversion
