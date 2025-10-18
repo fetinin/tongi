@@ -8,7 +8,14 @@
  * - No bonus multipliers
  */
 
-const JETTON_DECIMALS = BigInt(process.env.JETTON_DECIMALS || '9');
+// Validate JETTON_DECIMALS environment variable
+const rawJettonDecimals = process.env.JETTON_DECIMALS ?? '9';
+if (!/^\d+$/.test(rawJettonDecimals)) {
+  throw new Error(
+    `Invalid JETTON_DECIMALS value: "${rawJettonDecimals}". Must be a non-negative integer string.`
+  );
+}
+const JETTON_DECIMALS = BigInt(rawJettonDecimals);
 
 /**
  * Calculate reward amount in Jetton smallest units (nanoJettons)

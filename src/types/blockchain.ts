@@ -91,12 +91,12 @@ export interface JettonContractCallResult {
 /**
  * Error Classification for Retry Logic
  */
-export type ErrorClassification = 'retryable' | 'non_retryable' | 'temporary';
+export type ErrorClassification = 'retryable' | 'non_retryable';
 
 export interface ClassifiedError {
   classification: ErrorClassification;
   message: string;
-  code: string | undefined;
+  code?: string;
   originalError: Error;
 }
 

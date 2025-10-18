@@ -9,7 +9,7 @@
  * - Jitter: ±10% randomization
  */
 
-import { classifyError, isRetryableError } from './error-classifier';
+import { isRetryableError } from './error-classifier';
 
 export interface RetryConfig {
   initialDelayMs: number; // Initial delay: 2000ms

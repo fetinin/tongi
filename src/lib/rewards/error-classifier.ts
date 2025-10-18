@@ -5,7 +5,6 @@
  * Distinguishes between:
  * - Retryable errors: Network timeouts, rate limits, temporary blockchain issues
  * - Non-retryable errors: Invalid arguments, insufficient balance, invalid addresses
- * - Temporary errors: May succeed on retry after some delay
  */
 
 import { ClassifiedError, ErrorClassification } from '@/types/blockchain';
@@ -59,7 +58,6 @@ const NON_RETRYABLE_ERROR_PATTERNS = [
   // TON-specific permanent failures
   /exitcode.*0/i, // Successful completion (not an error)
   /exitcode.*100/i, // TON exit code 100+ (generic contract error)
-  /exitcode.*209/i, // TON cell underflow (could be non-retryable in context)
 
   // Already processed
   /already.?processed/i,
@@ -82,7 +80,7 @@ export function classifyError(error: unknown): ClassifiedError {
       return {
         classification: 'non_retryable',
         message: errorMessage,
-        code: errorCode ?? undefined,
+        code: errorCode || undefined,
         originalError:
           error instanceof Error ? error : new Error(String(error)),
       };
@@ -95,7 +93,7 @@ export function classifyError(error: unknown): ClassifiedError {
       return {
         classification: 'retryable',
         message: errorMessage,
-        code: errorCode ?? undefined,
+        code: errorCode || undefined,
         originalError:
           error instanceof Error ? error : new Error(String(error)),
       };
@@ -106,7 +104,7 @@ export function classifyError(error: unknown): ClassifiedError {
   return {
     classification: 'non_retryable',
     message: errorMessage,
-    code: errorCode ?? undefined,
+    code: errorCode || undefined,
     originalError: error instanceof Error ? error : new Error(String(error)),
   };
 }
@@ -116,13 +114,6 @@ export function classifyError(error: unknown): ClassifiedError {
  */
 export function isRetryableError(error: unknown): boolean {
   return classifyError(error).classification === 'retryable';
-}
-
-/**
- * Check if an error is temporary
- */
-export function isTemporaryError(error: unknown): boolean {
-  return classifyError(error).classification === 'temporary';
 }
 
 /**
