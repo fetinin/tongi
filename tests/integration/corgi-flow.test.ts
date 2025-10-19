@@ -70,7 +70,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
   }
 
   // Helper function to set up TON blockchain HTTP mocks
-  function setupTONMocks() {
+  function setupTONRPCMocks() {
     const TON_TESTNET_ENDPOINT = 'https://testnet.toncenter.com';
 
     // Mock all JSON-RPC calls with appropriate responses
@@ -569,7 +569,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     nock.disableNetConnect();
 
     // Set up TON blockchain HTTP mocks FIRST (before client initialization)
-    setupTONMocks();
+    setupTONRPCMocks();
 
     // Set up environment variables for TON client
     // Using a test mnemonic (24 words) - this is for testing only
