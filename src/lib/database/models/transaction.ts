@@ -187,7 +187,7 @@ export function getFailedTransactionsForRetry(limit = 10): Transaction[] {
       AND retry_count < 3
       AND (
         last_retry_at IS NULL
-        OR last_retry_at < datetime('now', '-' || (2 << retry_count) || ' seconds')
+        OR last_retry_at < datetime('now', '-' || pow(2, retry_count) || ' seconds')
       )
     ORDER BY retry_count ASC, last_retry_at ASC
     LIMIT ?

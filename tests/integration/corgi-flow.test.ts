@@ -76,7 +76,7 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     // Mock all JSON-RPC calls with appropriate responses
     nock(TON_TESTNET_ENDPOINT)
       .post('/api/v2/jsonRPC')
-      .reply(200, function (uri, requestBody: any) {
+      .reply(200, function (uri, requestBody: Record<string, unknown>) {
         const method = requestBody.method;
 
         // Handle different RPC methods
@@ -106,11 +106,11 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
           case 'getAccount':
           case 'getAccountState':
             // Used for balance checks - return high balance
-            // Return balance as number (not string) - SDK may parse it differently
+            // Return balance as string to avoid precision loss with large integers
             return {
               ok: true,
               result: {
-                balance: 100000000000, // 100 TON in nanotons (as number)
+                balance: '100000000000', // 100 TON in nanotons (as string)
                 state: 'active',
                 code: '',
                 data: '',
