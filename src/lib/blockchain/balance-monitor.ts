@@ -100,10 +100,6 @@ export async function checkBankBalances(
       });
     }
 
-    console.log(
-      `[Balance] Bank wallet balances - TON: ${fromNano(tonBalance)}, Jettons: ${jettonBalance}`
-    );
-
     if (alerts.length > 0) {
       console.warn(
         `[Balance] Balance alerts: ${alerts.length} issue(s) detected`

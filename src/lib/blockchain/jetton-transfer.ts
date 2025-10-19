@@ -101,10 +101,6 @@ export async function broadcastJettonTransfer(
     // It will be confirmed via webhook or polling
     const txHash = `pending-${Date.now()}-${seqno}`;
 
-    console.log(
-      `[Jetton] Broadcast transfer: ${params.amount} to ${params.destination} (seqno: ${seqno})`
-    );
-
     return {
       transactionHash: txHash,
       seqNo: seqno,
