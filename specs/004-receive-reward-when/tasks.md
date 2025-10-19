@@ -33,7 +33,7 @@
 
 - [x] T004 Create database migration 004_transactions.sql in `src/lib/database/migrations/` with transactions table schema (columns: id, from_wallet, to_wallet, amount, status, transaction_hash, sighting_id, created_at, broadcast_at, confirmed_at, retry_count, last_retry_at, last_error, failure_reason) and indexes
 - [x] T005 Create database migration 005_pending_rewards.sql in `src/lib/database/migrations/` with pending_rewards table schema (columns: id, user_id, sighting_id, amount, status, created_at, processed_at, transaction_id) and indexes
-- [ ] T006 Run database migrations: `pnpm run db:migrate`
+- [x] T006 Run database migrations: `pnpm run db:migrate`
 - [x] T007 [P] Create TypeScript transaction model interface in `src/lib/database/models/transaction.ts` with Transaction, CreateTransactionInput, UpdateTransactionStatusInput types
 - [x] T008 [P] Create TypeScript pending reward model interface in `src/lib/database/models/pending-reward.ts` with PendingReward, CreatePendingRewardInput, ProcessPendingRewardInput types
 - [x] T009 [P] Create TON blockchain types in `src/types/blockchain.ts` (transaction status, network config, wallet types)
@@ -55,20 +55,20 @@
 
 ### Tests for User Story 1 (Write FIRST, ensure they FAIL before implementation) ⚠️
 
-- [ ] T015 [P] [US1] Unit test for reward calculator in `tests/unit/reward-calculator.test.ts` (test cases: 1 corgi → 1 Corgi coin Jetton, 2 → 2, 5 → 5, 10 → 10, 0 → throws error per FR-002)
-- [ ] T016 [P] [US1] Unit test for retry logic in `tests/unit/retry-logic.test.ts` (test exponential backoff timing, error classification, max retries)
-- [ ] T017 [US1] Integration test for Jetton reward distribution in `tests/integration/jetton-reward-distribution.test.ts` (test buddy confirmation triggers transaction creation, correct amount calculation, blockchain broadcast, status updates, duplicate confirmation prevention)
+- [x] T015 [P] [US1] Unit test for reward calculator - **NOT NEEDED** (skipped per user request)
+- [x] T016 [P] [US1] Unit test for retry logic - **NOT NEEDED** (skipped per user request)
+- [x] T017 [US1] Integration test for Jetton reward distribution - **COMPLETED** (black-box test added to `tests/integration/corgi-flow.test.ts` using nock for HTTP mocking of TON RPC endpoints; tests buddy confirmation triggers transaction creation, correct amount calculation, blockchain broadcast, status updates)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Create Jetton wallet query module in `src/lib/blockchain/jetton-wallet.ts` (function to get user's Jetton wallet address from master contract using get_wallet_address method)
-- [ ] T019 [US1] Create Jetton transfer message builder in `src/lib/blockchain/jetton-transfer.ts` (build transfer body with opcode 0xf8a7ea5, sign and broadcast transaction, return transaction hash and seqno)
-- [ ] T020 [US1] Create bank wallet balance monitor in `src/lib/blockchain/balance-monitor.ts` (check TON balance for gas against CORGI_BANK_TON_MIN_BALANCE, check Jetton balance for rewards against CORGI_BANK_JETTON_MIN_BALANCE, alert logic for low balances)
-- [ ] T021 [US1] Create transaction database service in `src/lib/database/models/transaction.ts` (CRUD operations: createTransaction, getTransactionById, getUserTransactions, updateTransactionStatus, getTransactionBySightingId, getPendingTransactions, getFailedTransactionsForRetry)
-- [ ] T022 [US1] Create reward distributor orchestration module in `src/lib/rewards/distributor.ts` (orchestrate flow: validate user wallet, calculate reward, check balances, create transaction record, broadcast Jetton transfer, handle errors with retry)
-- [ ] T023 [US1] Update corgi confirmation endpoint in `src/app/api/corgi/confirm/route.ts` (validate Telegram auth, check duplicate confirmation, call reward distributor for users with wallets, update sighting reward_status)
-- [ ] T024 [US1] Add seqno verification logic in `src/lib/blockchain/jetton-transfer.ts` (check if seqno changed before retry to detect successful broadcast despite error)
-- [ ] T025 [US1] Add transaction retry handler in `src/lib/rewards/distributor.ts` (implement exponential backoff, error classification, max 3 attempts, update retry_count and last_error)
+- [x] T018 [US1] Create Jetton wallet query module in `src/lib/blockchain/jetton-wallet.ts` (function to get user's Jetton wallet address from master contract using get_wallet_address method)
+- [x] T019 [US1] Create Jetton transfer message builder in `src/lib/blockchain/jetton-transfer.ts` (build transfer body with opcode 0xf8a7ea5, sign and broadcast transaction, return transaction hash and seqno)
+- [x] T020 [US1] Create bank wallet balance monitor in `src/lib/blockchain/balance-monitor.ts` (check TON balance for gas against CORGI_BANK_TON_MIN_BALANCE, check Jetton balance for rewards against CORGI_BANK_JETTON_MIN_BALANCE, alert logic for low balances)
+- [x] T021 [US1] Create transaction database service in `src/lib/database/models/transaction.ts` (CRUD operations: createTransaction, getTransactionById, getUserTransactions, updateTransactionStatus, getTransactionBySightingId, getPendingTransactions, getFailedTransactionsForRetry)
+- [x] T022 [US1] Create reward distributor orchestration module in `src/lib/rewards/distributor.ts` (orchestrate flow: validate user wallet, calculate reward, check balances, create transaction record, broadcast Jetton transfer, handle errors with retry)
+- [x] T023 [US1] Update corgi confirmation endpoint in `src/app/api/corgi/confirm/route.ts` (validate Telegram auth, check duplicate confirmation, call reward distributor for users with wallets, update sighting reward_status)
+- [x] T024 [US1] Add seqno verification logic in `src/lib/blockchain/jetton-transfer.ts` (check if seqno changed before retry to detect successful broadcast despite error)
+- [x] T025 [US1] Add transaction retry handler in `src/lib/rewards/distributor.ts` (implement exponential backoff, error classification, max 3 attempts, update retry_count and last_error)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - buddies can confirm sightings and Jetton rewards are distributed to users with connected wallets.
 
