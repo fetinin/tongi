@@ -1,22 +1,25 @@
 <!--
 SYNC IMPACT REPORT:
-Version: 1.0.0 → 1.1.0 (MINOR - material expansion of testing principle)
+Version: 1.1.0 → 1.2.0 (MINOR - new testing principle added)
 Ratification: 2025-10-11 (original adoption)
-Last Amendment: 2025-10-11
+Last Amendment: 2025-10-19
 
 Modified Principles:
-- IV. Testing Before Implementation → IV. Testing Strategy & Quality Gates
-  * Added mandatory integration test coverage for user stories
-  * Specified mock usage restrictions (external services only)
-  * Defined unit test scope (complex algorithms/validations only)
-  * Clarified test type hierarchy and requirements
+- IV. Testing Strategy & Quality Gates → Enhanced with black-box testing requirement
+  * Added mandatory black-box approach for integration tests
+  * Prohibited service function imports in integration tests
+  * Reinforced API-only testing to ensure external contract validation
+  * Clarified distinction between integration test boundaries and unit test scope
+
+New Sections:
+- None (enhancement to existing principle)
 
 Templates Status:
-- plan-template.md: ✅ Already aligned - Constitution Check section supports testing gates
-- spec-template.md: ✅ Already aligned - User Scenarios structure supports test coverage
-- tasks-template.md: ✅ Already aligned - Phase structure includes test tasks with proper grouping
+- plan-template.md: ✅ Already aligned - Constitution Check supports testing gates
+- spec-template.md: ✅ Already aligned - User Scenarios support integration test design
+- tasks-template.md: ✅ Already aligned - Test task organization supports black-box approach
 
-Follow-up: None - all templates remain consistent with expanded testing requirements
+Follow-up: None - templates remain consistent with enhanced black-box testing requirement
 -->
 
 # Tongi (Corgi Buddy) Constitution
@@ -47,16 +50,18 @@ Follow-up: None - all templates remain consistent with expanded testing requirem
 
 **Integration tests MUST be written and MUST cover all user stories.** Integration tests validate complete user journeys from end to end, ensuring features work as specified. These tests MUST follow the red-green-refactor cycle: write test → verify failure → implement → verify pass.
 
+**Black-box testing requirement**: Integration tests MUST test functionality ONLY through API endpoints using a black-box testing approach. Calling and importing service functions MUST be avoided whenever possible. Tests should validate external contracts—the API interface that users/clients interact with—not internal implementation details.
+
 **Mocking restrictions**: Avoid mocks whenever possible to ensure tests validate real behavior. Mocks are ONLY permitted for external service API calls (e.g., Telegram Bot API, TON blockchain RPC). Internal application logic, database operations, and component interactions MUST NOT be mocked in integration tests.
 
 **Unit tests are restricted to complex algorithms and complex validations only.** Unit tests MUST NOT use mocks—they should test the actual implementation with real dependencies. Simple CRUD operations, basic data transformations, and straightforward business logic do NOT require unit tests; integration tests provide sufficient coverage for these cases.
 
 **Test hierarchy**:
-1. **Integration tests** (mandatory for user stories): End-to-end user journeys with minimal mocking
+1. **Integration tests** (mandatory for user stories): End-to-end user journeys via API only, black-box approach
 2. **Unit tests** (selective): Complex algorithms, intricate validation logic, edge case handling
 3. **Contract tests** (optional): API endpoint schema validation when external contracts matter
 
-**Rationale**: Integration tests catch real-world issues that unit tests miss—authentication flows, database transactions, API interactions. Excessive mocking creates false confidence by testing test doubles instead of actual code. Restricting unit tests to complex logic prevents test bloat and maintenance burden. The red-green-refactor cycle ensures tests validate requirements, not just existing implementation.
+**Rationale**: Black-box integration tests ensure APIs work correctly from an external perspective, catching integration issues, authentication flows, database transactions, and API contract violations. Testing through APIs prevents coupling tests to internal implementation, making refactoring safer. Excessive mocking creates false confidence by testing test doubles instead of actual code. Restricting unit tests to complex logic prevents test bloat and maintenance burden. The red-green-refactor cycle ensures tests validate requirements, not just existing implementation.
 
 ### V. Database Integrity
 
@@ -145,4 +150,4 @@ Follow-up: None - all templates remain consistent with expanded testing requirem
 
 **Agent-Specific Notes**: This constitution uses "CLAUDE" or generic "agent" terminology where tool-specific guidance is needed. Projects may use any compatible agent or tooling that respects these principles.
 
-**Version**: 1.1.0 | **Ratified**: 2025-10-11 | **Last Amended**: 2025-10-11
+**Version**: 1.2.0 | **Ratified**: 2025-10-11 | **Last Amended**: 2025-10-19
