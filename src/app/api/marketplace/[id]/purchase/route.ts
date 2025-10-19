@@ -103,6 +103,17 @@ export async function POST(
       );
     }
 
+    // Prevent users from purchasing their own wishes
+    if (wish.creator_id === purchaserId) {
+      return NextResponse.json(
+        {
+          error: 'INVALID_PURCHASE',
+          message: 'You cannot purchase your own wish',
+        },
+        { status: 400 }
+      );
+    }
+
     // Get the wish creator's wallet address for the transaction
     const creator = await userService.getUserById(wish.creator_id);
     if (!creator) {
