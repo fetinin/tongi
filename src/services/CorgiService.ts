@@ -611,16 +611,10 @@ export class CorgiService {
 
   /**
    * Calculate reward for a confirmed sighting
-   * Based on corgi count: 1 corgi = 1 coin, 2-5 corgis = 2 coins each, 6+ corgis = 3 coins each
+   * Simple 1-to-1 mapping: N corgis = N Corgi coins
    */
   private calculateReward(corgiCount: number): number {
-    if (corgiCount === 1) {
-      return 1;
-    } else if (corgiCount >= 2 && corgiCount <= 5) {
-      return corgiCount * 2;
-    } else {
-      return corgiCount * 3;
-    }
+    return corgiCount;
   }
 
   /**
