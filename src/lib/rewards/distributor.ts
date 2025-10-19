@@ -304,7 +304,7 @@ export async function retryFailedTransaction(
     // Update transaction
     updateTransactionStatus({
       id,
-      status: shouldRetryAgain ? 'failed' : 'failed',
+      status: 'failed',
       last_error: classified.message,
       failure_reason: shouldRetryAgain
         ? undefined
