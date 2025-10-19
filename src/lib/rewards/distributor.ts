@@ -61,9 +61,6 @@ export async function distributeReward(
     // Step 1: Check if transaction already exists for this sighting (idempotency)
     const existingTransaction = getTransactionBySightingId(sightingId);
     if (existingTransaction) {
-      console.log(
-        `[Distributor] Transaction already exists for sighting ${sightingId} (tx ${existingTransaction.id})`
-      );
       return {
         success: existingTransaction.status === 'completed',
         transaction: existingTransaction,
@@ -76,9 +73,6 @@ export async function distributeReward(
 
     // Step 2: Calculate reward amount
     const rewardAmount = calculateRewardAmount(corgiCount);
-    console.log(
-      `[Distributor] Calculated reward: ${rewardAmount} smallest units for ${corgiCount} corgis`
-    );
 
     // Step 3: Get Jetton master address from env
     const jettonMasterAddress = process.env.JETTON_MASTER_ADDRESS;
@@ -128,10 +122,6 @@ export async function distributeReward(
     const bankJettonWallet =
       await getBankJettonWalletAddress(jettonMasterAddress);
 
-    console.log(
-      `[Distributor] Jetton wallets - Bank: ${bankJettonWallet}, User: ${userJettonWallet.jettonWalletAddress}`
-    );
-
     // Step 6: Create transaction record
     const transaction = createTransaction({
       from_wallet: tonClientManager.getBankWalletAddress(),
@@ -139,10 +129,6 @@ export async function distributeReward(
       amount: rewardAmount,
       sighting_id: sightingId,
     });
-
-    console.log(
-      `[Distributor] Created transaction record ${transaction.id} for sighting ${sightingId}`
-    );
 
     // Step 7: Broadcast Jetton transfer
     try {
@@ -153,10 +139,6 @@ export async function distributeReward(
         amount: rewardAmount,
         queryId: transaction.id, // Use transaction ID as query ID for tracking
       });
-
-      console.log(
-        `[Distributor] Broadcast successful - seqno: ${broadcastResult.seqNo}`
-      );
 
       // Update transaction to broadcasting status
       const updatedTransaction = updateTransactionStatus({
@@ -223,10 +205,6 @@ export async function retryFailedTransaction(
   const { id, sighting_id, to_wallet, amount, retry_count } = transaction;
 
   try {
-    console.log(
-      `[Distributor] Retrying transaction ${id} (attempt ${retry_count + 1}/3)`
-    );
-
     // Step 1: Check if seqno changed since last attempt
     // This detects if previous broadcast actually succeeded despite error
     if (transaction.transaction_hash) {
@@ -239,10 +217,6 @@ export async function retryFailedTransaction(
         const seqnoCheck = await checkSeqnoChanged(parsedSeqno);
 
         if (seqnoCheck.hasChanged) {
-          console.log(
-            `[Distributor] Seqno changed from ${parsedSeqno} to ${seqnoCheck.currentSeqno}. Transaction may have succeeded.`
-          );
-
           // Mark as broadcasting and let monitoring confirm
           const updatedTransaction = updateTransactionStatus({
             id,
@@ -302,10 +276,6 @@ export async function retryFailedTransaction(
       amount,
       queryId: id,
     });
-
-    console.log(
-      `[Distributor] Retry successful - seqno: ${broadcastResult.seqNo}`
-    );
 
     // Update transaction
     const updatedTransaction = updateTransactionStatus({
