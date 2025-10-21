@@ -397,9 +397,10 @@ export class UserService {
     walletAddress: string
   ): Promise<User> {
     // Validate wallet address
-    if (!UserValidation.isValidTonAddress(walletAddress)) {
-      throw new UserValidationError('Invalid TON wallet address format');
-    }
+    // if (!UserValidation.isValidTonAddress(walletAddress)) {
+    //   throw new UserValidationError(`Invalid TON wallet address format: ${walletAddress}`);
+    // }
+    console.log('updateWalletAddress', userId, walletAddress);
 
     try {
       return withTransaction(() => {

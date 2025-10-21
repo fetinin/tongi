@@ -386,7 +386,18 @@ export function AuthProvider({
         // Get raw init data for wallet update
         let initDataString: string;
         try {
-          initDataString = retrieveRawLaunchParams();
+          const rawLaunchParams = retrieveRawLaunchParams();
+
+          // Extract tgWebAppData from launch params
+          const params = new URLSearchParams(rawLaunchParams);
+          const tgWebAppData = params.get('tgWebAppData');
+
+          if (!tgWebAppData) {
+            throw new Error('No tgWebAppData found in launch params');
+          }
+
+          // Decode the tgWebAppData to get the actual initData
+          initDataString = decodeURIComponent(tgWebAppData);
         } catch (error) {
           console.error('Cannot update wallet: No Telegram data available');
           return;
