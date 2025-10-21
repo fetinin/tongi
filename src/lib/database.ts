@@ -62,10 +62,8 @@ if (process.env.NODE_ENV !== 'test') {
   process.on('exit', closeDatabase);
   process.on('SIGINT', () => {
     closeDatabase();
-    process.exit(0);
   });
   process.on('SIGTERM', () => {
     closeDatabase();
-    process.exit(0);
   });
 }
