@@ -41,7 +41,6 @@ export function validateInitData(initData: string, botToken: string): boolean {
     return true;
   } catch (error) {
     // Library throws errors for invalid signatures, expired data, etc.
-    console.log('validateInitData error', error);
     return false;
   }
 }

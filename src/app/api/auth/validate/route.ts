@@ -37,7 +37,6 @@ interface ErrorResponse {
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<AuthResponse | ErrorResponse>> {
-  console.log('validate', request);
   try {
     // Parse request body
     const body: AuthValidateRequest = await request.json();
@@ -68,7 +67,6 @@ export async function POST(
     // Validate Telegram initData
     const isValidInitData = validateInitData(body.initData, botToken);
     if (!isValidInitData) {
-      console.log('Invalid initData', body.initData);
       return NextResponse.json(
         {
           error: 'INVALID_AUTH',
@@ -81,7 +79,6 @@ export async function POST(
     // Extract user data from initData
     const telegramUserData = extractUserData(body.initData);
     if (!telegramUserData) {
-      console.log('Invalid telegramUserData', body.initData);
       return NextResponse.json(
         {
           error: 'INVALID_USER_DATA',
