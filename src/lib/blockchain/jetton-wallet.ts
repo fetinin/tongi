@@ -25,7 +25,7 @@ export async function getJettonWalletAddress(
   userTONAddress: string
 ): Promise<JettonWalletAddress> {
   try {
-    const client = tonClientManager.getClient();
+    const client = await tonClientManager.getClient();
 
     // Parse addresses
     const masterAddr = Address.parse(masterAddress);
@@ -72,7 +72,7 @@ export async function getJettonBalance(
   jettonWalletAddress: string
 ): Promise<bigint> {
   try {
-    const client = tonClientManager.getClient();
+    const client = await tonClientManager.getClient();
     const walletAddr = Address.parse(jettonWalletAddress);
 
     // Query Jetton wallet contract for balance using get_wallet_data method
@@ -104,7 +104,7 @@ export async function getJettonBalance(
 export async function getBankJettonWalletAddress(
   masterAddress: string
 ): Promise<string> {
-  const bankTONAddress = tonClientManager.getBankWalletAddress();
+  const bankTONAddress = await tonClientManager.getBankWalletAddress();
 
   const result = await getJettonWalletAddress(masterAddress, bankTONAddress);
 

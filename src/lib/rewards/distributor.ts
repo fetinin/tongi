@@ -93,7 +93,7 @@ export async function distributeReward(
 
       // Create transaction in failed state
       const transaction = createTransaction({
-        from_wallet: tonClientManager.getBankWalletAddress(),
+        from_wallet: await tonClientManager.getBankWalletAddress(),
         to_wallet: userWalletAddress,
         amount: rewardAmount,
         sighting_id: sightingId,
@@ -124,7 +124,7 @@ export async function distributeReward(
 
     // Step 6: Create transaction record
     const transaction = createTransaction({
-      from_wallet: tonClientManager.getBankWalletAddress(),
+      from_wallet: await tonClientManager.getBankWalletAddress(),
       to_wallet: userWalletAddress,
       amount: rewardAmount,
       sighting_id: sightingId,

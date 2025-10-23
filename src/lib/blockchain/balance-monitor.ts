@@ -41,8 +41,8 @@ export async function checkBankBalances(
   const alerts: BalanceAlert[] = [];
 
   try {
-    const client = tonClientManager.getClient();
-    const bankAddress = tonClientManager.getBankWalletAddress();
+    const client = await tonClientManager.getClient();
+    const bankAddress = await tonClientManager.getBankWalletAddress();
 
     // Get configured thresholds from environment
     const tonMinBalance = BigInt(
@@ -53,7 +53,16 @@ export async function checkBankBalances(
     ); // Default: 1000 tokens (with 9 decimals)
 
     // Check TON balance
-    const tonBalance = await client.getBalance(Address.parse(bankAddress));
+    let tonBalance: bigint;
+    try {
+      tonBalance = await client.getBalance(Address.parse(bankAddress));
+    } catch (error) {
+      console.error(
+        `[Balance] Failed to get TON balance:`,
+        error instanceof Error ? error.message : String(error)
+      );
+      throw error;
+    }
 
     const tonBalanceOK = tonBalance >= tonMinBalance;
 
@@ -76,7 +85,17 @@ export async function checkBankBalances(
     // Check Jetton balance
     const bankJettonWallet =
       await getBankJettonWalletAddress(jettonMasterAddress);
-    const jettonBalance = await getJettonBalance(bankJettonWallet);
+
+    let jettonBalance: bigint;
+    try {
+      jettonBalance = await getJettonBalance(bankJettonWallet);
+    } catch (error) {
+      console.error(
+        `[Balance] Failed to get Jetton balance:`,
+        error instanceof Error ? error.message : String(error)
+      );
+      throw error;
+    }
 
     const jettonBalanceOK = jettonBalance >= jettonMinBalance;
 
