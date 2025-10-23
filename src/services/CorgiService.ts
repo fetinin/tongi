@@ -20,6 +20,7 @@ import {
 import { buddyService, BuddyServiceError } from '@/services/BuddyService';
 import { userService, UserNotFoundError } from '@/services/UserService';
 import { notificationService } from '@/services/NotificationService';
+import { RewardDistributionError } from '@/lib/rewards/distributor';
 import type Database from 'better-sqlite3';
 
 /**
@@ -63,6 +64,19 @@ export class NoBuddyError extends CorgiServiceError {
 export class CorgiAuthorizationError extends CorgiServiceError {
   constructor(message: string) {
     super(message, 'NOT_AUTHORIZED', 400);
+  }
+}
+
+export class BlockchainError extends CorgiServiceError {
+  constructor(
+    message: string,
+    public isRetryable: boolean = true
+  ) {
+    super(
+      `Blockchain operation failed: ${message}`,
+      'BLOCKCHAIN_ERROR',
+      isRetryable ? 503 : 500 // Service Unavailable for retryable, Internal Server Error for non-retryable
+    );
   }
 }
 
@@ -388,67 +402,73 @@ export class CorgiService {
 
       // NEW: Distribute Jetton reward if sighting confirmed and user has wallet
       if (confirmed && result.sighting) {
-        try {
-          const reporterUser = await userService.getUserById(
-            result.sighting.reporter_id
-          );
+        const reporterUser = await userService.getUserById(
+          result.sighting.reporter_id
+        );
 
-          if (reporterUser?.ton_wallet_address) {
-            // User has wallet - distribute reward via Jetton transfer
+        if (reporterUser?.ton_wallet_address) {
+          // User has wallet - distribute reward via Jetton transfer
+          try {
             const { distributeReward } = await import(
               '@/lib/rewards/distributor'
             );
 
-            const rewardResult = await distributeReward({
+            await distributeReward({
               sightingId: result.sighting.id,
               userWalletAddress: reporterUser.ton_wallet_address,
               corgiCount: result.sighting.corgi_count,
             });
 
-            if (rewardResult.success) {
-              console.log(
-                `[CorgiService] Jetton reward distributed for sighting ${sightingId}`
-              );
-              // Update sighting reward_status to 'distributed'
-              this.db
-                .prepare(
-                  `UPDATE corgi_sightings SET reward_status = 'distributed' WHERE id = ?`
-                )
-                .run(sightingId);
-            } else {
-              console.error(
-                `[CorgiService] Failed to distribute reward: ${rewardResult.error}`
-              );
-              // Update sighting reward_status to 'failed'
-              this.db
-                .prepare(
-                  `UPDATE corgi_sightings SET reward_status = 'failed' WHERE id = ?`
-                )
-                .run(sightingId);
-            }
-          } else {
-            // User doesn't have wallet - create pending reward
             console.log(
-              `[CorgiService] User has no wallet, creating pending reward for sighting ${sightingId}`
+              `[CorgiService] Jetton reward distributed for sighting ${sightingId}`
             );
-
-            // TODO: This will be implemented in T032 (Phase 5 - User Story 3)
-            // For now, just update reward_status to 'pending'
+            // Update sighting reward_status to 'distributed'
             this.db
               .prepare(
-                `UPDATE corgi_sightings SET reward_status = 'pending' WHERE id = ?`
+                `UPDATE corgi_sightings SET reward_status = 'distributed' WHERE id = ?`
               )
               .run(sightingId);
+          } catch (rewardError) {
+            console.error(
+              `[CorgiService] Failed to distribute reward:`,
+              rewardError
+            );
+
+            // ROLLBACK: Revert DB confirmation
+            withTransaction(() => {
+              this.statements.updateSightingStatus!.run(
+                'pending',
+                null,
+                sightingId
+              );
+            });
+
+            // Throw BlockchainError with retry classification
+            if (rewardError instanceof RewardDistributionError) {
+              throw new BlockchainError(
+                rewardError.message,
+                rewardError.shouldRetry
+              );
+            }
+            // Unknown error - assume non-retryable
+            throw new BlockchainError(
+              rewardError instanceof Error
+                ? rewardError.message
+                : 'Unknown blockchain error',
+              false
+            );
           }
-        } catch (rewardError) {
-          // Don't fail the confirmation if reward distribution fails
-          console.error(
-            `[CorgiService] Error during reward distribution:`,
-            rewardError
+        } else {
+          // User doesn't have wallet - create pending reward
+          console.log(
+            `[CorgiService] User has no wallet, creating pending reward for sighting ${sightingId}`
           );
+
+          // TODO: This will be implemented in T032 (Phase 5 - User Story 3)
+          // For now, just update reward_status to 'pending'
           this.db
             .prepare(
-              `UPDATE corgi_sightings SET reward_status = 'failed' WHERE id = ?`
+              `UPDATE corgi_sightings SET reward_status = 'pending' WHERE id = ?`
             )
             .run(sightingId);
         }

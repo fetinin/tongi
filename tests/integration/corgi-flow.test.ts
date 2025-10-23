@@ -777,4 +777,190 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     nock.cleanAll();
     nock.enableNetConnect(); // Re-enable real HTTP requests
   });
+
+  test('should fail confirmation and rollback when blockchain transaction fails', async () => {
+    // Test scenario: Confirmation fails due to blockchain error, sighting remains pending
+    const userAToken = await authenticateTestUser({
+      id: 100007,
+      firstName: 'Charlie',
+      username: 'charlie_test',
+    });
+
+    const userBToken = await authenticateTestUser({
+      id: 100008,
+      firstName: 'Diana',
+      username: 'diana_test',
+    });
+
+    // Give User A a TON wallet so reward distribution is attempted
+    const db = getDatabase();
+    const walletAddress = generateTestTonAddress(777);
+    db.prepare('UPDATE users SET ton_wallet_address = ? WHERE id = ?').run(
+      walletAddress,
+      100007
+    );
+
+    // Establish buddy relationship
+    await establishBuddyRelationship(userAToken, 100007, userBToken, 100008);
+
+    // User A reports a sighting
+    const reportResponse = await createSighting(
+      createAuthenticatedRequest(userAToken, {
+        method: 'POST',
+        url: 'http://localhost:3000/api/corgi/sightings',
+        body: { corgiCount: 3 },
+      })
+    );
+
+    expect(reportResponse.status).toBe(201);
+    const reportData = await reportResponse.json();
+    const sightingId = reportData.id;
+
+    // Set up blockchain mocks that will fail during broadcast
+    setupTONRPCMocks();
+
+    // Override sendBoc/sendBocReturnHash to fail with retryable error
+    const TON_TESTNET_ENDPOINT = 'https://testnet.toncenter.com';
+
+    // Clean existing interceptors
+    nock.cleanAll();
+
+    // Set up new mock that succeeds for balance/wallet checks but fails on broadcast
+    nock(TON_TESTNET_ENDPOINT)
+      .persist()
+      .post('/api/v2/jsonRPC')
+      .reply(
+        200,
+        function (
+          this: nock.ReplyFnContext,
+          uri: string,
+          requestBody: nock.Body
+        ) {
+          // Set proper JSON headers
+          this.req.headers['content-type'] = 'application/json';
+          const body =
+            typeof requestBody === 'string'
+              ? JSON.parse(requestBody)
+              : requestBody;
+          const method = (body as Record<string, unknown>).method;
+          const params = (body as Record<string, unknown>).params;
+          console.log('[MOCK-FAIL] JSON-RPC:', method);
+
+          switch (method) {
+            case 'getAddressInformation':
+              return {
+                ok: true,
+                result: {
+                  balance: '100000000000', // 100 TON
+                  state: 'active',
+                  code: '',
+                  data: '',
+                  last_transaction_id: {
+                    '@type': 'internal.transactionId',
+                    lt: '1000000',
+                    hash: 'mock_hash_base64==',
+                  },
+                  block_id: {
+                    '@type': 'ton.blockIdExt',
+                    workchain: -1,
+                    shard: '8000000000000000',
+                    seqno: 1000000,
+                    root_hash: 'mock_root_hash',
+                    file_hash: 'mock_file_hash',
+                  },
+                  sync_utime: Math.floor(Date.now() / 1000),
+                },
+              };
+
+            case 'runGetMethod':
+              const methodName = (params as any)?.method;
+              if (methodName === 'get_wallet_address') {
+                const jettonWalletAddr = generateTestTonAddress(12345);
+                const addressCell = encodeAddressToCell(jettonWalletAddr);
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    stack: [['slice', { bytes: addressCell }]],
+                    exit_code: 0,
+                  },
+                };
+              } else if (methodName === 'get_wallet_data') {
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    stack: [['num', '1000000000000']],
+                    exit_code: 0,
+                  },
+                };
+              }
+              return {
+                ok: true,
+                result: {
+                  gas_used: 123,
+                  stack: [['num', '1000000']],
+                  exit_code: 0,
+                },
+              };
+
+            case 'sendBoc':
+            case 'sendBocReturnHash':
+              // Simulate network timeout (retryable error)
+              // Return error response instead of throwing
+              return {
+                ok: false,
+                error: 'Network timeout',
+                code: 503,
+              };
+
+            default:
+              return {
+                ok: true,
+                result: {
+                  balance: '100000000000',
+                  stack: [['num', '1000000000000']],
+                },
+              };
+          }
+        }
+      );
+
+    // User B attempts to confirm - should fail with 503
+    const confirmResponse = await confirmSighting(
+      createAuthenticatedRequest(userBToken, {
+        method: 'POST',
+        url: `http://localhost:3000/api/corgi/confirm/${sightingId}`,
+        body: { confirmed: true },
+      }),
+      { params: Promise.resolve({ id: sightingId.toString() }) }
+    );
+
+    // Should return 503 Service Unavailable (retryable error)
+    expect(confirmResponse.status).toBe(503);
+
+    const errorData = await confirmResponse.json();
+    expect(errorData).toHaveProperty('error');
+    expect(errorData.error).toBe('BLOCKCHAIN_ERROR');
+
+    // Verify sighting is still pending (rollback successful)
+    const sighting = db
+      .prepare(`SELECT status, responded_at FROM corgi_sightings WHERE id = ?`)
+      .get(sightingId) as any;
+
+    expect(sighting.status).toBe('pending');
+    expect(sighting.responded_at).toBeNull();
+
+    // Verify transaction was created but marked as failed
+    const transaction = db
+      .prepare(`SELECT * FROM transactions WHERE sighting_id = ?`)
+      .get(sightingId) as any;
+
+    expect(transaction).toBeDefined();
+    expect(transaction.status).toBe('failed');
+    expect(transaction.failure_reason).toContain('Network timeout');
+
+    // Clean up
+    nock.cleanAll();
+  }, 10000); // 10 second timeout for blockchain operations
 });
