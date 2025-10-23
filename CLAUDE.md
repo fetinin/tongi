@@ -1,6 +1,6 @@
 ## Project Overview
 
-This repository will contain a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration. The `example-app/` directory serves as a reference implementation and template.
+This repository will contain a Telegram Mini App built with Next.js 15, TypeScript, and Telegram SDK integration.
 
 ## Commands
 
@@ -35,30 +35,24 @@ All commands should be run from the project root directory (after Next.js setup)
 - `src/components/Root/Root.tsx` - Main app wrapper that initializes Telegram SDK and handles SSR
 - `src/core/init.ts` - Telegram Mini App initialization logic with environment mocking
 - `src/core/i18n/` - Internationalization setup with locale detection from Telegram user
-- **NEW**: `src/components/buddy/` - Buddy relationship management
-- **NEW**: `src/components/corgi/` - Corgi sighting reporting and confirmation
-- **NEW**: `src/components/wish/` - Wish creation and marketplace
-- **NEW**: `src/components/wallet/` - TON Connect integration
+- `src/components/buddy/` - Buddy relationship management
+- `src/components/corgi/` - Corgi sighting reporting and confirmation
+- `src/components/wish/` - Wish creation and marketplace
+- `src/components/wallet/` - TON Connect integration
 
 ### Telegram Integration
 - Uses `@telegram-apps/sdk-react` for Telegram Mini Apps functionality
 - `@tonconnect/ui-react` for TON blockchain integration
 - Environment mocking for development outside Telegram (`mockTelegramEnv`)
 - Theme detection and CSS variable binding for Telegram themes
-- **NEW**: Bot-mediated notifications for buddy confirmations
+- Bot-mediated notifications for buddy confirmations
 
 ### Development Patterns
 - Client-side rendering due to Telegram Mini Apps limitations
 - Error boundaries for robust error handling
 - TypeScript paths configured (`@/*` for `src/*`, `@public/*` for `public/*`)
 - Strict TypeScript configuration with ES2017 target
-- **NEW**: Three-tier storage strategy (SecureStorage, DeviceStorage, CloudStorage)
-
-### Testing in Telegram
-- Use `pnpm run dev:https` to get HTTPS URL
-- Submit `https://127.0.0.1:3000` to @BotFather (not localhost)
-- Test in Telegram Web or desktop client
-- Reference `telegram_webapp_example/` for implementation patterns
+- Three-tier storage strategy (SecureStorage, DeviceStorage, CloudStorage)
 
 ## Data Model
 
