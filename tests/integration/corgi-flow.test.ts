@@ -87,129 +87,136 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     nock(TON_TESTNET_ENDPOINT)
       .persist()
       .post('/api/v2/jsonRPC')
-      .reply(200, function (this: nock.ReplyFnContext, uri: string, requestBody: Record<string, unknown>) {
-        // Set proper JSON headers
-        this.req.headers['content-type'] = 'application/json';
-        const method = requestBody.method;
-        const params = requestBody.params;
-        console.log(
-          '[MOCK] JSON-RPC:',
-          method,
-          'params:',
-          JSON.stringify(params)
-        );
+      .reply(
+        200,
+        function (
+          this: nock.ReplyFnContext,
+          uri: string,
+          requestBody: Record<string, unknown>
+        ) {
+          // Set proper JSON headers
+          this.req.headers['content-type'] = 'application/json';
+          const method = requestBody.method;
+          const params = requestBody.params;
+          console.log(
+            '[MOCK] JSON-RPC:',
+            method,
+            'params:',
+            JSON.stringify(params)
+          );
 
-        // Handle different RPC methods
-        switch (method) {
-          case 'getAddressInformation':
-            // Used for balance checks - TonCenter API v2 format
-            // Must match @ton/ton SDK's Zod schema for addressInformation
-            const balanceResult = {
-              ok: true,
-              result: {
-                balance: '100000000000', // 100 TON in nanotons
-                state: 'active',
-                code: '',
-                data: '',
-                last_transaction_id: {
-                  '@type': 'internal.transactionId',
-                  lt: '1000000',
-                  hash: 'mock_hash_base64==',
+          // Handle different RPC methods
+          switch (method) {
+            case 'getAddressInformation':
+              // Used for balance checks - TonCenter API v2 format
+              // Must match @ton/ton SDK's Zod schema for addressInformation
+              const balanceResult = {
+                ok: true,
+                result: {
+                  balance: '100000000000', // 100 TON in nanotons
+                  state: 'active',
+                  code: '',
+                  data: '',
+                  last_transaction_id: {
+                    '@type': 'internal.transactionId',
+                    lt: '1000000',
+                    hash: 'mock_hash_base64==',
+                  },
+                  block_id: {
+                    '@type': 'ton.blockIdExt',
+                    workchain: -1,
+                    shard: '8000000000000000',
+                    seqno: 1000000,
+                    root_hash: 'mock_root_hash',
+                    file_hash: 'mock_file_hash',
+                  },
+                  sync_utime: Math.floor(Date.now() / 1000),
                 },
-                block_id: {
-                  '@type': 'ton.blockIdExt',
-                  workchain: -1,
-                  shard: '8000000000000000',
-                  seqno: 1000000,
-                  root_hash: 'mock_root_hash',
-                  file_hash: 'mock_file_hash',
-                },
-                sync_utime: Math.floor(Date.now() / 1000),
-              },
-            };
-            console.log(
-              '[MOCK] Returning balance:',
-              balanceResult.result.balance
-            );
-            return balanceResult;
+              };
+              console.log(
+                '[MOCK] Returning balance:',
+                balanceResult.result.balance
+              );
+              return balanceResult;
 
-          case 'runGetMethod':
-            // Used for getSeqno, getJettonBalance, get_wallet_address, etc.
-            // Different methods return different stack types
-            const methodName = (params as any)?.method;
+            case 'runGetMethod':
+              // Used for getSeqno, getJettonBalance, get_wallet_address, etc.
+              // Different methods return different stack types
+              const methodName = (params as any)?.method;
 
-            if (methodName === 'get_wallet_address') {
-              // get_wallet_address returns an address (as a cell/slice)
-              // Extract the owner address from params stack and generate jetton wallet
-              const ownerAddress =
-                (params as any)?.stack?.[0]?.[1] || 'mock_address';
-              // For testing, generate a deterministic jetton wallet address
-              const jettonWalletAddr = generateTestTonAddress(12345);
-              const addressCell = encodeAddressToCell(jettonWalletAddr);
+              if (methodName === 'get_wallet_address') {
+                // get_wallet_address returns an address (as a cell/slice)
+                // Extract the owner address from params stack and generate jetton wallet
+                const ownerAddress =
+                  (params as any)?.stack?.[0]?.[1] || 'mock_address';
+                // For testing, generate a deterministic jetton wallet address
+                const jettonWalletAddr = generateTestTonAddress(12345);
+                const addressCell = encodeAddressToCell(jettonWalletAddr);
 
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    // SDK expects format: ['slice', { bytes: '<base64>' }]
+                    stack: [['slice', { bytes: addressCell }]],
+                    exit_code: 0,
+                  },
+                };
+              } else if (methodName === 'get_wallet_data') {
+                // get_wallet_data returns (balance, owner, jetton_master, jetton_wallet_code)
+                // First item is balance as a number
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    stack: [['num', '1000000000000']], // High Jetton balance
+                    exit_code: 0,
+                  },
+                };
+              } else {
+                // Default: getSeqno and other methods return numbers
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    stack: [['num', '1000000']],
+                    exit_code: 0,
+                  },
+                };
+              }
+
+            case 'sendBoc':
+              // Used for broadcasting transactions
+              // SDK expects just { '@type': 'ok' }
               return {
                 ok: true,
                 result: {
-                  gas_used: 123,
-                  // SDK expects format: ['slice', { bytes: '<base64>' }]
-                  stack: [['slice', { bytes: addressCell }]],
-                  exit_code: 0,
+                  '@type': 'ok',
                 },
               };
-            } else if (methodName === 'get_wallet_data') {
-              // get_wallet_data returns (balance, owner, jetton_master, jetton_wallet_code)
-              // First item is balance as a number
+
+            case 'sendBocReturnHash':
+              // Used for broadcasting transactions with hash
               return {
                 ok: true,
                 result: {
-                  gas_used: 123,
-                  stack: [['num', '1000000000000']], // High Jetton balance
-                  exit_code: 0,
+                  '@type': 'ok',
+                  hash: 'mock_tx_hash_' + Date.now(),
                 },
               };
-            } else {
-              // Default: getSeqno and other methods return numbers
+
+            default:
+              // Default response for any other method
               return {
                 ok: true,
                 result: {
-                  gas_used: 123,
-                  stack: [['num', '1000000']],
-                  exit_code: 0,
+                  balance: '100000000000',
+                  stack: [['num', '1000000000000']],
                 },
               };
-            }
-
-          case 'sendBoc':
-            // Used for broadcasting transactions
-            // SDK expects just { '@type': 'ok' }
-            return {
-              ok: true,
-              result: {
-                '@type': 'ok',
-              },
-            };
-
-          case 'sendBocReturnHash':
-            // Used for broadcasting transactions with hash
-            return {
-              ok: true,
-              result: {
-                '@type': 'ok',
-                hash: 'mock_tx_hash_' + Date.now(),
-              },
-            };
-
-          default:
-            // Default response for any other method
-            return {
-              ok: true,
-              result: {
-                balance: '100000000000',
-                stack: [['num', '1000000000000']],
-              },
-            };
+          }
         }
-      });
+      );
   }
 
   beforeEach(() => {
