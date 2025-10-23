@@ -136,7 +136,7 @@ class TONClientManager {
     if (!mnemonic) {
       throw new Error(
         'TON_BANK_WALLET_MNEMONIC is required but not set in environment variables. ' +
-          'Please configure this variable in .env.local to enable TON operations.'
+          'Please configure this environment variable to enable TON operations.'
       );
     }
 
