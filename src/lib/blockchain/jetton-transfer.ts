@@ -5,7 +5,7 @@
  * from the bank wallet to user wallets.
  */
 
-import { Address, beginCell, internal, toNano } from '@ton/core';
+import { Address, beginCell, internal, SendMode, toNano } from '@ton/core';
 import { mnemonicToPrivateKey } from '@ton/crypto';
 import { tonClientManager } from './ton-client';
 import { JETTON_OP_CODES } from '@/types/jetton';
@@ -22,7 +22,7 @@ import type {
  * @param params - Jetton transfer parameters
  * @returns Cell containing the transfer body
  */
-export function buildJettonTransferBody(params: JettonTransferParams) {
+export async function buildJettonTransferBody(params: JettonTransferParams) {
   const {
     destination,
     amount,
@@ -31,7 +31,7 @@ export function buildJettonTransferBody(params: JettonTransferParams) {
   } = params;
 
   const destinationAddr = Address.parse(destination);
-  const bankAddr = Address.parse(tonClientManager.getBankWalletAddress());
+  const bankAddr = Address.parse(await tonClientManager.getBankWalletAddress());
 
   // TEP-74 Jetton transfer message structure
   return beginCell()
@@ -60,8 +60,8 @@ export async function broadcastJettonTransfer(
   params: JettonTransferParams
 ): Promise<JettonTransferBroadcastResult> {
   try {
-    const client = tonClientManager.getClient();
-    const bankWallet = tonClientManager.getBankWallet();
+    const client = await tonClientManager.getClient();
+    const bankWallet = await tonClientManager.getBankWallet();
 
     // Get bank wallet mnemonic from environment
     const mnemonic = process.env.TON_BANK_WALLET_MNEMONIC;
@@ -76,13 +76,14 @@ export async function broadcastJettonTransfer(
     const seqno = await client.open(bankWallet).getSeqno();
 
     // Build transfer body
-    const transferBody = buildJettonTransferBody(params);
+    const transferBody = await buildJettonTransferBody(params);
 
     // Create internal message to Jetton wallet contract
     const senderJettonWalletAddr = Address.parse(params.senderJettonWallet);
 
     // Send transaction (0.05 TON gas for Jetton transfer)
     const transfer = bankWallet.createTransfer({
+      sendMode: SendMode.PAY_GAS_SEPARATELY,
       secretKey: keyPair.secretKey,
       seqno,
       messages: [
@@ -104,7 +105,7 @@ export async function broadcastJettonTransfer(
     return {
       transactionHash: txHash,
       seqNo: seqno,
-      fromAddress: tonClientManager.getBankWalletAddress(),
+      fromAddress: await tonClientManager.getBankWalletAddress(),
       toAddress: params.destination,
       amount: params.amount,
       timestamp: new Date(),
@@ -131,8 +132,8 @@ export async function checkSeqnoChanged(expectedSeqno: number): Promise<{
   hasChanged: boolean;
 }> {
   try {
-    const client = tonClientManager.getClient();
-    const bankWallet = tonClientManager.getBankWallet();
+    const client = await tonClientManager.getClient();
+    const bankWallet = await tonClientManager.getBankWallet();
 
     const currentSeqno = await client.open(bankWallet).getSeqno();
 

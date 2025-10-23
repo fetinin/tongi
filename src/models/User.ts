@@ -148,7 +148,7 @@ export const UserValidation = {
 
   /** TON wallet address format validation (basic check) */
   isValidTonAddress: (address: string): boolean =>
-    /^[0-9a-fA-F]{48}$|^EQ[0-9a-zA-Z_-]{46}$/.test(address),
+    /^[0-9a-fA-F]{48}$|^(EQ|kQ)[0-9a-zA-Z_-]{46}$/.test(address),
 
   /** Username format validation (Telegram format) */
   isValidUsername: (username: string): boolean =>

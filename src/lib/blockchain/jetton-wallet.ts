@@ -24,39 +24,29 @@ export async function getJettonWalletAddress(
   masterAddress: string,
   userTONAddress: string
 ): Promise<JettonWalletAddress> {
-  try {
-    const client = tonClientManager.getClient();
+  const client = await tonClientManager.getClient();
 
-    // Parse addresses
-    const masterAddr = Address.parse(masterAddress);
-    const userAddr = Address.parse(userTONAddress);
+  // Parse addresses
+  const masterAddr = Address.parse(masterAddress);
+  const userAddr = Address.parse(userTONAddress);
 
-    // Query master contract for user's Jetton wallet address
-    // Create a cell that contains the user address as a slice
-    const { beginCell } = await import('@ton/core');
-    const userAddrCell = beginCell().storeAddress(userAddr).endCell();
+  // Query master contract for user's Jetton wallet address
+  // Create a cell that contains the user address as a slice
+  const { beginCell } = await import('@ton/core');
+  const userAddrCell = beginCell().storeAddress(userAddr).endCell();
 
-    const response = await client.runMethod(masterAddr, 'get_wallet_address', [
-      { type: 'slice', cell: userAddrCell },
-    ]);
+  const response = await client.runMethod(masterAddr, 'get_wallet_address', [
+    { type: 'slice', cell: userAddrCell },
+  ]);
 
-    // Extract the Jetton wallet address from the response stack
-    const jettonWalletAddr = response.stack.readAddress();
+  // Extract the Jetton wallet address from the response stack
+  const jettonWalletAddr = response.stack.readAddress();
 
-    return {
-      masterAddress,
-      userAddress: userTONAddress,
-      jettonWalletAddress: jettonWalletAddr.toString(),
-    };
-  } catch (error) {
-    console.error(
-      `[Jetton] Failed to get Jetton wallet address for user ${userTONAddress}:`,
-      error
-    );
-    throw new Error(
-      `Failed to query Jetton wallet address: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
+  return {
+    masterAddress,
+    userAddress: userTONAddress,
+    jettonWalletAddress: jettonWalletAddr.toString(),
+  };
 }
 
 /**
@@ -72,7 +62,7 @@ export async function getJettonBalance(
   jettonWalletAddress: string
 ): Promise<bigint> {
   try {
-    const client = tonClientManager.getClient();
+    const client = await tonClientManager.getClient();
     const walletAddr = Address.parse(jettonWalletAddress);
 
     // Query Jetton wallet contract for balance using get_wallet_data method
@@ -104,7 +94,7 @@ export async function getJettonBalance(
 export async function getBankJettonWalletAddress(
   masterAddress: string
 ): Promise<string> {
-  const bankTONAddress = tonClientManager.getBankWalletAddress();
+  const bankTONAddress = await tonClientManager.getBankWalletAddress();
 
   const result = await getJettonWalletAddress(masterAddress, bankTONAddress);
 

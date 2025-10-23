@@ -1,6 +1,8 @@
 import { createTestInitData, TelegramUser } from '@/lib/telegram';
 import { POST as validateAuth } from '@/app/api/auth/validate/route';
 import { createMockRequest } from './request';
+import { Address } from '@ton/core';
+import { createHash } from 'crypto';
 
 export interface TestUser {
   id: number;
@@ -13,22 +15,18 @@ export interface TestUser {
 /**
  * Generate a deterministic valid test TON wallet address
  * Uses userId to generate the same address consistently for the same user
+ * Creates addresses with valid CRC16 checksums using @ton/core
  */
 export function generateTestTonAddress(userId: number): string {
-  // Generate valid TON address (48 characters from [A-Za-z0-9_-])
-  const base64url =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-  const userIdHex = userId.toString(16).padStart(12, '0');
-  let address = 'EQ' + userIdHex;
+  // Generate deterministic 32-byte hash from userId
+  const data = `test_user_${userId}`;
+  const hash = createHash('sha256').update(data).digest();
 
-  // Fill the rest with deterministic characters based on userId to make it 48 total
-  // This ensures the same userId always generates the same address
-  while (address.length < 48) {
-    const index = (userId + address.length) % base64url.length;
-    address += base64url[index];
-  }
+  // Create proper Address object with workchain 0 (standard workchain)
+  const address = new Address(0, hash);
 
-  return address;
+  // Return testnet address (testOnly: true) with bounceable flag
+  return address.toString({ testOnly: true, bounceable: true });
 }
 
 /**

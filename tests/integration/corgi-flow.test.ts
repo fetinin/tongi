@@ -13,6 +13,7 @@ import { POST as createBuddyRequest } from '@/app/api/buddy/request/route';
 import { POST as acceptBuddyRequest } from '@/app/api/buddy/accept/route';
 import { GET as getBuddyStatus } from '@/app/api/buddy/status/route';
 import { getDatabase } from '@/lib/database';
+import { Address, beginCell } from '@ton/core';
 
 // T016: Integration test corgi sighting confirmation flow
 describe('Corgi Sighting Confirmation Flow Integration', () => {
@@ -69,67 +70,153 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     return buddyPairId;
   }
 
+  // Helper function to encode TON address as base64 cell for RPC stack responses
+  function encodeAddressToCell(addressString: string): string {
+    const address = Address.parse(addressString);
+    const cell = beginCell().storeAddress(address).endCell();
+    return cell.toBoc().toString('base64');
+  }
+
   // Helper function to set up TON blockchain HTTP mocks
   function setupTONRPCMocks() {
     const TON_TESTNET_ENDPOINT = 'https://testnet.toncenter.com';
 
-    // Mock all JSON-RPC calls with appropriate responses
+    // Mock v2 API endpoint (JSON-RPC)
+    // The @ton/ton SDK uses only the JSON-RPC POST endpoint for all operations
+    // .persist() keeps the mock active for multiple requests (without it, only the first request works)
     nock(TON_TESTNET_ENDPOINT)
+      .persist()
       .post('/api/v2/jsonRPC')
-      .reply(200, function (uri, requestBody: Record<string, unknown>) {
-        const method = requestBody.method;
+      .reply(
+        200,
+        function (
+          this: nock.ReplyFnContext,
+          uri: string,
+          requestBody: Record<string, unknown>
+        ) {
+          // Set proper JSON headers
+          this.req.headers['content-type'] = 'application/json';
+          const method = requestBody.method;
+          const params = requestBody.params;
+          console.log(
+            '[MOCK] JSON-RPC:',
+            method,
+            'params:',
+            JSON.stringify(params)
+          );
 
-        // Handle different RPC methods
-        switch (method) {
-          case 'runGetMethod':
-            // Used for getSeqno, getJettonBalance, etc.
-            return {
-              ok: true,
-              result: {
-                gas_used: 123,
-                stack: [['num', '1000000000000']], // Return high balance
-                exit_code: 0,
-              },
-            };
+          // Handle different RPC methods
+          switch (method) {
+            case 'getAddressInformation':
+              // Used for balance checks - TonCenter API v2 format
+              // Must match @ton/ton SDK's Zod schema for addressInformation
+              const balanceResult = {
+                ok: true,
+                result: {
+                  balance: '100000000000', // 100 TON in nanotons
+                  state: 'active',
+                  code: '',
+                  data: '',
+                  last_transaction_id: {
+                    '@type': 'internal.transactionId',
+                    lt: '1000000',
+                    hash: 'mock_hash_base64==',
+                  },
+                  block_id: {
+                    '@type': 'ton.blockIdExt',
+                    workchain: -1,
+                    shard: '8000000000000000',
+                    seqno: 1000000,
+                    root_hash: 'mock_root_hash',
+                    file_hash: 'mock_file_hash',
+                  },
+                  sync_utime: Math.floor(Date.now() / 1000),
+                },
+              };
+              console.log(
+                '[MOCK] Returning balance:',
+                balanceResult.result.balance
+              );
+              return balanceResult;
 
-          case 'sendBoc':
-          case 'sendBocReturnHash':
-            // Used for broadcasting transactions
-            return {
-              ok: true,
-              result: {
-                hash: 'mock_tx_hash_' + Date.now(),
-              },
-            };
+            case 'runGetMethod':
+              // Used for getSeqno, getJettonBalance, get_wallet_address, etc.
+              // Different methods return different stack types
+              const methodName = (params as any)?.method;
 
-          case 'getAddressInformation':
-          case 'getAccount':
-          case 'getAccountState':
-            // Used for balance checks - return high balance
-            // Return balance as string to avoid precision loss with large integers
-            return {
-              ok: true,
-              result: {
-                balance: '100000000000', // 100 TON in nanotons (as string)
-                state: 'active',
-                code: '',
-                data: '',
-              },
-            };
+              if (methodName === 'get_wallet_address') {
+                // get_wallet_address returns an address (as a cell/slice)
+                // Extract the owner address from params stack and generate jetton wallet
+                const ownerAddress =
+                  (params as any)?.stack?.[0]?.[1] || 'mock_address';
+                // For testing, generate a deterministic jetton wallet address
+                const jettonWalletAddr = generateTestTonAddress(12345);
+                const addressCell = encodeAddressToCell(jettonWalletAddr);
 
-          default:
-            // Default response for any other method - return high balance
-            return {
-              ok: true,
-              result: {
-                balance: '100000000000',
-                stack: [['num', '1000000000000']],
-                state: 'active',
-              },
-            };
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    // SDK expects format: ['slice', { bytes: '<base64>' }]
+                    stack: [['slice', { bytes: addressCell }]],
+                    exit_code: 0,
+                  },
+                };
+              } else if (methodName === 'get_wallet_data') {
+                // get_wallet_data returns (balance, owner, jetton_master, jetton_wallet_code)
+                // First item is balance as a number
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    stack: [['num', '1000000000000']], // High Jetton balance
+                    exit_code: 0,
+                  },
+                };
+              } else {
+                // Default: getSeqno and other methods return numbers
+                return {
+                  ok: true,
+                  result: {
+                    gas_used: 123,
+                    stack: [['num', '1000000']],
+                    exit_code: 0,
+                  },
+                };
+              }
+
+            case 'sendBoc':
+              // Used for broadcasting transactions
+              // SDK expects just { '@type': 'ok' }
+              return {
+                ok: true,
+                result: {
+                  '@type': 'ok',
+                },
+              };
+
+            case 'sendBocReturnHash':
+              // Used for broadcasting transactions with hash
+              return {
+                ok: true,
+                result: {
+                  '@type': 'ok',
+                  hash: 'mock_tx_hash_' + Date.now(),
+                },
+              };
+
+            default:
+              // Default response for any other method
+              return {
+                ok: true,
+                result: {
+                  balance: '100000000000',
+                  stack: [['num', '1000000000000']],
+                },
+              };
+          }
         }
-      })
-      .persist(); // Allow multiple calls
+      );
   }
 
   beforeEach(() => {
@@ -581,10 +668,6 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     process.env.CORGI_BANK_TON_MIN_BALANCE = '1000000000'; // 1 TON minimum
     process.env.CORGI_BANK_JETTON_MIN_BALANCE = '1000000000'; // 1 Corgi coin minimum
 
-    // Initialize TON client with mocked HTTP
-    const { initializeTONClient } = await import('@/lib/blockchain/ton-client');
-    await initializeTONClient();
-
     // Create test users with TON wallet addresses
     const userAWallet = generateTestTonAddress(100020);
     const userBWallet = generateTestTonAddress(100021);
@@ -662,30 +745,33 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
     expect(transaction.from_wallet).toMatch(/^(EQ|kQ)/);
 
     // Assert transaction status
-    // In test environment with mocked TON API, transaction may be in various states:
-    // - 'pending': Created but not yet broadcast
+    // With properly mocked TON API, transaction should successfully broadcast
     // - 'broadcasting': Successfully broadcast to blockchain
-    // - 'completed': Confirmed on blockchain
-    // - 'failed': Failed due to balance check or broadcast error (expected in mocked environment)
-    expect(['broadcasting', 'completed', 'pending', 'failed']).toContain(
-      transaction.status
-    );
+    // - 'completed': Confirmed on blockchain (if confirmation polling completes)
+    expect(['broadcasting', 'completed']).toContain(transaction.status);
 
     // Assert transaction hash exists
+    // Hash may be either:
+    // - 'pending-...' format (placeholder before blockchain confirmation)
+    // - 'mock_tx_hash_...' format (from sendBocReturnHash mock)
     expect(transaction.transaction_hash).toBeDefined();
+    expect(transaction.transaction_hash).toMatch(/^(pending-|mock_tx_hash_)/);
 
     // Verify sighting reward_status is updated
     const sighting = db
       .prepare(`SELECT reward_status FROM corgi_sightings WHERE id = ?`)
       .get(sightingId) as any;
 
-    // In test environment, reward_status may be:
-    // - 'distributed': Transaction was broadcast successfully
-    // - 'failed': Transaction creation/broadcast failed (common in mocked environment)
-    // - 'pending': Transaction created but not yet confirmed
-    expect(['distributed', 'failed', 'pending']).toContain(
-      sighting.reward_status
-    );
+    // With properly mocked TON API, reward should be successfully distributed
+    expect(sighting.reward_status).toBe('distributed');
+
+    // Verify that mocked network calls were used (not real network)
+    // The transaction hash format and successful status prove mocks were called
+    // If real network was used, the transaction would likely fail or have different hash format
+
+    // Note: We use .persist() for mocks, which means some defensive mocks may remain unused
+    // The important thing is that the test succeeded using only mocked responses
+    // (verified by the transaction succeeding and the pending hash format)
 
     // Clean up nock interceptors for this test
     nock.cleanAll();

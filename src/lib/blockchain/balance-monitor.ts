@@ -25,6 +25,118 @@ export interface BalanceAlert {
   threshold: string;
 }
 
+interface BalanceThresholds {
+  tonMinBalance: bigint;
+  jettonMinBalance: bigint;
+}
+
+/**
+ * Get balance thresholds from environment variables
+ */
+function getBalanceThresholds(): BalanceThresholds {
+  const tonMinBalance = BigInt(
+    process.env.CORGI_BANK_TON_MIN_BALANCE || '1000000000'
+  ); // Default: 1 TON
+  const jettonMinBalance = BigInt(
+    process.env.CORGI_BANK_JETTON_MIN_BALANCE || '1000000000000'
+  ); // Default: 1000 tokens (with 9 decimals)
+
+  return { tonMinBalance, jettonMinBalance };
+}
+
+/**
+ * Check TON balance and generate alerts if below threshold
+ */
+async function checkTonBalance(
+  client: any,
+  bankAddress: string,
+  tonMinBalance: bigint
+): Promise<{
+  tonBalance: bigint;
+  tonBalanceOK: boolean;
+  alerts: BalanceAlert[];
+}> {
+  const alerts: BalanceAlert[] = [];
+
+  const tonBalance = await client.getBalance(Address.parse(bankAddress));
+  const tonBalanceOK = tonBalance >= tonMinBalance;
+
+  if (!tonBalanceOK) {
+    const severity =
+      tonBalance < tonMinBalance / BigInt(2) ? 'critical' : 'warning';
+
+    alerts.push({
+      type:
+        tonBalance < tonMinBalance / BigInt(2)
+          ? 'critical_balance'
+          : 'low_ton_balance',
+      severity,
+      message: `Bank wallet TON balance is below threshold (needed for gas fees)`,
+      currentBalance: `${fromNano(tonBalance)} TON`,
+      threshold: `${fromNano(tonMinBalance)} TON`,
+    });
+  }
+
+  return { tonBalance, tonBalanceOK, alerts };
+}
+
+/**
+ * Check Jetton balance and generate alerts if below threshold
+ */
+async function checkJettonBalance(
+  jettonMasterAddress: string,
+  jettonMinBalance: bigint
+): Promise<{
+  jettonBalance: bigint;
+  jettonBalanceOK: boolean;
+  alerts: BalanceAlert[];
+}> {
+  const alerts: BalanceAlert[] = [];
+
+  const bankJettonWallet =
+    await getBankJettonWalletAddress(jettonMasterAddress);
+  const jettonBalance = await getJettonBalance(bankJettonWallet);
+  const jettonBalanceOK = jettonBalance >= jettonMinBalance;
+
+  if (!jettonBalanceOK) {
+    const jettonDecimals = parseInt(process.env.JETTON_DECIMALS || '9', 10);
+    const formatJettons = (amount: bigint) =>
+      (Number(amount) / 10 ** jettonDecimals).toFixed(2);
+
+    const severity =
+      jettonBalance < jettonMinBalance / BigInt(2) ? 'critical' : 'warning';
+
+    alerts.push({
+      type:
+        jettonBalance < jettonMinBalance / BigInt(2)
+          ? 'critical_balance'
+          : 'low_jetton_balance',
+      severity,
+      message: `Bank wallet Jetton balance is below threshold (needed for reward distribution)`,
+      currentBalance: `${formatJettons(jettonBalance)} Corgi coins`,
+      threshold: `${formatJettons(jettonMinBalance)} Corgi coins`,
+    });
+  }
+
+  return { jettonBalance, jettonBalanceOK, alerts };
+}
+
+/**
+ * Log balance alerts to console
+ */
+function logBalanceAlerts(alerts: BalanceAlert[]): void {
+  if (alerts.length === 0) {
+    return;
+  }
+
+  console.warn(`[Balance] Balance alerts: ${alerts.length} issue(s) detected`);
+  alerts.forEach((alert) => {
+    console.warn(
+      `[Balance] ${alert.severity.toUpperCase()}: ${alert.message} (${alert.currentBalance} / ${alert.threshold})`
+    );
+  });
+}
+
 /**
  * Check bank wallet balances against configured thresholds
  *
@@ -38,94 +150,26 @@ export interface BalanceAlert {
 export async function checkBankBalances(
   jettonMasterAddress: string
 ): Promise<BalanceCheckResult> {
-  const alerts: BalanceAlert[] = [];
+  const allAlerts: BalanceAlert[] = [];
 
+  // Get thresholds from environment
+  const { tonMinBalance, jettonMinBalance } = getBalanceThresholds();
+
+  // Get client and bank address
+  let client: any;
+  let bankAddress: string;
   try {
-    const client = tonClientManager.getClient();
-    const bankAddress = tonClientManager.getBankWalletAddress();
-
-    // Get configured thresholds from environment
-    const tonMinBalance = BigInt(
-      process.env.CORGI_BANK_TON_MIN_BALANCE || '1000000000'
-    ); // Default: 1 TON
-    const jettonMinBalance = BigInt(
-      process.env.CORGI_BANK_JETTON_MIN_BALANCE || '1000000000000'
-    ); // Default: 1000 tokens (with 9 decimals)
-
-    // Check TON balance
-    const tonBalance = await client.getBalance(Address.parse(bankAddress));
-
-    const tonBalanceOK = tonBalance >= tonMinBalance;
-
-    if (!tonBalanceOK) {
-      const severity =
-        tonBalance < tonMinBalance / BigInt(2) ? 'critical' : 'warning';
-
-      alerts.push({
-        type:
-          tonBalance < tonMinBalance / BigInt(2)
-            ? 'critical_balance'
-            : 'low_ton_balance',
-        severity,
-        message: `Bank wallet TON balance is below threshold (needed for gas fees)`,
-        currentBalance: `${fromNano(tonBalance)} TON`,
-        threshold: `${fromNano(tonMinBalance)} TON`,
-      });
-    }
-
-    // Check Jetton balance
-    const bankJettonWallet =
-      await getBankJettonWalletAddress(jettonMasterAddress);
-    const jettonBalance = await getJettonBalance(bankJettonWallet);
-
-    const jettonBalanceOK = jettonBalance >= jettonMinBalance;
-
-    if (!jettonBalanceOK) {
-      const jettonDecimals = parseInt(process.env.JETTON_DECIMALS || '9', 10);
-      const formatJettons = (amount: bigint) =>
-        (Number(amount) / 10 ** jettonDecimals).toFixed(2);
-
-      const severity =
-        jettonBalance < jettonMinBalance / BigInt(2) ? 'critical' : 'warning';
-
-      alerts.push({
-        type:
-          jettonBalance < jettonMinBalance / BigInt(2)
-            ? 'critical_balance'
-            : 'low_jetton_balance',
-        severity,
-        message: `Bank wallet Jetton balance is below threshold (needed for reward distribution)`,
-        currentBalance: `${formatJettons(jettonBalance)} Corgi coins`,
-        threshold: `${formatJettons(jettonMinBalance)} Corgi coins`,
-      });
-    }
-
-    if (alerts.length > 0) {
-      console.warn(
-        `[Balance] Balance alerts: ${alerts.length} issue(s) detected`
-      );
-      alerts.forEach((alert) => {
-        console.warn(
-          `[Balance] ${alert.severity.toUpperCase()}: ${alert.message} (${alert.currentBalance} / ${alert.threshold})`
-        );
-      });
-    }
-
-    return {
-      tonBalance,
-      jettonBalance,
-      tonBalanceOK,
-      jettonBalanceOK,
-      alerts,
-    };
+    client = await tonClientManager.getClient();
+    bankAddress = await tonClientManager.getBankWalletAddress();
   } catch (error) {
-    console.error('[Balance] Failed to check bank balances:', error);
-
-    // Return error state with critical alert
-    alerts.push({
+    console.error(
+      '[Balance] Failed to initialize TON client or get bank address:',
+      error
+    );
+    allAlerts.push({
       type: 'critical_balance',
       severity: 'critical',
-      message: `Failed to check bank wallet balances: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `Failed to initialize: ${error instanceof Error ? error.message : 'Unknown error'}`,
       currentBalance: 'Unknown',
       threshold: 'N/A',
     });
@@ -135,9 +179,65 @@ export async function checkBankBalances(
       jettonBalance: BigInt(0),
       tonBalanceOK: false,
       jettonBalanceOK: false,
-      alerts,
+      alerts: allAlerts,
     };
   }
+
+  // Check TON balance
+  let tonBalance: bigint;
+  let tonBalanceOK: boolean;
+  try {
+    const tonResult = await checkTonBalance(client, bankAddress, tonMinBalance);
+    tonBalance = tonResult.tonBalance;
+    tonBalanceOK = tonResult.tonBalanceOK;
+    allAlerts.push(...tonResult.alerts);
+  } catch (error) {
+    console.error('[Balance] Failed to check TON balance:', error);
+    allAlerts.push({
+      type: 'critical_balance',
+      severity: 'critical',
+      message: `Failed to check TON balance: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      currentBalance: 'Unknown',
+      threshold: 'N/A',
+    });
+    tonBalance = BigInt(0);
+    tonBalanceOK = false;
+  }
+
+  // Check Jetton balance
+  let jettonBalance: bigint;
+  let jettonBalanceOK: boolean;
+  try {
+    const jettonResult = await checkJettonBalance(
+      jettonMasterAddress,
+      jettonMinBalance
+    );
+    jettonBalance = jettonResult.jettonBalance;
+    jettonBalanceOK = jettonResult.jettonBalanceOK;
+    allAlerts.push(...jettonResult.alerts);
+  } catch (error) {
+    console.error('[Balance] Failed to check Jetton balance:', error);
+    allAlerts.push({
+      type: 'critical_balance',
+      severity: 'critical',
+      message: `Failed to check Jetton balance: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      currentBalance: 'Unknown',
+      threshold: 'N/A',
+    });
+    jettonBalance = BigInt(0);
+    jettonBalanceOK = false;
+  }
+
+  // Log alerts
+  logBalanceAlerts(allAlerts);
+
+  return {
+    tonBalance,
+    jettonBalance,
+    tonBalanceOK,
+    jettonBalanceOK,
+    alerts: allAlerts,
+  };
 }
 
 /**

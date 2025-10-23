@@ -108,14 +108,8 @@ export async function retryWithBackoff<T>(
         };
       }
 
-      // Calculate backoff delay
+      // Calculate backoff delay and wait before retrying
       const delayMs = calculateBackoffDelay(attempt, config);
-      console.log(
-        `[Retry] Attempt ${attempt + 1} failed. Retrying in ${delayMs}ms...`,
-        lastError.message
-      );
-
-      // Wait before retrying
       await sleep(delayMs);
     }
   }
