@@ -20,7 +20,16 @@ import {
 import { buddyService, BuddyServiceError } from '@/services/BuddyService';
 import { userService, UserNotFoundError } from '@/services/UserService';
 import { notificationService } from '@/services/NotificationService';
-import { RewardDistributionError } from '@/lib/rewards/distributor';
+import {
+  distributeReward,
+  RewardDistributionError,
+} from '@/lib/rewards/distributor';
+import {
+  createTransaction,
+  getTransactionBySightingId,
+} from '@/lib/database/models/transaction';
+import { tonClientManager } from '@/lib/blockchain/ton-client';
+import { calculateRewardAmount } from '@/lib/rewards/calculator';
 import type Database from 'better-sqlite3';
 
 /**
@@ -348,15 +357,6 @@ export class CorgiService {
           // Pre-create transaction record if user has wallet (for audit trail even if rollback)
           if (reporterUser?.ton_wallet_address) {
             try {
-              const { createTransaction, getTransactionBySightingId } =
-                await import('@/lib/database/models/transaction');
-              const { tonClientManager } = await import(
-                '@/lib/blockchain/ton-client'
-              );
-              const { calculateRewardAmount } = await import(
-                '@/lib/rewards/calculator'
-              );
-
               // Check if transaction already exists
               const existingTx = getTransactionBySightingId(sightingId);
               if (!existingTx) {
@@ -374,7 +374,7 @@ export class CorgiService {
             } catch (preCreateError) {
               // If pre-creation fails (e.g., TON client initialization), continue anyway
               // Transaction will be created later in distributeReward
-              console.log(
+              console.warn(
                 '[CorgiService] Failed to pre-create transaction:',
                 preCreateError
               );
@@ -459,10 +459,6 @@ export class CorgiService {
         if (confirmed && reporterUser?.ton_wallet_address) {
           // User has wallet - distribute reward via Jetton transfer
           try {
-            const { distributeReward } = await import(
-              '@/lib/rewards/distributor'
-            );
-
             await distributeReward({
               sightingId: result.sighting.id,
               userWalletAddress: reporterUser.ton_wallet_address,
