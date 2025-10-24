@@ -1,54 +1,53 @@
-# Dependencies
-node_modules
-.pnp
-.pnp.js
+# Whitelist Strategy: Deny everything by default, then explicitly allow only what's needed
+# for Next.js build and runtime
 
-# Testing
-coverage
-*.log
+# =============================================================================
+# DENY EVERYTHING BY DEFAULT
+# =============================================================================
+*
+*/
 
-# Next.js
-.next/
-out/
-build
-dist
+# =============================================================================
+# ALLOW: Package Management
+# =============================================================================
+!package.json
+!pnpm-lock.yaml
+!.npmrc
+!pnpm-workspace.yaml
 
-# Production
-.vercel
-.netlify
+# =============================================================================
+# ALLOW: Source Code
+# =============================================================================
+!src/
+!src/**
 
-# Misc
-.DS_Store
-*.pem
+# =============================================================================
+# ALLOW: Public Assets
+# =============================================================================
+!public/
+!public/**
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# =============================================================================
+# ALLOW: Configuration Files (Build-time)
+# =============================================================================
+!next.config.ts
+!tsconfig.json
+!postcss.config.mjs
+!eslint.config.mjs
 
-# Local env files
-.env*.local
-.env.development
-.env.test
+# =============================================================================
+# ALLOW: Scripts (Database Migrations)
+# =============================================================================
+!scripts/
+!scripts/**
 
-# Development files
-.git
-.gitignore
-README.md
-.vscode
-.idea
-
-# SQLite database (should be mounted as volume)
-data/*.db
-data/*.db-shm
-data/*.db-wal
-
+# =============================================================================
+# DENY: Patterns within allowed directories
+# =============================================================================
 # Test files
 **/*.test.ts
 **/*.test.tsx
 **/*.spec.ts
 **/*.spec.tsx
-tests/
-jest.config.js
+**/__tests__/
+**/__mocks__/
