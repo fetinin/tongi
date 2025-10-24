@@ -1,9 +1,76 @@
-import Database from 'better-sqlite3';
 import path from 'path';
+import type DatabaseConstructor from 'better-sqlite3';
 
-let db: Database.Database | null = null;
+// Conditional import to avoid loading better-sqlite3 during build phase
+let Database: typeof DatabaseConstructor | null = null;
+let db: DatabaseConstructor.Database | null = null;
 
-export function getDatabase(): Database.Database {
+function loadDatabase(): typeof DatabaseConstructor {
+  if (!Database) {
+    // Skip loading better-sqlite3 during Next.js build phase
+    // Return a mock constructor that won't be used at build time
+    if (process.env.SKIP_DB_INIT === 'true') {
+      // Use a no-op function as a mock constructor to satisfy TypeScript.
+      // This mock is never instantiated; it only exists to bypass type checks during build.
+      Database = (() => {}) as any;
+      return Database as typeof DatabaseConstructor;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    Database = require('better-sqlite3');
+  }
+  // At this point Database is guaranteed to be non-null
+  return Database as typeof DatabaseConstructor;
+}
+
+export function getDatabase(): DatabaseConstructor.Database {
+  // During build phase, return a mock database object
+  if (process.env.SKIP_DB_INIT === 'true') {
+    // Return a mock with minimal functionality for build-time static analysis
+    // This mock will never be used at runtime, only during Next.js build
+    const mockStatement: any = {
+      run: () => ({ changes: 0, lastInsertRowid: 0 }),
+      get: () => null,
+      all: () => [],
+      iterate: function* () {},
+      pluck: () => mockStatement,
+      expand: () => mockStatement,
+      raw: () => mockStatement,
+      columns: () => [],
+      bind: () => mockStatement,
+      database: null,
+      source: '',
+      reader: false,
+      readonly: false,
+      busy: false,
+      safeIntegers: () => mockStatement,
+    };
+
+    const mockDb: any = {
+      prepare: () => mockStatement,
+      pragma: () => null,
+      transaction: (fn: unknown) => fn,
+      exec: () => mockDb,
+      close: () => mockDb,
+      loadExtension: () => mockDb,
+      serialize: () => Buffer.from(''),
+      function: () => mockDb,
+      aggregate: () => mockDb,
+      backup: () => ({ close: () => null }),
+      defaultSafeIntegers: () => mockDb,
+      unsafeMode: () => mockDb,
+      memory: false,
+      readonly: false,
+      name: ':memory:',
+      open: true,
+      inTransaction: false,
+      table: () => null,
+    };
+
+    return mockDb as DatabaseConstructor.Database;
+  }
+
+  const Db = loadDatabase();
+
   if (!db) {
     // Use in-memory database for tests, otherwise use file-based
     const isTest = process.env.NODE_ENV === 'test';
@@ -11,7 +78,7 @@ export function getDatabase(): Database.Database {
       ? ':memory:'
       : path.join(process.cwd(), 'data', 'app.db');
 
-    db = new Database(dbPath);
+    db = new Db(dbPath);
 
     // Enable foreign key constraints
     db.pragma('foreign_keys = ON');
@@ -46,14 +113,16 @@ export function resetDatabase(): void {
 }
 
 // Helper function to handle database transactions
-export function withTransaction<T>(callback: (db: Database.Database) => T): T {
+export function withTransaction<T>(
+  callback: (db: DatabaseConstructor.Database) => T
+): T {
   const database = getDatabase();
   const transaction = database.transaction(callback);
   return transaction(database);
 }
 
 // Helper function for prepared statements
-export function prepare(sql: string): Database.Statement {
+export function prepare(sql: string): DatabaseConstructor.Statement {
   return getDatabase().prepare(sql);
 }
 

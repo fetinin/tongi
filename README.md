@@ -107,14 +107,7 @@ docker run --rm \
 
 ### Health Check
 
-The container expects a health check endpoint at `/api/health`. If it does not exist, add it using the following example (customize as needed):
-
-```typescript
-// src/app/api/health/route.ts
-export async function GET() {
-  return Response.json({ status: 'ok' }, { status: 200 });
-}
-```
+The container includes a health check endpoint at `/api/health` that returns `200 OK` when the service is running. Docker will automatically use this endpoint to monitor container health.
 
 ### Docker Compose (Optional)
 
