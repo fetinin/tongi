@@ -27,7 +27,7 @@ export function getDatabase(): DatabaseConstructor.Database {
   if (process.env.SKIP_DB_INIT === 'true') {
     // Return a mock with minimal functionality for build-time static analysis
     // This mock will never be used at runtime, only during Next.js build
-    const mockStatement = {
+    const mockStatement: any = {
       run: () => ({ changes: 0, lastInsertRowid: 0 }),
       get: () => null,
       all: () => [],
@@ -37,21 +37,33 @@ export function getDatabase(): DatabaseConstructor.Database {
       raw: () => mockStatement,
       columns: () => [],
       bind: () => mockStatement,
+      database: null,
+      source: '',
+      reader: false,
+      readonly: false,
+      busy: false,
+      safeIntegers: () => mockStatement,
     };
 
-    const mockDb = {
+    const mockDb: any = {
       prepare: () => mockStatement,
       pragma: () => null,
       transaction: (fn: unknown) => fn,
-      exec: () => null,
-      close: () => null,
-      loadExtension: () => null,
+      exec: () => mockDb,
+      close: () => mockDb,
+      loadExtension: () => mockDb,
       serialize: () => Buffer.from(''),
-      function: () => null,
-      aggregate: () => null,
+      function: () => mockDb,
+      aggregate: () => mockDb,
       backup: () => ({ close: () => null }),
       defaultSafeIntegers: () => mockDb,
       unsafeMode: () => mockDb,
+      memory: false,
+      readonly: false,
+      name: ':memory:',
+      open: true,
+      inTransaction: false,
+      table: () => null,
     };
 
     return mockDb as DatabaseConstructor.Database;
