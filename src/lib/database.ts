@@ -54,7 +54,7 @@ export function getDatabase(): DatabaseConstructor.Database {
       unsafeMode: () => mockDb,
     };
 
-    return mockDb as any;
+    return mockDb as DatabaseConstructor.Database;
   }
 
   const Db = loadDatabase();
