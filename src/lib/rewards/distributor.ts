@@ -15,10 +15,7 @@ import {
   getJettonWalletAddress,
   getBankJettonWalletAddress,
 } from '@/lib/blockchain/jetton-wallet';
-import {
-  broadcastJettonTransfer,
-  checkSeqnoChanged,
-} from '@/lib/blockchain/jetton-transfer';
+import { broadcastJettonTransfer } from '@/lib/blockchain/jetton-transfer';
 import { canAffordTransfer } from '@/lib/blockchain/balance-monitor';
 import { calculateRewardAmount } from './calculator';
 import { classifyError } from './error-classifier';
@@ -35,40 +32,67 @@ export interface DistributeRewardInput {
   corgiCount: number;
 }
 
-export interface DistributeRewardResult {
-  success: boolean;
-  transaction?: Transaction;
-  error?: string;
-  shouldRetry?: boolean;
+/**
+ * Error thrown when reward distribution fails
+ */
+export class RewardDistributionError extends Error {
+  constructor(
+    message: string,
+    public shouldRetry: boolean,
+    public transaction?: Transaction
+  ) {
+    super(message);
+    this.name = 'RewardDistributionError';
+  }
 }
 
 /**
  * Main reward distribution orchestration
  *
  * Coordinates the complete flow from sighting confirmation to Jetton transfer.
- * Handles both happy path and error scenarios with proper retry classification.
+ * Throws RewardDistributionError on failure instead of returning error result.
  *
  * @param input Reward distribution parameters
- * @returns Result with transaction details or error
+ * @returns Transaction record on success
+ * @throws RewardDistributionError on failure with retry classification
  */
 
 export async function distributeReward(
   input: DistributeRewardInput
-): Promise<DistributeRewardResult> {
+): Promise<Transaction> {
   const { sightingId, userWalletAddress, corgiCount } = input;
 
   try {
     // Step 1: Check if transaction already exists for this sighting (idempotency)
     const existingTransaction = getTransactionBySightingId(sightingId);
     if (existingTransaction) {
-      return {
-        success: existingTransaction.status === 'completed',
-        transaction: existingTransaction,
-        error:
-          existingTransaction.status === 'failed'
-            ? 'Transaction previously failed'
-            : undefined,
-      };
+      switch (existingTransaction.status) {
+        case 'completed':
+          // Already successfully processed
+          return existingTransaction;
+        case 'failed':
+          // Previously failed - throw error to indicate failure
+          throw new RewardDistributionError(
+            existingTransaction.failure_reason ||
+              'Transaction previously failed',
+            false, // Don't retry - need manual intervention
+            existingTransaction
+          );
+        case 'broadcasting':
+          // Transaction is still broadcasting - return existing transaction
+          return existingTransaction;
+        case 'pending':
+          // Transaction exists but not yet broadcast - continue with distribution
+          // This handles the case where transaction was pre-created before confirmation
+          break;
+        default:
+          // Unknown status - throw error for safety
+          throw new RewardDistributionError(
+            `Unknown transaction status: ${existingTransaction.status}`,
+            false,
+            existingTransaction
+          );
+      }
     }
 
     // Step 2: Calculate reward amount
@@ -106,11 +130,11 @@ export async function distributeReward(
         last_error: affordability.reason,
       });
 
-      return {
-        success: false,
-        error: affordability.reason,
-        shouldRetry: false,
-      };
+      throw new RewardDistributionError(
+        affordability.reason || 'Insufficient bank balance',
+        false, // Not retryable - need to fund bank wallet
+        transaction
+      );
     }
 
     // Step 5: Get user's Jetton wallet address and bank's Jetton wallet address
@@ -122,13 +146,20 @@ export async function distributeReward(
     const bankJettonWallet =
       await getBankJettonWalletAddress(jettonMasterAddress);
 
-    // Step 6: Create transaction record
-    const transaction = createTransaction({
-      from_wallet: await tonClientManager.getBankWalletAddress(),
-      to_wallet: userWalletAddress,
-      amount: rewardAmount,
-      sighting_id: sightingId,
-    });
+    // Step 6: Get or create transaction record
+    let transaction: Transaction;
+    if (existingTransaction && existingTransaction.status === 'pending') {
+      // Use pre-created transaction
+      transaction = existingTransaction;
+    } else {
+      // Create new transaction record
+      transaction = createTransaction({
+        from_wallet: await tonClientManager.getBankWalletAddress(),
+        to_wallet: userWalletAddress,
+        amount: rewardAmount,
+        sighting_id: sightingId,
+      });
+    }
 
     // Step 7: Broadcast Jetton transfer
     try {
@@ -148,10 +179,7 @@ export async function distributeReward(
         broadcast_at: broadcastResult.timestamp,
       });
 
-      return {
-        success: true,
-        transaction: updatedTransaction,
-      };
+      return updatedTransaction;
     } catch (broadcastError) {
       console.error(
         `[Distributor] Broadcast failed for transaction ${transaction.id}:`,
@@ -171,152 +199,24 @@ export async function distributeReward(
         last_retry_at: new Date(),
       });
 
-      return {
-        success: false,
-        transaction,
-        error: classified.message,
-        shouldRetry: classified.classification === 'retryable',
-      };
+      throw new RewardDistributionError(
+        classified.message,
+        classified.classification === 'retryable',
+        transaction
+      );
     }
   } catch (error) {
     console.error(`[Distributor] Fatal error distributing reward:`, error);
 
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      shouldRetry: false,
-    };
-  }
-}
-
-/**
- * Retry a failed transaction with exponential backoff
- *
- * This function is called by T025 retry handler.
- * It checks seqno changes before retrying to detect successful broadcasts
- * despite error responses.
- *
- * @param transaction The failed transaction to retry
- * @returns Result of retry attempt
- */
-export async function retryFailedTransaction(
-  transaction: Transaction
-): Promise<DistributeRewardResult> {
-  const { id, sighting_id, to_wallet, amount, retry_count } = transaction;
-
-  try {
-    // Step 1: Check if seqno changed since last attempt
-    // This detects if previous broadcast actually succeeded despite error
-    if (transaction.transaction_hash) {
-      const parsedSeqno = parseInt(
-        transaction.transaction_hash.split('-')[2],
-        10
-      );
-
-      if (!isNaN(parsedSeqno)) {
-        const seqnoCheck = await checkSeqnoChanged(parsedSeqno);
-
-        if (seqnoCheck.hasChanged) {
-          // Mark as broadcasting and let monitoring confirm
-          const updatedTransaction = updateTransactionStatus({
-            id,
-            status: 'broadcasting',
-          });
-
-          return {
-            success: true,
-            transaction: updatedTransaction,
-          };
-        }
-      }
+    // Re-throw RewardDistributionError as-is
+    if (error instanceof RewardDistributionError) {
+      throw error;
     }
 
-    // Step 2: Check balances again before retry
-    const jettonMasterAddress = process.env.JETTON_MASTER_ADDRESS;
-    if (!jettonMasterAddress) {
-      throw new Error('JETTON_MASTER_ADDRESS not configured');
-    }
-
-    const affordability = await canAffordTransfer(jettonMasterAddress, amount);
-
-    if (!affordability.canAfford) {
-      console.error(
-        `[Distributor] Cannot retry - insufficient balance: ${affordability.reason}`
-      );
-
-      updateTransactionStatus({
-        id,
-        status: 'failed',
-        failure_reason: `Cannot retry - ${affordability.reason}`,
-        retry_count: retry_count + 1,
-        last_retry_at: new Date(),
-      });
-
-      return {
-        success: false,
-        error: affordability.reason,
-        shouldRetry: false,
-      };
-    }
-
-    // Step 3: Get Jetton wallet addresses
-    const userJettonWallet = await getJettonWalletAddress(
-      jettonMasterAddress,
-      to_wallet
+    // Wrap other errors
+    throw new RewardDistributionError(
+      error instanceof Error ? error.message : 'Unknown error',
+      false // Unknown errors are not retryable by default
     );
-
-    const bankJettonWallet =
-      await getBankJettonWalletAddress(jettonMasterAddress);
-
-    // Step 4: Retry broadcast
-    const broadcastResult = await broadcastJettonTransfer({
-      masterAddress: jettonMasterAddress,
-      senderJettonWallet: bankJettonWallet,
-      destination: to_wallet,
-      amount,
-      queryId: id,
-    });
-
-    // Update transaction
-    const updatedTransaction = updateTransactionStatus({
-      id,
-      status: 'broadcasting',
-      transaction_hash: broadcastResult.transactionHash,
-      broadcast_at: broadcastResult.timestamp,
-      retry_count: retry_count + 1,
-      last_retry_at: new Date(),
-    });
-
-    return {
-      success: true,
-      transaction: updatedTransaction,
-    };
-  } catch (error) {
-    console.error(`[Distributor] Retry failed for transaction ${id}:`, error);
-
-    // Classify error
-    const classified = classifyError(error);
-
-    // Determine if we should retry again (max 3 attempts)
-    const shouldRetryAgain =
-      classified.classification === 'retryable' && retry_count < 2;
-
-    // Update transaction
-    updateTransactionStatus({
-      id,
-      status: 'failed',
-      last_error: classified.message,
-      failure_reason: shouldRetryAgain
-        ? undefined
-        : `Failed after ${retry_count + 1} attempts: ${classified.message}`,
-      retry_count: retry_count + 1,
-      last_retry_at: new Date(),
-    });
-
-    return {
-      success: false,
-      error: classified.message,
-      shouldRetry: shouldRetryAgain,
-    };
   }
 }

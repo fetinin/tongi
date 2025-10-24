@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/middleware/auth';
-import { corgiService } from '@/services/CorgiService';
+import { corgiService, BlockchainError } from '@/services/CorgiService';
 import { handleApiError } from '@/lib/apiErrors';
 
 interface CorgiSightingResponse {
@@ -22,6 +22,17 @@ interface ErrorResponse {
 /**
  * POST /api/corgi/confirm/[id]
  * Confirm or deny a corgi sighting
+ *
+ * Error Handling & Client Retry Strategy:
+ * - 503 (Service Unavailable): Blockchain transaction failed with retryable error
+ *   Client should implement exponential backoff retry (3-5 attempts recommended)
+ * - 500 (Internal Server Error): Non-retryable blockchain error or other failure
+ *   Client should display error message and allow manual retry
+ *
+ * Recommended Client Implementation:
+ * - Use optimistic UI pattern: show success immediately, rollback on error
+ * - Implement retry logic with exponential backoff for 503 errors
+ * - Display user-friendly error messages for 500 errors
  */
 export async function POST(
   request: NextRequest,
@@ -93,6 +104,18 @@ export async function POST(
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
+    // Handle BlockchainError specifically
+    if (error instanceof BlockchainError) {
+      return NextResponse.json(
+        {
+          error: error.code,
+          message: error.message,
+        },
+        { status: error.statusCode } // 503 for retryable, 500 for non-retryable
+      );
+    }
+
+    // Handle all other errors
     return handleApiError('corgi/confirm:POST', error);
   }
 }

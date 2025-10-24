@@ -98,3 +98,4 @@ ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 - This service use sqlite database located at ./data/app.db
 - Always run formatter before commiting changes
+- FOLLOW RULES FROM @.specify/memory/constitution.md
