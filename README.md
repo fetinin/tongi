@@ -59,6 +59,87 @@ The app will now use a mock Telegram user (Arthur, ID: 99281932) with properly s
 - `pnpm run db:migrate` - Run database migrations
 - `pnpm run db:seed` - Seed initial data
 
+## Docker Deployment
+
+### Build the Docker Image
+
+```bash
+docker build -t tongi:latest .
+```
+
+### Run with Environment Variables
+
+Create a `.env` file from the example template:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and configure your production values:
+- Set `NODE_ENV=production`
+- Set `NEXT_PUBLIC_USE_MOCK_AUTH=false`
+- Configure your Telegram bot token
+- Configure your TON wallet credentials
+- Update other settings as needed
+
+Run the container:
+
+```bash
+docker run -d \
+  --name tongi \
+  -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  --env-file .env \
+  tongi:latest
+```
+
+### Run Database Migrations
+
+Before first run, execute migrations:
+
+```bash
+docker run --rm \
+  -v $(pwd)/data:/app/data \
+  --env-file .env \
+  tongi:latest \
+  node_modules/.bin/tsx scripts/migrate.ts
+```
+
+### Health Check
+
+The container includes a health check endpoint at `/api/health`. Create the endpoint if it doesn't exist:
+
+```typescript
+// src/app/api/health/route.ts
+export async function GET() {
+  return Response.json({ status: 'ok' }, { status: 200 });
+}
+```
+
+### Docker Compose (Optional)
+
+For easier management, create a `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  tongi:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
+```
+
+Run with:
+
+```bash
+docker-compose up -d
+```
+
 ## Project Structure
 
 - `src/app/` - Next.js 15 App Router pages

@@ -70,7 +70,8 @@ export class CorgiAuthorizationError extends CorgiServiceError {
 export class BlockchainError extends CorgiServiceError {
   constructor(
     message: string,
-    public isRetryable: boolean = true
+    public isRetryable: boolean = true,
+    public transaction?: any
   ) {
     super(
       `Blockchain operation failed: ${message}`,
@@ -331,7 +332,62 @@ export class CorgiService {
         throw new UserNotFoundError(buddyId);
       }
 
-      const result = withTransaction(() => {
+      // Pre-fetch reporter user and pre-create transaction record if needed
+      let reporterUser:
+        | Awaited<ReturnType<typeof userService.getUserById>>
+        | undefined;
+      if (confirmed) {
+        // Get sighting to determine reporter
+        const sightingRow = this.statements.getSightingById!.get(sightingId);
+        if (sightingRow) {
+          const sighting = this.mapRowToSighting(
+            sightingRow as Record<string, unknown>
+          );
+          reporterUser = await userService.getUserById(sighting.reporter_id);
+
+          // Pre-create transaction record if user has wallet (for audit trail even if rollback)
+          if (reporterUser?.ton_wallet_address) {
+            try {
+              const { createTransaction, getTransactionBySightingId } =
+                await import('@/lib/database/models/transaction');
+              const { tonClientManager } = await import(
+                '@/lib/blockchain/ton-client'
+              );
+              const { calculateRewardAmount } = await import(
+                '@/lib/rewards/calculator'
+              );
+
+              // Check if transaction already exists
+              const existingTx = getTransactionBySightingId(sightingId);
+              if (!existingTx) {
+                // Create transaction record (auto-commits before manual transaction)
+                const rewardAmount = calculateRewardAmount(
+                  sighting.corgi_count
+                );
+                createTransaction({
+                  from_wallet: await tonClientManager.getBankWalletAddress(),
+                  to_wallet: reporterUser.ton_wallet_address,
+                  amount: rewardAmount,
+                  sighting_id: sightingId,
+                });
+              }
+            } catch (preCreateError) {
+              // If pre-creation fails (e.g., TON client initialization), continue anyway
+              // Transaction will be created later in distributeReward
+              console.log(
+                '[CorgiService] Failed to pre-create transaction:',
+                preCreateError
+              );
+            }
+          }
+        }
+      }
+
+      // Use manual transaction control to include async blockchain operation
+      this.db.prepare('BEGIN').run();
+
+      let result: SightingResult;
+      try {
         // Get the sighting
         const row = this.statements.getSightingById!.get(sightingId);
         if (!row) {
@@ -394,19 +450,13 @@ export class CorgiService {
           rewardEarned = this.calculateReward(updatedSighting.corgi_count);
         }
 
-        return {
+        result = {
           sighting: updatedSighting,
           rewardEarned,
         };
-      });
 
-      // NEW: Distribute Jetton reward if sighting confirmed and user has wallet
-      if (confirmed && result.sighting) {
-        const reporterUser = await userService.getUserById(
-          result.sighting.reporter_id
-        );
-
-        if (reporterUser?.ton_wallet_address) {
+        // Distribute Jetton reward if sighting confirmed and user has wallet
+        if (confirmed && reporterUser?.ton_wallet_address) {
           // User has wallet - distribute reward via Jetton transfer
           try {
             const { distributeReward } = await import(
@@ -434,31 +484,21 @@ export class CorgiService {
               rewardError
             );
 
-            // ROLLBACK: Revert DB confirmation
-            withTransaction(() => {
-              this.statements.updateSightingStatus!.run(
-                'pending',
-                null,
-                sightingId
-              );
-            });
-
-            // Throw BlockchainError with retry classification
+            // Re-throw as BlockchainError with retry classification
+            // Transaction will be rolled back in the outer catch block
+            let message = 'Unknown blockchain error';
+            let shouldRetry = false;
+            let transaction: any;
             if (rewardError instanceof RewardDistributionError) {
-              throw new BlockchainError(
-                rewardError.message,
-                rewardError.shouldRetry
-              );
+              message = rewardError.message;
+              shouldRetry = rewardError.shouldRetry;
+              transaction = rewardError.transaction;
+            } else if (rewardError instanceof Error) {
+              message = rewardError.message;
             }
-            // Unknown error - assume non-retryable
-            throw new BlockchainError(
-              rewardError instanceof Error
-                ? rewardError.message
-                : 'Unknown blockchain error',
-              false
-            );
+            throw new BlockchainError(message, shouldRetry, transaction);
           }
-        } else {
+        } else if (confirmed) {
           // User doesn't have wallet - create pending reward
           console.log(
             `[CorgiService] User has no wallet, creating pending reward for sighting ${sightingId}`
@@ -472,9 +512,30 @@ export class CorgiService {
             )
             .run(sightingId);
         }
+
+        // Commit transaction on success
+        this.db.prepare('COMMIT').run();
+      } catch (error) {
+        // Rollback transaction on any error
+        this.db.prepare('ROLLBACK').run();
+
+        // Update transaction record to failed status (after rollback, so it persists)
+        if (error instanceof BlockchainError && error.transaction) {
+          const { updateTransactionStatus } = await import(
+            '@/lib/database/models/transaction'
+          );
+          updateTransactionStatus({
+            id: error.transaction.id,
+            status: 'failed',
+            failure_reason: error.message,
+            last_error: error.message,
+          });
+        }
+
+        throw error;
       }
 
-      // Notify reporter of confirmation outcome
+      // Notify reporter of confirmation outcome (after transaction commits)
       const updated = await this.getSightingById(sightingId);
       if (updated) {
         await notificationService

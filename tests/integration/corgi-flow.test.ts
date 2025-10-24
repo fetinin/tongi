@@ -873,7 +873,15 @@ describe('Corgi Sighting Confirmation Flow Integration', () => {
               };
 
             case 'runGetMethod':
-              const methodName = (params as any)?.method;
+              let methodName: string | undefined;
+              if (
+                params &&
+                typeof params === 'object' &&
+                'method' in params &&
+                typeof (params as { method?: unknown }).method === 'string'
+              ) {
+                methodName = (params as { method: string }).method;
+              }
               if (methodName === 'get_wallet_address') {
                 const jettonWalletAddr = generateTestTonAddress(12345);
                 const addressCell = encodeAddressToCell(jettonWalletAddr);

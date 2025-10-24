@@ -66,19 +66,33 @@ export async function distributeReward(
     // Step 1: Check if transaction already exists for this sighting (idempotency)
     const existingTransaction = getTransactionBySightingId(sightingId);
     if (existingTransaction) {
-      if (existingTransaction.status === 'completed') {
-        // Already successfully processed
-        return existingTransaction;
-      } else if (existingTransaction.status === 'failed') {
-        // Previously failed - throw error to indicate failure
-        throw new RewardDistributionError(
-          existingTransaction.failure_reason || 'Transaction previously failed',
-          false, // Don't retry - need manual intervention
-          existingTransaction
-        );
+      switch (existingTransaction.status) {
+        case 'completed':
+          // Already successfully processed
+          return existingTransaction;
+        case 'failed':
+          // Previously failed - throw error to indicate failure
+          throw new RewardDistributionError(
+            existingTransaction.failure_reason ||
+              'Transaction previously failed',
+            false, // Don't retry - need manual intervention
+            existingTransaction
+          );
+        case 'broadcasting':
+          // Transaction is still broadcasting - return existing transaction
+          return existingTransaction;
+        case 'pending':
+          // Transaction exists but not yet broadcast - continue with distribution
+          // This handles the case where transaction was pre-created before confirmation
+          break;
+        default:
+          // Unknown status - throw error for safety
+          throw new RewardDistributionError(
+            `Unknown transaction status: ${existingTransaction.status}`,
+            false,
+            existingTransaction
+          );
       }
-      // Status is 'broadcasting' - return existing transaction
-      return existingTransaction;
     }
 
     // Step 2: Calculate reward amount
@@ -132,13 +146,20 @@ export async function distributeReward(
     const bankJettonWallet =
       await getBankJettonWalletAddress(jettonMasterAddress);
 
-    // Step 6: Create transaction record
-    const transaction = createTransaction({
-      from_wallet: await tonClientManager.getBankWalletAddress(),
-      to_wallet: userWalletAddress,
-      amount: rewardAmount,
-      sighting_id: sightingId,
-    });
+    // Step 6: Get or create transaction record
+    let transaction: Transaction;
+    if (existingTransaction && existingTransaction.status === 'pending') {
+      // Use pre-created transaction
+      transaction = existingTransaction;
+    } else {
+      // Create new transaction record
+      transaction = createTransaction({
+        from_wallet: await tonClientManager.getBankWalletAddress(),
+        to_wallet: userWalletAddress,
+        amount: rewardAmount,
+        sighting_id: sightingId,
+      });
+    }
 
     // Step 7: Broadcast Jetton transfer
     try {
