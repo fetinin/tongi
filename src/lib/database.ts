@@ -10,8 +10,9 @@ function loadDatabase(): typeof DatabaseConstructor {
     // Skip loading better-sqlite3 during Next.js build phase
     // Return a mock constructor that won't be used at build time
     if (process.env.SKIP_DB_INIT === 'true') {
-      // Create a mock constructor that satisfies TypeScript but won't execute
-      Database = class MockDatabase {} as any;
+      // Use a no-op function as a mock constructor to satisfy TypeScript.
+      // This mock is never instantiated; it only exists to bypass type checks during build.
+      Database = (() => {}) as any;
       return Database as typeof DatabaseConstructor;
     }
     // eslint-disable-next-line @typescript-eslint/no-require-imports
