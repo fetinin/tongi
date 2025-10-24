@@ -107,7 +107,7 @@ docker run --rm \
 
 ### Health Check
 
-The container includes a health check endpoint at `/api/health`. Create the endpoint if it doesn't exist:
+The container expects a health check endpoint at `/api/health`. If it does not exist, add it using the following example (customize as needed):
 
 ```typescript
 // src/app/api/health/route.ts
