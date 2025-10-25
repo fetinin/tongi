@@ -9,6 +9,7 @@
  */
 
 import { toUserFriendlyAddress, type Wallet } from '@tonconnect/sdk';
+import { Address } from '@ton/core';
 
 /**
  * TON network configuration
@@ -129,27 +130,14 @@ export function validateTonAddress(address: string): boolean {
   // Remove whitespace
   const cleanAddress = address.trim();
 
-  // TON addresses can be:
-  // 1. Raw format: 64 hex characters (32 bytes)
-  // 2. User-friendly format: base64 with checksum
-  // 3. Bounceable/non-bounceable variants
-
-  // Check raw format (64 hex characters)
-  if (/^[0-9a-fA-F]{64}$/.test(cleanAddress)) {
+  // Try to parse using TON SDK Address class
+  // This handles all valid formats: raw, raw with workchain prefix, and user-friendly
+  try {
+    Address.parse(cleanAddress);
     return true;
+  } catch {
+    return false;
   }
-
-  // Check user-friendly format (base64-like with specific length)
-  if (/^[A-Za-z0-9+/\-_]{48}$/.test(cleanAddress.replace(/=/g, ''))) {
-    return true;
-  }
-
-  // Extended check for EQ/UQ prefixed addresses
-  if (/^(EQ|UQ)[A-Za-z0-9+/\-_]{46}$/.test(cleanAddress)) {
-    return true;
-  }
-
-  return false;
 }
 
 /**
@@ -176,22 +164,31 @@ export function formatUserFriendlyAddress(
 
 /**
  * Normalizes TON address for consistent database storage
- * @param address Address in any valid format
- * @returns Normalized address or null if invalid
+ * @param address Address in any valid format (raw, raw with workchain, or user-friendly)
+ * @returns Normalized user-friendly address or null if invalid
  */
 export function normalizeTonAddress(address: string): string | null {
   if (!validateTonAddress(address)) {
     return null;
   }
 
-  // If address is already in user-friendly format (EQ/UQ prefix), return as-is
-  if (/^(EQ|UQ)[A-Za-z0-9+/\-_]{46}$/.test(address.trim())) {
-    return address.trim();
-  }
+  try {
+    // Parse address using TON SDK (handles all formats)
+    const addr = Address.parse(address.trim());
 
-  // Otherwise, convert raw format to user-friendly
-  const formatted = formatUserFriendlyAddress(address);
-  return formatted;
+    // Convert to user-friendly format
+    // Use bounceable=true, urlSafe=true, testOnly=false for mainnet
+    // For testnet, set testOnly=true based on config
+    const isTestnet = TON_CONFIG.NETWORK === 'testnet';
+    return addr.toString({
+      bounceable: true,
+      urlSafe: true,
+      testOnly: isTestnet,
+    });
+  } catch (error) {
+    console.error('Error normalizing address:', error);
+    return null;
+  }
 }
 
 /**

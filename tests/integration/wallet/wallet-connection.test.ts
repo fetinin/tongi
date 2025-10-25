@@ -10,7 +10,7 @@ import {
 describe('POST /api/wallet/connect', () => {
   const db = getDatabase();
   const testUserId = 999999;
-  const testWalletAddress = 'EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2';
+  const testWalletAddress = 'kQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74pzE8';
   let authToken: string;
 
   beforeEach(async () => {
@@ -85,7 +85,7 @@ describe('POST /api/wallet/connect', () => {
   });
 
   it('should update existing wallet address when connecting new wallet', async () => {
-    const oldAddress = 'EQAaGHUHfkpWFGs428ETmym4vbvRNPZnjaxidyMuur0w_OKb';
+    const oldAddress = 'kQAaGHUHfkpWFGs428ETmym4vbvRNPZnjaxidyMuur0w_M-G';
 
     // Set initial wallet address
     db.prepare('UPDATE users SET ton_wallet_address = ? WHERE id = ?').run(

@@ -146,9 +146,12 @@ export const UserValidation = {
   isValidFirstName: (name: string): boolean =>
     name.length >= 1 && name.length <= 64,
 
-  /** TON wallet address format validation (basic check) */
-  isValidTonAddress: (address: string): boolean =>
-    /^[0-9a-fA-F]{48}$|^(EQ|kQ)[0-9a-zA-Z_-]{46}$/.test(address),
+  /** TON wallet address format validation */
+  isValidTonAddress: (address: string): boolean => {
+    // Validate user-friendly format (what we store in DB after normalization)
+    // Accepts: EQxxx, UQxxx (mainnet) or kQxxx, 0Qxxx (testnet)
+    return /^(EQ|UQ|kQ|0Q)[A-Za-z0-9_-]{46}$/.test(address);
+  },
 
   /** Username format validation (Telegram format) */
   isValidUsername: (username: string): boolean =>
