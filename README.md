@@ -93,45 +93,187 @@ docker run -d \
   tongi:latest
 ```
 
+## Docker Swarm Deployment (Production VPS)
+
+For production deployment to a VPS using Docker Swarm for high availability and easier updates.
+
+### Prerequisites
+
+1. Docker installed on your VPS
+2. Docker Swarm initialized:
+
+```bash
+# SSH into your VPS
+ssh user@your-vps-ip
+
+# Initialize Swarm (run once)
+docker swarm init --advertise-addr your-vps-ip
+```
+
+### Build and Prepare Image
+
+Build the Docker image either on your VPS or locally and push to a registry:
+
+**Option A: Build on VPS**
+```bash
+# Copy code to VPS (from local machine)
+rsync -avz --exclude 'node_modules' --exclude '.next' --exclude 'data' \
+  . user@your-vps-ip:~/tongi/
+
+# SSH into VPS and build
+ssh user@your-vps-ip
+cd ~/tongi
+docker build -t tongi:latest .
+```
+
+**Option B: Use Docker Registry**
+```bash
+# Build locally and push to registry
+docker build -t your-registry/tongi:latest .
+docker push your-registry/tongi:latest
+
+# Update docker-stack.yml to use: image: your-registry/tongi:latest
+```
+
+### Create Production Secrets
+
+Create a `.env.production` file with your production environment variables:
+
+```bash
+# On your VPS
+cat > .env.production <<EOF
+TELEGRAM_BOT_TOKEN=your_bot_token
+NEXT_PUBLIC_TON_MANIFEST_URL=https://your-domain.com/tonconnect-manifest.json
+BANK_WALLET_PRIVATE_KEY=your_private_key
+# Add all required environment variables
+EOF
+
+# Create Docker secret (run once)
+docker secret create tongi-env .env.production
+
+# Remove the file for security
+rm .env.production
+```
+
+To update secrets:
+```bash
+# Remove old secret
+docker secret rm tongi-env
+
+# Create new secret
+docker secret create tongi-env .env.production
+rm .env.production
+
+# Update the service to use new secret
+docker service update --secret-rm tongi-env --secret-add tongi-env tongi_tongi
+```
+
 ### Run Database Migrations
 
-Before first run, execute migrations:
+Before first deployment, run migrations using the builder image:
 
 ```bash
+# Create data volume manually (optional, Swarm will create it automatically)
+docker volume create tongi-data
+
+# Build the builder image (includes tsx and other dev dependencies)
+docker build --target builder -t tongi:builder .
+
+# Run migrations
 docker run --rm \
-  -v $(pwd)/data:/app/data \
+  -v tongi-data:/app/data \
   --env-file .env \
-  tongi:latest \
-  node_modules/.bin/tsx scripts/migrate.ts
+  tongi:builder \
+  pnpm run db:migrate
 ```
 
-### Health Check
-
-The container includes a health check endpoint at `/api/health` that returns `200 OK` when the service is running. Docker will automatically use this endpoint to monitor container health.
-
-### Docker Compose (Optional)
-
-For easier management, create a `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-services:
-  tongi:
-    build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./data:/app/data
-    env_file:
-      - .env
-    restart: unless-stopped
-```
-
-Run with:
+### Deploy the Stack
 
 ```bash
-docker-compose up -d
+# Deploy using the stack file
+docker stack deploy -c docker-stack.yml tongi
+
+# Verify deployment
+docker stack ps tongi
+docker service ls
+
+# Check logs
+docker service logs -f tongi_tongi
 ```
+
+### Monitor Deployment
+
+```bash
+# Watch service status
+watch -n 2 docker service ls
+
+# View detailed service info
+docker service inspect tongi_tongi
+
+# Check container health
+docker service ps tongi_tongi
+
+# Stream logs
+docker service logs -f tongi_tongi --tail 100
+```
+
+### Update the Application
+
+To deploy a new version:
+
+```bash
+# Build new image with version tag
+docker build -t tongi:v2 .
+
+# Update the service (rolling update)
+docker service update --image tongi:v2 tongi_tongi
+
+# Rollback if needed
+docker service rollback tongi_tongi
+```
+
+### Backup Database
+
+```bash
+# Backup SQLite database from volume
+docker run --rm \
+  -v tongi-data:/data \
+  -v $(pwd):/backup \
+  alpine tar czf /backup/tongi-backup-$(date +%Y%m%d-%H%M%S).tar.gz -C /data .
+
+# Restore backup
+docker run --rm \
+  -v tongi-data:/data \
+  -v $(pwd):/backup \
+  alpine tar xzf /backup/tongi-backup-YYYYMMDD-HHMMSS.tar.gz -C /data
+```
+
+### Remove Stack
+
+```bash
+# Remove the entire stack
+docker stack rm tongi
+
+# Remove volumes (WARNING: deletes data!)
+docker volume rm tongi-data
+
+# Remove secrets
+docker secret rm tongi-env
+```
+
+### Important Notes
+
+- **Volume Persistence**: The `tongi-data` volume persists across deployments. Always back it up before major updates.
+- **Health Checks**: The service includes automatic health checks via `/api/health`. Unhealthy containers are automatically restarted.
+- **Rolling Updates**: Updates happen with zero downtime using `start-first` order - new container starts before old one stops.
+- **Resource Limits**: Configured with CPU (1 core max) and memory (512MB max) limits. Adjust in `docker-stack.yml` based on your VPS specs.
+
+### Scaling Considerations
+
+If you need to scale beyond 1 replica, you have two options:
+
+1. **Migrate to PostgreSQL** - Replace SQLite with PostgreSQL for multi-instance support
+2. **Read Replicas Pattern** - Run 1 writer service + multiple read-only API services (advanced)
 
 ## Project Structure
 

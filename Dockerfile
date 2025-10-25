@@ -1,12 +1,15 @@
 # Multi-stage build for production Next.js app with pnpm
 
 # Stage 1: Builder
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Fix sqlite3: https://github.com/WiseLibs/better-sqlite3/issues/1378#issuecomment-2974070269
+RUN printf "onlyBuiltDependencies:\n- better-sqlite3\n" >> pnpm-workspace.yaml
 
 # Copy dependency manifests
 COPY package.json pnpm-lock.yaml ./
@@ -20,14 +23,11 @@ RUN pnpm rebuild better-sqlite3
 # Copy source code
 COPY . .
 
-# Skip database initialization during build (Next.js static analysis)
-ENV SKIP_DB_INIT=true
-
 # Build the application
-RUN pnpm run build
+RUN SKIP_DB_INIT=true pnpm run build
 
 # Stage 2: Runner (production)
-FROM node:20-alpine AS runner
+FROM builder AS runner
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -43,10 +43,6 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# Copy database migration scripts and schema
-COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/src/lib/database ./src/lib/database
 
 # Create data directory for SQLite with proper permissions
 RUN mkdir -p ./data && chown nextjs:nodejs ./data

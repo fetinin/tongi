@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // Standalone output for Docker - only includes necessary files
   output: 'standalone',
 
+  // Exclude native modules from bundling
+  serverExternalPackages: ['better-sqlite3'],
+
   turbopack: {
     root: process.cwd(),
   },
