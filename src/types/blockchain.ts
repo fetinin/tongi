@@ -99,19 +99,3 @@ export interface ClassifiedError {
   code?: string;
   originalError: Error;
 }
-
-/**
- * Webhook Event Types
- */
-export interface TONAPIWebhookEvent {
-  type: 'transaction_confirmation';
-  tx_hash: string;
-  status: 'success' | 'failure';
-  exit_code?: number;
-  timestamp: number;
-}
-
-export interface WebhookSignature {
-  timestamp: number;
-  signature: string;
-}

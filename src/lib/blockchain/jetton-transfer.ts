@@ -98,8 +98,8 @@ export async function broadcastJettonTransfer(
 
     await client.sendExternalMessage(bankWallet, transfer);
 
-    // Note: Transaction hash is not directly available from sendTransfer
-    // It will be confirmed via webhook or polling
+    // Note: Transaction hash is generated from seqno and timestamp
+    // Actual blockchain hash will be available after confirmation
     const txHash = `pending-${Date.now()}-${seqno}`;
 
     return {

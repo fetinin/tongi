@@ -28,8 +28,6 @@ Complete the implementation of the corgi reward distribution system. When a budd
 - `TON_BANK_WALLET_MNEMONIC`: 24-word mnemonic phrase for bank wallet
 - `JETTON_MASTER_ADDRESS`: Corgi coin Jetton master contract address
 - `JETTON_DECIMALS`: Corgi coin decimals (typically 9)
-- `TON_API_KEY`: TONAPI key for webhooks and monitoring
-- `TONAPI_WEBHOOK_SECRET`: For webhook signature verification
 - `CORGI_BANK_TON_MIN_BALANCE`: Minimum TON balance threshold for gas fees (e.g., "1.0")
 - `CORGI_BANK_JETTON_MIN_BALANCE`: Minimum Jetton balance threshold for rewards (e.g., "1000")
 
@@ -102,10 +100,8 @@ src/
 │       ├── transactions/
 │       │   ├── route.ts                   # List user Jetton transactions
 │       │   └── [id]/route.ts              # Get transaction details
-│       ├── wallet/
-│       │   └── connect/route.ts           # Process pending rewards on wallet connect
-│       └── webhooks/
-│           └── ton-transactions/route.ts  # NEW: TONAPI webhook endpoint
+│       └── wallet/
+│           └── connect/route.ts           # Process pending rewards on wallet connect
 ├── components/
 │   ├── wallet/
 │   │   └── TonProvider.tsx                # Existing TON Connect integration
@@ -122,9 +118,6 @@ src/
 │   │   ├── calculator.ts                  # NEW: Calculate reward amounts (1-to-1 mapping)
 │   │   ├── distributor.ts                 # NEW: Orchestrate Jetton reward distribution
 │   │   └── retry.ts                       # NEW: Exponential backoff retry logic
-│   ├── monitoring/
-│   │   ├── transaction-monitor.ts         # NEW: Poll pending transactions
-│   │   └── webhook-verifier.ts            # NEW: Verify TONAPI webhook signatures
 │   └── database/
 │       ├── migrations/
 │       │   ├── 004_transactions.sql       # NEW: Transaction table with retry fields
@@ -150,7 +143,7 @@ data/
 └── app.db                                  # SQLite database (existing)
 ```
 
-**Structure Decision**: Web application structure using Next.js App Router. API routes handle server-side Jetton transfer operations using @ton/ton SDK to maintain bank wallet mnemonic security. Jetton-specific modules handle transfer message building, wallet address resolution, and balance monitoring for both TON (gas) and Jettons (rewards). TONAPI webhook endpoint receives real-time transaction confirmations. Frontend components display Jetton transaction history and status. Database models and migrations in lib/database for schema management. Integration tests organized by user story as required by constitution, with unit tests for complex reward calculation and retry logic.
+**Structure Decision**: Web application structure using Next.js App Router. API routes handle server-side Jetton transfer operations using @ton/ton SDK to maintain bank wallet mnemonic security. Jetton-specific modules handle transfer message building, wallet address resolution, and balance monitoring for both TON (gas) and Jettons (rewards). Jetton transfers happen synchronously during buddy confirmation. Frontend components display Jetton transaction history and status. Database models and migrations in lib/database for schema management. Integration tests organized by user story as required by constitution, with unit tests for complex reward calculation and retry logic.
 
 ## Post-Design Constitution Re-evaluation
 
