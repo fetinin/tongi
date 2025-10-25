@@ -20,7 +20,7 @@
 **Purpose**: Project initialization and dependency installation
 
 - [x] T001 Install @ton/ton SDK packages: `pnpm add @ton/ton @ton/core @ton/crypto`
-- [x] T002 Configure environment variables in `.env.local` (TON_NETWORK, TON_BANK_WALLET_MNEMONIC, JETTON_MASTER_ADDRESS, JETTON_DECIMALS, TON_API_KEY, TONAPI_WEBHOOK_SECRET, CORGI_BANK_TON_MIN_BALANCE, CORGI_BANK_JETTON_MIN_BALANCE)
+- [x] T002 Configure environment variables in `.env.local` (TON_NETWORK, TON_BANK_WALLET_MNEMONIC, JETTON_MASTER_ADDRESS, JETTON_DECIMALS, TON_API_KEY, CORGI_BANK_TON_MIN_BALANCE, CORGI_BANK_JETTON_MIN_BALANCE)
 - [ ] T003 Verify testnet setup (bank wallet funded with test TON and Jettons, TONAPI key registered)
 
 ---
@@ -141,15 +141,17 @@
 
 ---
 
-## Phase 7: Transaction Monitoring (Cross-Cutting)
+## Phase 7: Transaction Monitoring (Cross-Cutting) - SKIPPED
 
-**Purpose**: Real-time transaction confirmation via webhooks + polling fallback
+**Purpose**: ~~Real-time transaction confirmation via webhooks + polling fallback~~ **NO LONGER NEEDED - Jetton transfers happen synchronously during corgi confirmation**
 
-- [ ] T045 [P] Create webhook signature verifier in `src/lib/monitoring/webhook-verifier.ts` (verify TONAPI webhook signatures using TONAPI_WEBHOOK_SECRET, prevent unauthorized webhook calls)
-- [ ] T046 [P] Create POST /api/webhooks/ton-transactions endpoint in `src/app/api/webhooks/ton-transactions/route.ts` (verify signature, extract tx_hash from webhook payload, find matching pending transaction, verify blockchain status, update transaction to completed or failed, update sighting reward_distributed_at)
-- [ ] T047 Create transaction polling monitor in `src/lib/monitoring/transaction-monitor.ts` (query transactions in pending/broadcasting status older than 2 minutes, check blockchain status for each, update status accordingly, run as cron job or setInterval every 60 seconds)
-- [ ] T048 Create blockchain status checker in `src/lib/blockchain/status-checker.ts` (query transaction by hash from TON blockchain, check exit_code === 0 for success, extract confirmation timestamp, return status and details)
-- [ ] T049 Integrate polling monitor into application startup (add to `src/app/api/cron/monitor-transactions/route.ts` as Next.js cron job or background process)
+**Rationale**: Corgi coin Jetton transfers are now handled synchronously when a buddy confirms a sighting. The transaction is broadcast immediately and status is updated in the same request flow. Webhooks and polling are not necessary for this synchronous approach.
+
+- [ ] ~~T045 [P] Create webhook signature verifier~~ **SKIPPED** - Not needed for synchronous transfers
+- [ ] ~~T046 [P] Create POST /api/webhooks/ton-transactions endpoint~~ **SKIPPED** - Not needed for synchronous transfers
+- [ ] ~~T047 Create transaction polling monitor~~ **SKIPPED** - Not needed for synchronous transfers
+- [ ] ~~T048 Create blockchain status checker~~ **SKIPPED** - Not needed for synchronous transfers
+- [ ] ~~T049 Integrate polling monitor into application startup~~ **SKIPPED** - Not needed for synchronous transfers
 
 ---
 

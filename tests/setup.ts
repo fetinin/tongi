@@ -14,7 +14,6 @@ process.env.TON_BANK_WALLET_MNEMONIC =
 process.env.JETTON_MASTER_ADDRESS = 'EQtest_jetton_master_address';
 process.env.JETTON_DECIMALS = '9';
 process.env.TON_API_KEY = 'test_tonapi_key';
-process.env.TONAPI_WEBHOOK_SECRET = 'test_webhook_secret';
 process.env.CORGI_BANK_TON_MIN_BALANCE = '1.0';
 process.env.CORGI_BANK_JETTON_MIN_BALANCE = '1000';
 
