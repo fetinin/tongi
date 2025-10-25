@@ -6,6 +6,7 @@ import {
 } from '@/lib/telegram';
 import { userService } from '@/services/UserService';
 import { handleApiError } from '@/lib/apiErrors';
+import { normalizeTonAddress } from '@/lib/ton';
 
 interface AuthValidateRequest {
   initData: string;
@@ -103,14 +104,27 @@ export async function POST(
 
     // Update wallet address if provided
     let finalUser = user;
-    if (
-      body.tonWalletAddress &&
-      body.tonWalletAddress !== user.ton_wallet_address
-    ) {
-      finalUser = await userService.updateWalletAddress(
-        user.id,
-        body.tonWalletAddress
-      );
+    if (body.tonWalletAddress) {
+      // Normalize address to user-friendly format for consistent storage
+      const normalizedAddress = normalizeTonAddress(body.tonWalletAddress);
+
+      if (!normalizedAddress) {
+        return NextResponse.json(
+          {
+            error: 'VALIDATION_ERROR',
+            message: 'Invalid TON wallet address format',
+          },
+          { status: 400 }
+        );
+      }
+
+      // Only update if different from current
+      if (normalizedAddress !== user.ton_wallet_address) {
+        finalUser = await userService.updateWalletAddress(
+          user.id,
+          normalizedAddress
+        );
+      }
     }
 
     // Generate JWT token
