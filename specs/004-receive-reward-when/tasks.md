@@ -20,7 +20,7 @@
 **Purpose**: Project initialization and dependency installation
 
 - [x] T001 Install @ton/ton SDK packages: `pnpm add @ton/ton @ton/core @ton/crypto`
-- [x] T002 Configure environment variables in `.env.local` (TON_NETWORK, TON_BANK_WALLET_MNEMONIC, JETTON_MASTER_ADDRESS, JETTON_DECIMALS, CORGI_BANK_TON_MIN_BALANCE, CORGI_BANK_JETTON_MIN_BALANCE)
+- [x] T002 Configure environment variables in `.env.local` (TON_NETWORK, TON_BANK_WALLET_MNEMONIC, JETTON_MASTER_ADDRESS, JETTON_DECIMALS, TON_API_KEY, CORGI_BANK_TON_MIN_BALANCE, CORGI_BANK_JETTON_MIN_BALANCE)
 - [ ] T003 Verify testnet setup (bank wallet funded with test TON and Jettons, TONAPI key registered)
 
 ---

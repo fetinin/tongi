@@ -11,6 +11,7 @@ import { mnemonicToPrivateKey } from '@ton/crypto';
 export interface TONClientConfig {
   network: 'testnet' | 'mainnet';
   bankWalletMnemonic: string;
+  apiKey?: string;
   endpoint?: string; // Custom endpoint (overrides default)
 }
 
@@ -72,6 +73,7 @@ class TONClientManager {
       // Create TonClient instance
       this.client = new TonClient({
         endpoint,
+        apiKey: config.apiKey,
       });
 
       // Initialize bank wallet from mnemonic
@@ -141,6 +143,7 @@ class TONClientManager {
     await this.initialize({
       network,
       bankWalletMnemonic: mnemonic,
+      apiKey: process.env.TON_API_KEY,
       endpoint: process.env.TON_ENDPOINT,
     });
   }
@@ -216,6 +219,7 @@ export function ensureTONClientInitialized(): void {
  * Environment variables:
  * - TON_NETWORK: 'testnet' or 'mainnet' (default: 'testnet')
  * - TON_BANK_WALLET_MNEMONIC: 24-word mnemonic for bank wallet (REQUIRED)
+ * - TON_API_KEY: Optional API key for rate limiting
  * - TON_ENDPOINT: Optional custom endpoint URL (overrides default)
  */
 export async function initializeTONClient(): Promise<void> {
@@ -234,6 +238,7 @@ export async function initializeTONClient(): Promise<void> {
   await tonClientManager.initialize({
     network,
     bankWalletMnemonic: mnemonic,
+    apiKey: process.env.TON_API_KEY,
     endpoint: process.env.TON_ENDPOINT,
   });
 }

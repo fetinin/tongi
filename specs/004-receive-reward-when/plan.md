@@ -28,6 +28,7 @@ Complete the implementation of the corgi reward distribution system. When a budd
 - `TON_BANK_WALLET_MNEMONIC`: 24-word mnemonic phrase for bank wallet
 - `JETTON_MASTER_ADDRESS`: Corgi coin Jetton master contract address
 - `JETTON_DECIMALS`: Corgi coin decimals (typically 9)
+- `TON_API_KEY`: TONAPI key for rate limiting
 - `CORGI_BANK_TON_MIN_BALANCE`: Minimum TON balance threshold for gas fees (e.g., "1.0")
 - `CORGI_BANK_JETTON_MIN_BALANCE`: Minimum Jetton balance threshold for rewards (e.g., "1000")
 
