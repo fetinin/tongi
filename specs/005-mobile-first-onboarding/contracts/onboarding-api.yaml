@@ -1,0 +1,520 @@
+openapi: 3.0.3
+info:
+  title: Tongi Onboarding API
+  description: API endpoints for mobile-first onboarding flow
+  version: 1.0.0
+  contact:
+    name: Tongi Team
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://tongi.app
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/onboarding/status:
+    get:
+      summary: Get user's current onboarding status
+      description: |
+        Returns the user's current position in the onboarding flow by checking
+        wallet connection status and buddy confirmation status. This endpoint
+        should be called on every app open to determine which screen to show.
+
+        Re-validation logic (FR-014):
+        - Checks if wallet is still connected
+        - Checks if buddy relationship still exists and is confirmed
+        - Returns appropriate onboarding step based on current state
+
+        Error handling (FR-015, FR-016):
+        - Network errors (5xx, timeout) → retryable
+        - Auth failures (401) → not retryable
+        - Validation failures (wallet/buddy removed) → redirect to appropriate step
+      operationId: getOnboardingStatus
+      tags:
+        - Onboarding
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Onboarding status successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatusResponse'
+              examples:
+                welcomeStep:
+                  summary: Welcome step (no wallet)
+                  value:
+                    success: true
+                    onboarding:
+                      wallet_connected: false
+                      buddy_confirmed: false
+                      current_step: welcome
+                buddyStep:
+                  summary: Add buddy step (wallet connected, no buddy)
+                  value:
+                    success: true
+                    onboarding:
+                      wallet_connected: true
+                      buddy_confirmed: false
+                      current_step: buddy
+                    wallet:
+                      address: EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2
+                complete:
+                  summary: Onboarding complete (wallet + buddy confirmed)
+                  value:
+                    success: true
+                    onboarding:
+                      wallet_connected: true
+                      buddy_confirmed: true
+                      current_step: complete
+                    wallet:
+                      address: EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2
+                    buddy:
+                      id: 123
+                      status: confirmed
+                      profile:
+                        id: 456
+                        displayName: Alice
+                        username: alice_corgi
+                        hasWallet: true
+                        memberSince: '2025-10-01T10:00:00Z'
+                      createdAt: '2025-10-20T14:30:00Z'
+                      confirmedAt: '2025-10-20T15:00:00Z'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Authentication failed
+                code: AUTH_FAILED
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Failed to retrieve onboarding status
+                code: DATABASE_ERROR
+
+  /api/buddy/cancel:
+    delete:
+      summary: Cancel pending buddy request
+      description: |
+        Cancels a pending buddy request initiated by the current user. This allows
+        the user to search for a different buddy after sending a request (FR-006).
+
+        Business rules:
+        - Only the requester can cancel their own pending request
+        - Cannot cancel confirmed or rejected requests
+        - After cancellation, user can send a new buddy request
+      operationId: cancelBuddyRequest
+      tags:
+        - Buddy
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Request cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Buddy request cancelled successfully
+        '400':
+          description: Invalid request (no pending request found)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: No pending buddy request found
+                code: NO_PENDING_REQUEST
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Buddy request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Buddy request not found
+                code: BUDDY_NOT_FOUND
+
+  # Extended wallet/connect endpoint for automatic unlinking (FR-020)
+  /api/wallet/connect:
+    post:
+      summary: Connect TON wallet to user account
+      description: |
+        Connects a TON wallet address to the authenticated user's account.
+
+        Automatic wallet unlinking (FR-020):
+        - If the wallet is already connected to another account, it will be
+          automatically unlinked from the previous account (ton_wallet_address set to NULL)
+        - No notification is sent to the previous account holder
+        - Previous account holder discovers disconnection on next re-validation
+
+        Validation:
+        - Wallet address must be valid TON address format
+        - Wallet must be verified through TON Connect SDK
+      operationId: connectWallet
+      tags:
+        - Wallet
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - address
+              properties:
+                address:
+                  type: string
+                  description: TON wallet address (user-friendly format)
+                  pattern: '^(EQ|UQ|kQ|0Q)[A-Za-z0-9_-]{46}$'
+                  example: EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2
+      responses:
+        '200':
+          description: Wallet connected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - address
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  address:
+                    type: string
+                    example: EQDtFpEwcFAEcRe5mLVh2N6C0x-_hJEM7W61_JLnSF74p4q2
+                  previousAccountUnlinked:
+                    type: boolean
+                    description: True if wallet was unlinked from another account
+                    example: true
+        '400':
+          description: Invalid wallet address format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Invalid TON wallet address format
+                code: VALIDATION_ERROR
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Existing endpoints (referenced but not fully documented here)
+  /api/wallet/status:
+    get:
+      summary: Get wallet connection status
+      description: Returns current wallet connection status for authenticated user
+      operationId: getWalletStatus
+      tags:
+        - Wallet
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Wallet status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - connected
+                properties:
+                  success:
+                    type: boolean
+                  connected:
+                    type: boolean
+                  address:
+                    type: string
+                    nullable: true
+
+  /api/buddy/status:
+    get:
+      summary: Get buddy relationship status
+      description: Returns current buddy relationship status for authenticated user
+      operationId: getBuddyStatus
+      tags:
+        - Buddy
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Buddy status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuddyStatusResponse'
+
+  /api/buddy/request:
+    post:
+      summary: Send buddy request to another user
+      description: Initiates a buddy relationship request
+      operationId: sendBuddyRequest
+      tags:
+        - Buddy
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipientId
+              properties:
+                recipientId:
+                  type: integer
+                  description: Telegram user ID of the buddy recipient
+                  example: 456
+      responses:
+        '200':
+          description: Buddy request sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - status
+                properties:
+                  success:
+                    type: boolean
+                  status:
+                    type: string
+                    enum: [pending]
+
+  /api/buddy/search:
+    get:
+      summary: Search for users to add as buddy
+      description: Search for users by username or name
+      operationId: searchBuddies
+      tags:
+        - Buddy
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Search query (username or name)
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - users
+                  - hasMore
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserProfile'
+                  hasMore:
+                    type: boolean
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/validate
+
+  schemas:
+    OnboardingState:
+      type: object
+      required:
+        - wallet_connected
+        - buddy_confirmed
+        - current_step
+      properties:
+        wallet_connected:
+          type: boolean
+          description: Whether user has connected TON wallet
+        buddy_confirmed:
+          type: boolean
+          description: Whether user has confirmed buddy relationship
+        current_step:
+          type: string
+          enum: [welcome, buddy, complete]
+          description: |
+            Current onboarding step:
+            - welcome: User needs to connect wallet
+            - buddy: User needs to add buddy
+            - complete: Onboarding complete, show main app
+
+    OnboardingStatusResponse:
+      type: object
+      required:
+        - success
+        - onboarding
+      properties:
+        success:
+          type: boolean
+          example: true
+        onboarding:
+          $ref: '#/components/schemas/OnboardingState'
+        wallet:
+          type: object
+          nullable: true
+          description: Wallet info (only present if wallet_connected is true)
+          required:
+            - address
+          properties:
+            address:
+              type: string
+              nullable: true
+        buddy:
+          type: object
+          nullable: true
+          description: Buddy info (only present if buddy_confirmed is true)
+          required:
+            - id
+            - status
+            - profile
+            - createdAt
+          properties:
+            id:
+              type: integer
+              description: Buddy pair ID
+            status:
+              type: string
+              enum: [pending, confirmed, rejected]
+            profile:
+              $ref: '#/components/schemas/UserProfile'
+            createdAt:
+              type: string
+              format: date-time
+            confirmedAt:
+              type: string
+              format: date-time
+              nullable: true
+
+    BuddyStatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [no_buddy, pending, confirmed, rejected]
+        message:
+          type: string
+        id:
+          type: integer
+        buddy:
+          $ref: '#/components/schemas/UserProfile'
+        createdAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+        initiatedBy:
+          type: integer
+
+    UserProfile:
+      type: object
+      required:
+        - id
+        - displayName
+        - hasWallet
+        - memberSince
+      properties:
+        id:
+          type: integer
+          description: Telegram user ID
+        displayName:
+          type: string
+          description: Display name (first_name or @username)
+        username:
+          type: string
+          nullable: true
+          description: Telegram @username
+        hasWallet:
+          type: boolean
+          description: Whether user has connected wallet
+        memberSince:
+          type: string
+          format: date-time
+          description: User registration date
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - code
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - AUTH_FAILED
+            - VALIDATION_ERROR
+            - NO_PENDING_REQUEST
+            - BUDDY_NOT_FOUND
+            - DATABASE_ERROR
+            - NETWORK_ERROR
+
+tags:
+  - name: Onboarding
+    description: Onboarding flow state management
+  - name: Wallet
+    description: TON wallet connection management
+  - name: Buddy
+    description: Buddy relationship management

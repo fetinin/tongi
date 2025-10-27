@@ -99,3 +99,10 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 - This service use sqlite database located at ./data/app.db
 - Always run formatter before commiting changes
 - FOLLOW RULES FROM @.specify/memory/constitution.md
+
+## Active Technologies
+- TypeScript 5 with ES2017 target, strict mode enabled + Next.js 15 (App Router), React 18.3, @telegram-apps/sdk-react, @tonconnect/ui-react, TailwindCSS 4 (005-mobile-first-onboarding)
+- SQLite 3 (`./data/app.db`) via better-sqlite3; Telegram SecureStorage/DeviceStorage for client state (005-mobile-first-onboarding)
+
+## Recent Changes
+- 005-mobile-first-onboarding: Added TypeScript 5 with ES2017 target, strict mode enabled + Next.js 15 (App Router), React 18.3, @telegram-apps/sdk-react, @tonconnect/ui-react, TailwindCSS 4
