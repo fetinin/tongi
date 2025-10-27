@@ -134,6 +134,11 @@ export function runMigrations(db: Database.Database): void {
     )
   `);
 
+  // Add UNIQUE constraint to ton_wallet_address (onboarding requirement - automatic wallet unlinking)
+  db.exec(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_ton_wallet_unique ON users(ton_wallet_address) WHERE ton_wallet_address IS NOT NULL`
+  );
+
   // Create indexes for performance
   db.exec(
     `CREATE INDEX IF NOT EXISTS idx_buddy_pairs_users ON buddy_pairs(user1_id, user2_id)`
