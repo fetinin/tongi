@@ -35,14 +35,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Create OnboardingState TypeScript interface in src/types/onboarding.ts
-- [ ] T004 [P] Create OnboardingStatusResponse TypeScript interface in src/types/onboarding.ts
-- [ ] T005 [P] Create OnboardingService with deriveOnboardingState function in src/services/OnboardingService.ts
-- [ ] T006 [P] Create WalletService (if not exists) with wallet status validation in src/services/WalletService.ts
-- [ ] T007 Implement GET /api/onboarding/status endpoint with HMAC validation in src/app/api/onboarding/status/route.ts
-- [ ] T008 [P] Create useOnboardingGuard hook for client-side routing in src/hooks/useOnboardingGuard.ts
-- [ ] T009 [P] Create OnboardingLayout component for onboarding screen wrapper in src/components/onboarding/OnboardingLayout.tsx
-- [ ] T010 [P] Create error handling component for network errors in src/components/onboarding/OnboardingError.tsx
+- [X] T003 [P] Create OnboardingState TypeScript interface in src/types/onboarding.ts
+- [X] T004 [P] Create OnboardingStatusResponse TypeScript interface in src/types/onboarding.ts
+- [X] T005 [P] Create OnboardingService with deriveOnboardingState function in src/services/OnboardingService.ts
+- [X] T006 [P] Create WalletService (if not exists) with wallet status validation in src/services/WalletService.ts
+- [X] T007 Implement GET /api/onboarding/status endpoint with HMAC validation in src/app/api/onboarding/status/route.ts
+- [X] T008 [P] Create useOnboardingGuard hook for client-side routing in src/hooks/useOnboardingGuard.ts
+- [X] T009 [P] Create OnboardingLayout component for onboarding screen wrapper in src/components/onboarding/OnboardingLayout.tsx
+- [X] T010 [P] Create error handling component for network errors in src/components/onboarding/OnboardingError.tsx
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,17 +58,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Integration test for blocking access until wallet connected in tests/integration/wallet-connection.test.ts
-- [ ] T012 [P] [US1] Integration test for redirect to buddy screen after wallet connection in tests/integration/wallet-connection.test.ts
+- [x] T011 [P] [US1] Integration test for blocking access until wallet connected in tests/integration/wallet-connection-onboarding.test.ts
+- [x] T012 [P] [US1] Integration test for redirect to buddy screen after wallet connection in tests/integration/wallet-connection-onboarding.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Create WelcomeScreen component with wallet connection prompt in src/components/onboarding/WelcomeScreen.tsx
-- [ ] T014 [US1] Create /onboarding/welcome page with WelcomeScreen component in src/app/onboarding/welcome/page.tsx
-- [ ] T015 [US1] Enhance POST /api/wallet/connect with automatic wallet unlinking logic in src/app/api/wallet/connect/route.ts
-- [ ] T016 [US1] Modify root page (src/app/page.tsx) to use useOnboardingGuard and redirect to /onboarding/welcome if wallet not connected
-- [ ] T017 [US1] Add wallet connection success handler to redirect to /onboarding/buddy in src/components/onboarding/WelcomeScreen.tsx
-- [ ] T018 [US1] Verify integration tests pass for US1
+- [x] T013 [US1] Create WelcomeScreen component with wallet connection prompt in src/components/onboarding/WelcomeScreen.tsx
+- [x] T014 [US1] Create /onboarding/welcome page with WelcomeScreen component in src/app/onboarding/welcome/page.tsx
+- [x] T015 [US1] Enhance POST /api/wallet/connect with automatic wallet unlinking logic in src/app/api/wallet/connect/route.ts
+- [x] T016 [US1] Modify root page (src/app/page.tsx) to use useOnboardingGuard and redirect to /onboarding/welcome if wallet not connected
+- [x] T017 [US1] Add wallet connection success handler to redirect to /onboarding/buddy in src/components/onboarding/WelcomeScreen.tsx
+- [x] T018 [US1] Verify integration tests pass for US1
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - new users see welcome screen, connect wallet, get redirected to buddy screen
 
