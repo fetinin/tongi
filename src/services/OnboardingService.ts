@@ -78,7 +78,7 @@ export class OnboardingService {
     } else if (!buddyConfirmed) {
       currentStep = 'buddy';
     } else {
-      currentStep = 'complete';
+      currentStep = 'main';
     }
 
     return {
@@ -126,10 +126,10 @@ export class OnboardingService {
       // Add buddy info if confirmed
       if (buddyStatus.status !== 'no_buddy' && buddyStatus.buddy) {
         const buddyInfo: BuddyInfo = {
-          id: buddyStatus.id!,
+          buddy_id: buddyStatus.buddy.id,
           status: buddyStatus.status as BuddyPairStatus,
           profile: buddyStatus.buddy,
-          createdAt: buddyStatus.createdAt!,
+          createdAt: buddyStatus.createdAt,
           confirmedAt: buddyStatus.confirmedAt || null,
         };
         response.buddy = buddyInfo;
@@ -156,7 +156,7 @@ export class OnboardingService {
   public async isOnboardingComplete(userId: number): Promise<boolean> {
     try {
       const status = await this.getOnboardingStatus(userId);
-      return status.onboarding.current_step === 'complete';
+      return status.onboarding.current_step === 'main';
     } catch (error) {
       if (error instanceof UserNotFoundError) {
         throw error;

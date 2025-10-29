@@ -130,20 +130,14 @@ export function WelcomeScreen({ onWalletConnected }: WelcomeScreenProps) {
 
       {/* Success snackbar */}
       {showSuccessSnackbar && (
-        <Snackbar
-          duration={3000}
-          onClose={() => setShowSuccessSnackbar(false)}
-        >
+        <Snackbar duration={3000} onClose={() => setShowSuccessSnackbar(false)}>
           ✓ Wallet connected successfully!
         </Snackbar>
       )}
 
       {/* Error snackbar */}
       {showErrorSnackbar && (
-        <Snackbar
-          duration={5000}
-          onClose={() => setShowErrorSnackbar(false)}
-        >
+        <Snackbar duration={5000} onClose={() => setShowErrorSnackbar(false)}>
           {errorMessage}
         </Snackbar>
       )}

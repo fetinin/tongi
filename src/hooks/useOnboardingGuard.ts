@@ -138,7 +138,7 @@ export function useOnboardingGuard(): UseOnboardingGuardResult {
  * @param allowedStep - Minimum onboarding step required (optional)
  */
 export function useOnboardingRedirect(
-  allowedStep?: 'welcome' | 'buddy' | 'complete'
+  allowedStep?: 'welcome' | 'buddy' | 'main'
 ): UseOnboardingGuardResult {
   const result = useOnboardingGuard();
   const router = useRouter();
@@ -156,7 +156,7 @@ export function useOnboardingRedirect(
     }
 
     // Redirect logic based on current step vs required step
-    if (allowedStep === 'complete' && current_step !== 'complete') {
+    if (allowedStep === 'main' && current_step !== 'main') {
       if (current_step === 'welcome') {
         router.push('/onboarding/welcome');
       } else if (current_step === 'buddy') {
@@ -171,8 +171,8 @@ export function useOnboardingRedirect(
 }
 
 /**
- * Type guard to check if onboarding is complete
+ * Type guard to check if onboarding is complete (user can access main app)
  */
 export function isOnboardingComplete(state: OnboardingState | null): boolean {
-  return state?.current_step === 'complete';
+  return state?.current_step === 'main';
 }

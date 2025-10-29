@@ -11,14 +11,15 @@ import type { UserProfile } from '@/models/User';
  * Current onboarding step
  * - welcome: User needs to connect wallet
  * - buddy: Wallet connected, user needs to add buddy
- * - complete: Both wallet and buddy confirmed
+ * - main: Both wallet and buddy confirmed, user can access main app
  */
-export type OnboardingStep = 'welcome' | 'buddy' | 'complete';
+export type OnboardingStep = 'welcome' | 'buddy' | 'main';
 
 /**
  * Buddy relationship status
+ * Maps to buddy_pairs.status from database (pending, active, dissolved)
  */
-export type BuddyPairStatus = 'no_buddy' | 'pending' | 'confirmed' | 'rejected';
+export type BuddyPairStatus = 'no_buddy' | 'pending' | 'active' | 'dissolved';
 
 /**
  * Onboarding state derived from database
@@ -36,14 +37,14 @@ export interface OnboardingState {
 export type { UserProfile };
 
 /**
- * Buddy relationship details
+ * Buddy relationship details in onboarding response
  */
 export interface BuddyInfo {
-  id: number;
+  buddy_id: number; // User ID of the buddy
   status: BuddyPairStatus;
-  profile: UserProfile;
-  createdAt: string; // ISO date string
-  confirmedAt: string | null; // ISO date string
+  profile?: UserProfile; // Optional - buddy's user profile
+  createdAt?: string; // ISO date string
+  confirmedAt?: string | null; // ISO date string
 }
 
 /**
@@ -75,9 +76,10 @@ export interface OnboardingErrorResponse {
 
 /**
  * Type guard for buddy status
+ * Returns true if buddy relationship is confirmed/active
  */
 export function isBuddyConfirmed(status: BuddyPairStatus): boolean {
-  return status === 'confirmed';
+  return status === 'active';
 }
 
 /**

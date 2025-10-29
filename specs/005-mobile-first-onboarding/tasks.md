@@ -82,20 +82,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Integration test for buddy search and request flow in tests/integration/buddy-onboarding.test.ts
-- [ ] T020 [P] [US2] Integration test for pending request cancellation in tests/integration/buddy-onboarding.test.ts
-- [ ] T021 [P] [US2] Integration test for buddy acceptance redirect to main app in tests/integration/buddy-onboarding.test.ts
-- [ ] T022 [P] [US2] Integration test for buddy rejection returns to search in tests/integration/buddy-onboarding.test.ts
+- [x] T019 [P] [US2] Integration test for buddy search and request flow in tests/integration/buddy-onboarding.test.ts
+- [x] T020 [P] [US2] Integration test for pending request cancellation in tests/integration/buddy-onboarding.test.ts
+- [x] T021 [P] [US2] Integration test for buddy acceptance redirect to main app in tests/integration/buddy-onboarding.test.ts
+- [x] T022 [P] [US2] Integration test for buddy rejection returns to search in tests/integration/buddy-onboarding.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Create DELETE /api/buddy/cancel endpoint for pending request cancellation in src/app/api/buddy/cancel/route.ts
-- [ ] T024 [P] [US2] Create BuddySearchScreen component that wraps existing BuddySearch in src/components/onboarding/BuddySearchScreen.tsx
-- [ ] T025 [P] [US2] Create PendingRequestDisplay component with cancel button in src/components/onboarding/PendingRequestDisplay.tsx
-- [ ] T026 [US2] Create /onboarding/buddy page with search/pending conditional logic in src/app/onboarding/buddy/page.tsx
-- [ ] T027 [US2] Update useOnboardingGuard to redirect to /onboarding/buddy if wallet connected but no buddy in src/hooks/useOnboardingGuard.ts
-- [ ] T028 [US2] Add buddy confirmation detection and redirect to main app in src/app/onboarding/buddy/page.tsx
-- [ ] T029 [US2] Verify integration tests pass for US2
+- [x] T023 [US2] Create DELETE /api/buddy/cancel endpoint for pending request cancellation in src/app/api/buddy/cancel/route.ts
+- [x] T024 [P] [US2] Create BuddySearchScreen component that wraps existing BuddySearch in src/components/onboarding/BuddySearchScreen.tsx
+- [x] T025 [P] [US2] Create PendingRequestDisplay component with cancel button in src/components/onboarding/PendingRequestDisplay.tsx
+- [x] T026 [US2] Create /onboarding/buddy page with search/pending conditional logic in src/app/onboarding/buddy/page.tsx
+- [x] T027 [US2] Update useOnboardingGuard to redirect to /onboarding/buddy if wallet connected but no buddy in src/hooks/useOnboardingGuard.ts
+- [x] T028 [US2] Add buddy confirmation detection and redirect to main app in src/app/onboarding/buddy/page.tsx
+- [x] T029 [US2] Verify integration tests pass for US2
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - users can connect wallet, search for buddy, send/cancel requests, and complete onboarding when buddy accepts
 
@@ -109,21 +109,21 @@
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] Integration test for main app access after onboarding complete in tests/integration/onboarding.test.ts
-- [ ] T031 [P] [US3] Integration test for bottom navigation between screens in tests/integration/onboarding.test.ts
-- [ ] T032 [P] [US3] Integration test for re-validation error handling with retry in tests/integration/onboarding.test.ts
+- [x] T030 [P] [US3] Integration test for main app access after onboarding complete in tests/integration/onboarding.test.ts
+- [x] T031 [P] [US3] Integration test for bottom navigation between screens in tests/integration/onboarding.test.ts
+- [x] T032 [P] [US3] Integration test for re-validation error handling with retry in tests/integration/onboarding.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Create BottomNavigation component with dog and settings icons in src/components/layout/BottomNavigation.tsx
-- [ ] T034 [P] [US3] Create MainLayout component that wraps content with bottom navigation in src/components/layout/MainLayout.tsx
-- [ ] T035 [US3] Create /settings page with wallet and buddy management options in src/app/settings/page.tsx
+- [x] T033 [P] [US3] Create BottomNavigation component with dog and settings icons in src/components/layout/BottomNavigation.tsx
+- [x] T034 [P] [US3] Create MainLayout component that wraps content with bottom navigation in src/components/layout/MainLayout.tsx
+- [x] T035 [US3] Create /settings page with wallet and buddy management options in src/app/settings/page.tsx
 - [ ] T036 [US3] Update /corgi/page.tsx to use MainLayout wrapper
 - [ ] T037 [US3] Update root page (src/app/page.tsx) to show main app with bottom navigation when onboarding complete
 - [ ] T038 [US3] Move existing wallet management UI to /settings/wallet page in src/app/settings/wallet/page.tsx
 - [ ] T039 [US3] Move existing buddy management UI to /settings/buddy page in src/app/settings/buddy/page.tsx
-- [ ] T040 [US3] Update useOnboardingGuard to handle re-validation errors with retry UI in src/hooks/useOnboardingGuard.ts
-- [ ] T041 [US3] Add network error detection logic to distinguish from validation failures in src/hooks/useOnboardingGuard.ts
+- [x] T040 [US3] Update useOnboardingGuard to handle re-validation errors with retry UI in src/hooks/useOnboardingGuard.ts (changed current_step from 'complete' to 'main')
+- [x] T041 [US3] Add network error detection logic to distinguish from validation failures in src/hooks/useOnboardingGuard.ts (already implemented)
 - [ ] T042 [US3] Verify integration tests pass for US3
 
 **Checkpoint**: All user stories should now be independently functional - complete onboarding flow from welcome → buddy → main app works end-to-end
