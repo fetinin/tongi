@@ -8,6 +8,7 @@ import {
   Snackbar,
 } from '@telegram-apps/telegram-ui';
 import { useTonWalletContext } from './TonProvider';
+import { useAuth } from '@/components/Auth/AuthProvider';
 import { useState } from 'react';
 
 export function WalletSettings() {
@@ -19,6 +20,8 @@ export function WalletSettings() {
     disconnectWallet,
     connectionError,
   } = useTonWalletContext();
+
+  const { user } = useAuth();
 
   const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
@@ -82,6 +85,37 @@ export function WalletSettings() {
             Cancel
           </Button>
         </Placeholder>
+      </Section>
+    );
+  }
+
+  // Check if wallet is saved in database but not connected in TON Connect UI
+  const hasSavedWallet = user?.tonWalletAddress && !isConnected;
+
+  // Show saved wallet that needs reconnection
+  if (hasSavedWallet) {
+    return (
+      <Section header="TON Wallet">
+        <Cell
+          subtitle={
+            user.tonWalletAddress
+              ? `${user.tonWalletAddress.slice(0, 8)}...${user.tonWalletAddress.slice(-8)}`
+              : ''
+          }
+          description="Wallet session expired. Reconnect to make transactions."
+          after={
+            <Button
+              size="s"
+              mode="filled"
+              onClick={handleConnect}
+              disabled={isConnecting}
+            >
+              {isConnecting ? 'Connecting...' : 'Reconnect'}
+            </Button>
+          }
+        >
+          Previously Connected
+        </Cell>
       </Section>
     );
   }

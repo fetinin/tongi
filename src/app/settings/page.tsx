@@ -10,23 +10,20 @@
 'use client';
 
 import React from 'react';
-import { useTranslations } from 'next-intl';
 import { Title, Text, Section } from '@telegram-apps/telegram-ui';
 import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
 
 export default function SettingsPage() {
-  const t = useTranslations('settings');
-
   return (
     <MainLayout>
       {/* Header */}
       <div className="mb-8 space-y-2">
         <Title level="1" weight="1" className="text-2xl sm:text-3xl">
-          {t('title', 'Settings')}
+          Settings
         </Title>
         <Text className="text-sm text-gray-600 dark:text-gray-400">
-          {t('subtitle', 'Manage your account and preferences')}
+          Manage your wallet and buddy connections
         </Text>
       </div>
 
@@ -41,10 +38,10 @@ export default function SettingsPage() {
             <span className="text-2xl">💰</span>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
-                {t('wallet.title', 'Wallet')}
+                Wallet
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                {t('wallet.description', 'Manage your TON wallet')}
+                Connect and manage your TON wallet
               </p>
             </div>
           </div>
@@ -60,10 +57,10 @@ export default function SettingsPage() {
             <span className="text-2xl">👥</span>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
-                {t('buddy.title', 'Buddy')}
+                Buddy
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                {t('buddy.description', 'Manage your buddy relationship')}
+                Manage your buddy connection
               </p>
             </div>
           </div>
@@ -74,10 +71,10 @@ export default function SettingsPage() {
       {/* About Section */}
       <Section className="mt-8 space-y-2 border-t border-gray-200 pt-6 dark:border-gray-700">
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          {t('app.version', 'Version')} 1.0.0
+          Version 1.0.0
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          {t('app.description', 'Corgi Buddy - A Telegram Mini App')}
+          Corgi Sighting Tracker with TON rewards
         </p>
       </Section>
     </MainLayout>

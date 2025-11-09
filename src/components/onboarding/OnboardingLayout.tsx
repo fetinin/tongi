@@ -36,7 +36,7 @@ export function OnboardingLayout({
   children,
 }: OnboardingLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-6">
+    <div className="flex min-h-screen min-w-[320px] flex-col items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md space-y-6">
         {/* Header Section */}
         <div className="space-y-2 text-center">

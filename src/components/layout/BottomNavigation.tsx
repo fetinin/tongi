@@ -12,7 +12,6 @@
 import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 
 export interface BottomNavigationItem {
   href: string;
@@ -71,7 +70,6 @@ export function BottomNavigation({
   className = '',
 }: BottomNavigationProps) {
   const pathname = usePathname();
-  const t = useTranslations('layout.navigation');
 
   const isActive = useCallback(
     (href: string) => {
@@ -87,7 +85,7 @@ export function BottomNavigation({
   return (
     <nav
       className={`fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 ${className}`}
-      aria-label={t('ariaLabel', 'Main navigation')}
+      aria-label="Main navigation"
     >
       <div className="flex items-center justify-around">
         {items.map((item) => {

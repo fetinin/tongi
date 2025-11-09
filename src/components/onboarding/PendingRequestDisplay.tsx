@@ -187,6 +187,7 @@ export function PendingRequestDisplay({
             size="m"
             onClick={handleCancel}
             disabled={isCancelling}
+            className="min-h-[2.75rem] w-full touch-manipulation"
           >
             {isCancelling ? 'Cancelling...' : 'Cancel Request'}
           </Button>

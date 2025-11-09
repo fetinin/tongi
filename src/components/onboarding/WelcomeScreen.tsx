@@ -105,6 +105,7 @@ export function WelcomeScreen({ onWalletConnected }: WelcomeScreenProps) {
           size="m"
           onClick={handleConnect}
           disabled={isConnecting || isRedirecting}
+          className="min-h-[2.75rem] min-w-[10rem] touch-manipulation"
         >
           {isConnecting
             ? 'Connecting...'

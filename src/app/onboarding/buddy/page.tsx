@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Spinner, Section, Placeholder } from '@telegram-apps/telegram-ui';
+import { Root } from '@/components/Root/Root';
+import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
 import { OnboardingLayout } from '@/components/onboarding/OnboardingLayout';
 import { BuddySearchScreen } from '@/components/onboarding/BuddySearchScreen';
 import { PendingRequestDisplay } from '@/components/onboarding/PendingRequestDisplay';
-import { useAuth } from '@/components/Auth/AuthProvider';
 import type {
   BuddyPairStatus,
   OnboardingStatusResponse,
@@ -29,7 +30,7 @@ interface BuddyPairData {
 }
 
 /**
- * Onboarding Buddy Page
+ * Onboarding Buddy Page Content
  *
  * Shows the buddy search/request flow during onboarding.
  * - If no buddy relationship: Show BuddySearchScreen to find and add buddy
@@ -38,7 +39,7 @@ interface BuddyPairData {
  *
  * User Story 2: Buddy Request and Confirmation
  */
-export default function BuddyOnboardingPage() {
+function BuddyOnboardingContent() {
   const router = useRouter();
   const { authenticatedFetch } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
@@ -216,5 +217,20 @@ export default function BuddyOnboardingPage() {
         onError={(error) => setError(error)}
       />
     </OnboardingLayout>
+  );
+}
+
+/**
+ * Onboarding Buddy Page
+ *
+ * Wraps the buddy onboarding content with required providers
+ */
+export default function BuddyOnboardingPage() {
+  return (
+    <Root>
+      <AuthProvider>
+        <BuddyOnboardingContent />
+      </AuthProvider>
+    </Root>
   );
 }

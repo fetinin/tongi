@@ -50,7 +50,7 @@ export function MainLayout({ children, className = '' }: MainLayoutProps) {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-white dark:bg-gray-950">
+    <div className="relative w-full min-w-[320px] min-h-screen bg-white dark:bg-gray-950">
       {/* Main content area with padding for bottom navigation */}
       <main className={`pb-20 pt-4 px-4 sm:px-6 ${className}`} role="main">
         {children}
