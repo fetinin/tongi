@@ -35,6 +35,15 @@ All commands should be run from the project root directory (after Next.js setup)
 - `src/components/Root/Root.tsx` - Main app wrapper that initializes Telegram SDK and handles SSR
 - `src/core/init.ts` - Telegram Mini App initialization logic with environment mocking
 - `src/core/i18n/` - Internationalization setup with locale detection from Telegram user
+- `src/components/onboarding/` - Mobile-first onboarding flow (wallet + buddy)
+  - `WelcomeScreen.tsx` - Wallet connection prompt
+  - `BuddySearchScreen.tsx` - Buddy search and request
+  - `PendingRequestDisplay.tsx` - Pending buddy request status
+  - `OnboardingLayout.tsx` - Wrapper for onboarding screens
+  - `OnboardingError.tsx` - Error handling with retry
+- `src/components/layout/` - Main app navigation
+  - `MainLayout.tsx` - Layout wrapper with bottom navigation
+  - `BottomNavigation.tsx` - Mobile-first bottom tab navigation
 - `src/components/buddy/` - Buddy relationship management
 - `src/components/corgi/` - Corgi sighting reporting and confirmation
 - `src/components/wish/` - Wish creation and marketplace
@@ -53,6 +62,11 @@ All commands should be run from the project root directory (after Next.js setup)
 - TypeScript paths configured (`@/*` for `src/*`, `@public/*` for `public/*`)
 - Strict TypeScript configuration with ES2017 target
 - Three-tier storage strategy (SecureStorage, DeviceStorage, CloudStorage)
+- Mobile-first onboarding flow with state-based routing
+  - `/onboarding/welcome` - Wallet connection (step 1)
+  - `/onboarding/buddy` - Buddy pairing (step 2)
+  - `/` - Main app (after onboarding complete)
+  - `/settings` - User settings (wallet and buddy management)
 
 ## Data Model
 
@@ -66,8 +80,11 @@ All commands should be run from the project root directory (after Next.js setup)
 
 ### API Endpoints
 - `/api/auth/validate` - Telegram authentication with server-side validation
+- `/api/onboarding/status` - Combined onboarding state validation (wallet + buddy)
 - `/api/buddy/*` - Buddy relationship management
+  - `/api/buddy/cancel` - Cancel pending buddy request
 - `/api/corgi/*` - Corgi sighting reporting and confirmation
+- `/api/wallet/*` - TON wallet connection and status
 - `/api/wishes/*` - Wish creation and approval
 - `/api/marketplace/*` - Public wish marketplace
 - `/api/transactions/*` - Transaction history and confirmation
@@ -105,4 +122,11 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 - SQLite 3 (`./data/app.db`) via better-sqlite3; Telegram SecureStorage/DeviceStorage for client state (005-mobile-first-onboarding)
 
 ## Recent Changes
-- 005-mobile-first-onboarding: Added TypeScript 5 with ES2017 target, strict mode enabled + Next.js 15 (App Router), React 18.3, @telegram-apps/sdk-react, @tonconnect/ui-react, TailwindCSS 4
+- 005-mobile-first-onboarding: Implemented mobile-first onboarding flow
+  - Added wallet connection requirement (step 1)
+  - Added buddy confirmation requirement (step 2)
+  - Added bottom navigation for main app (Corgi Sighting + Settings)
+  - Added state-based routing with server-side validation
+  - Added 320px minimum width support with 44px+ touch targets
+  - Added dark mode support via Telegram theme integration
+  - All 78 integration tests passing

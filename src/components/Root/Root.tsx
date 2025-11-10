@@ -1,9 +1,8 @@
 'use client';
 
-import { type PropsWithChildren, useEffect } from 'react';
+import { type PropsWithChildren } from 'react';
 import {
   init,
-  initData,
   miniApp,
   useLaunchParams,
   useSignal,
@@ -16,7 +15,6 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorPage } from '@/components/ErrorPage';
 import { useDidMount } from '@/hooks/useDidMount';
 import { useBackButton } from '@/hooks/useBackButton';
-import { setLocale } from '@/core/i18n/locale';
 import { TonProvider } from '@/components/wallet/TonProvider';
 
 import './styles.css';
@@ -32,17 +30,9 @@ function RootInner({ children }: PropsWithChildren) {
   const lp = useLaunchParams();
 
   const isDark = useSignal(miniApp.isDark);
-  const initDataUser = useSignal(initData.user);
 
   // Manage back button visibility and navigation
   useBackButton();
-
-  // Set the user locale based on Telegram user data
-  useEffect(() => {
-    if (initDataUser) {
-      setLocale(initDataUser.language_code);
-    }
-  }, [initDataUser]);
 
   // Construct absolute manifest URL
   const manifestUrl =

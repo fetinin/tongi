@@ -628,6 +628,57 @@ export class BuddyService {
   }
 
   /**
+   * Cancel a pending buddy request (only by the initiator)
+   */
+  public async cancelBuddyRequest(
+    buddyPairId: number,
+    cancelingUserId: number
+  ): Promise<boolean> {
+    try {
+      return withTransaction(() => {
+        // Get the buddy pair
+        const row = this.statements.getBuddyPairById!.get(buddyPairId);
+        if (!row) {
+          throw new BuddyNotFoundError('Buddy pair not found');
+        }
+
+        const buddyPair = this.mapRowToBuddyPair(
+          row as Record<string, unknown>
+        );
+
+        // Verify the canceling user is part of this relationship
+        if (!BuddyPairUtils.isUserInPair(buddyPair, cancelingUserId)) {
+          throw new BuddyValidationError('User is not part of this buddy pair');
+        }
+
+        // Verify the relationship is pending
+        if (buddyPair.status !== BuddyPairStatus.PENDING) {
+          throw new BuddyConflictError('Buddy pair is not in pending status');
+        }
+
+        // Verify the canceling user IS the one who initiated the request
+        if (buddyPair.initiated_by !== cancelingUserId) {
+          throw new BuddyConflictError(
+            'Only the request initiator can cancel the request'
+          );
+        }
+
+        // Update to dissolved status
+        const result = this.statements.dissolveBuddyPair!.run(buddyPairId);
+        return result.changes > 0;
+      });
+    } catch (error) {
+      if (error instanceof BuddyServiceError) {
+        throw error;
+      }
+      throw new BuddyServiceError(
+        `Failed to cancel buddy request: ${error}`,
+        'DATABASE_ERROR'
+      );
+    }
+  }
+
+  /**
    * Dissolve an active buddy relationship
    */
   public async dissolveBuddyRelationship(

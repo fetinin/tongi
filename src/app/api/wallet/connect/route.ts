@@ -49,12 +49,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update database
+    // Update database with automatic wallet unlinking
+    // If the wallet is already connected to another user, disconnect it from them first
     const db = getDatabase();
-    const stmt = db.prepare(
-      'UPDATE users SET ton_wallet_address = ? WHERE id = ?'
-    );
-    stmt.run(normalizedAddress, userId);
+
+    // Start transaction for atomic wallet reassignment
+    const transaction = db.transaction(() => {
+      // First, unlink the wallet from any other user that might have it
+      db.prepare(
+        'UPDATE users SET ton_wallet_address = NULL WHERE ton_wallet_address = ?'
+      ).run(normalizedAddress);
+
+      // Then, connect the wallet to the current user
+      db.prepare('UPDATE users SET ton_wallet_address = ? WHERE id = ?').run(
+        normalizedAddress,
+        userId
+      );
+    });
+
+    try {
+      transaction();
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      throw error;
+    }
 
     // Fetch updated user
     const updatedUser = db
