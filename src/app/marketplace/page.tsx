@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { List, Section, Button, Placeholder } from '@telegram-apps/telegram-ui';
-import { Root } from '@/components/Root/Root';
-import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
+import { useAuth } from '@/components/Auth/AuthProvider';
 import {
   MarketplaceGrid,
   useMarketplaceGrid,
@@ -66,11 +65,5 @@ function MarketplaceContent() {
 }
 
 export default function MarketplacePage() {
-  return (
-    <Root>
-      <AuthProvider>
-        <MarketplaceContent />
-      </AuthProvider>
-    </Root>
-  );
+  return <MarketplaceContent />;
 }

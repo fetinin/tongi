@@ -8,8 +8,7 @@ import {
   Button,
   Placeholder,
 } from '@telegram-apps/telegram-ui';
-import { Root } from '@/components/Root/Root';
-import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
+import { useAuth } from '@/components/Auth/AuthProvider';
 import { WishForm, useWishCreation } from '@/components/wish/WishForm';
 import { WishApproval, useWishApproval } from '@/components/wish/WishApproval';
 import { WishList } from '@/components/wish/WishList';
@@ -182,11 +181,5 @@ function WishesContent() {
 }
 
 export default function WishesPage() {
-  return (
-    <Root>
-      <AuthProvider>
-        <WishesContent />
-      </AuthProvider>
-    </Root>
-  );
+  return <WishesContent />;
 }

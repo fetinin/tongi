@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import {
-  List,
-  Section,
-  Cell,
-  Button,
-  Placeholder,
-} from '@telegram-apps/telegram-ui';
-import { Root } from '@/components/Root/Root';
-import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
+import { List, Section, Cell, Button } from '@telegram-apps/telegram-ui';
 import {
   SightingForm,
   useCorgiSighting,
@@ -22,9 +14,9 @@ import {
   SightingHistory,
   useCorgiSightingHistory,
 } from '@/components/corgi/SightingHistory';
+import { MainLayout } from '@/components/layout/MainLayout';
 
 function CorgiSightingContent() {
-  const { isAuthenticated, user } = useAuth();
   const { isOpen, openSightingForm, closeSightingForm } = useCorgiSighting();
   const { handleConfirmationProcessed } = useCorgiConfirmations();
   const { triggerRefresh } = useCorgiSightingHistory();
@@ -60,22 +52,6 @@ function CorgiSightingContent() {
     // In a real app, you might want to show a toast notification
     console.error('Sighting error:', error);
   }, []);
-
-  if (!isAuthenticated || !user) {
-    return (
-      <Placeholder
-        header="Authentication Required"
-        description="Please log in to access corgi sighting features. You need an active buddy relationship to report and confirm sightings."
-        action={
-          <Button size="l" onClick={() => (window.location.href = '/')}>
-            Go to Login
-          </Button>
-        }
-      >
-        <div className="text-6xl mb-4">🐕</div>
-      </Placeholder>
-    );
-  }
 
   // Overview section with main actions
   if (activeSection === 'overview') {
@@ -254,10 +230,12 @@ function CorgiSightingContent() {
 
 export default function CorgiPage() {
   return (
-    <Root>
-      <AuthProvider>
-        <CorgiSightingContent />
-      </AuthProvider>
-    </Root>
+    <MainLayout
+      title="Corgi Sighting"
+      subtitle="Report sightings, confirm your buddy, and review your history"
+      contentClassName="pt-0"
+    >
+      <CorgiSightingContent />
+    </MainLayout>
   );
 }

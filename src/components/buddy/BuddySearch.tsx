@@ -11,6 +11,7 @@ import {
   Spinner,
   Caption,
 } from '@telegram-apps/telegram-ui';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 // Types for search results
@@ -34,12 +35,15 @@ interface BuddySearchProps {
   emptyPlaceholder?: React.ReactNode;
   /** Optional custom placeholder when no results found */
   noResultsPlaceholder?: React.ReactNode;
+  /** Optional translations namespace (defaults to buddy.search) */
+  translationsNamespace?: string;
 }
 
 export function BuddySearch({
   onUserSelect,
   emptyPlaceholder,
   noResultsPlaceholder,
+  translationsNamespace = 'buddy.search',
 }: BuddySearchProps) {
   const { isAuthenticated, authenticatedFetch } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,6 +51,7 @@ export function BuddySearch({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const t = useTranslations(translationsNamespace);
 
   // Debounced search effect
   useEffect(() => {
@@ -70,7 +75,7 @@ export function BuddySearch({
   const performSearch = useCallback(
     async (query: string) => {
       if (!isAuthenticated) {
-        setError('Authentication required');
+        setError(t('errors.authenticationRequired'));
         return;
       }
 
@@ -84,7 +89,9 @@ export function BuddySearch({
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Search failed');
+          throw new Error(
+            (errorData && errorData.message) || t('errors.searchFailed')
+          );
         }
 
         const data: BuddySearchResponse = await response.json();
@@ -92,14 +99,14 @@ export function BuddySearch({
         setHasSearched(true);
       } catch (err) {
         console.error('Search error:', err);
-        setError(err instanceof Error ? err.message : 'Search failed');
+        setError(err instanceof Error ? err.message : t('errors.searchFailed'));
         setSearchResults([]);
         setHasSearched(true);
       } finally {
         setIsLoading(false);
       }
     },
-    [isAuthenticated, authenticatedFetch]
+    [isAuthenticated, authenticatedFetch, t]
   );
 
   /**
@@ -135,9 +142,9 @@ export function BuddySearch({
     }
 
     if (user.tonWalletAddress) {
-      details.push('TON Connected');
+      details.push(t('tonConnected'));
     } else {
-      details.push('No TON Wallet');
+      details.push(t('noTonWallet'));
     }
 
     return details.join(' • ');
@@ -146,8 +153,8 @@ export function BuddySearch({
   if (!isAuthenticated) {
     return (
       <Placeholder
-        header="Authentication Required"
-        description="Please log in to search for buddies"
+        header={t('authRequiredTitle')}
+        description={t('authRequiredDescription')}
       />
     );
   }
@@ -155,17 +162,20 @@ export function BuddySearch({
   return (
     <div className="buddy-search">
       {/* Search Input Section */}
-      <Section header="Find Your Buddy">
+      <Section header={t('heading')}>
         <div className="p-4">
           <Input
-            header="Telegram Username"
-            placeholder="Enter username (without @)"
+            header={t('usernameLabel')}
+            placeholder={t('usernamePlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             status={error ? 'error' : undefined}
           />
           {error && (
-            <Caption level="1" className="text-red-500 mt-2">
+            <Caption
+              level="1"
+              className="mt-2 text-[var(--tg-theme-destructive-text-color,#ff3b30)]"
+            >
               {error}
             </Caption>
           )}
@@ -177,7 +187,7 @@ export function BuddySearch({
         <Section>
           <div className="flex justify-center items-center p-8">
             <Spinner size="m" />
-            <span className="ml-3">Searching users...</span>
+            <span className="ml-3">{t('searching')}</span>
           </div>
         </Section>
       )}
@@ -187,8 +197,10 @@ export function BuddySearch({
           <div className="p-4">
             {noResultsPlaceholder || (
               <Placeholder
-                header="No Users Found"
-                description={`No users found matching "${searchQuery}". Try a different username.`}
+                header={t('noResultsHeader')}
+                description={t('noResultsDescription', {
+                  query: searchQuery,
+                })}
               />
             )}
           </div>
@@ -200,8 +212,8 @@ export function BuddySearch({
           <div className="p-4">
             {emptyPlaceholder || (
               <Placeholder
-                header="Search for Buddies"
-                description="Enter at least 2 characters to search for users by their Telegram username."
+                header={t('emptyHeader')}
+                description={t('emptyDescription')}
               />
             )}
           </div>
@@ -211,9 +223,7 @@ export function BuddySearch({
       {/* Results List */}
       {!isLoading && searchResults.length > 0 && (
         <List>
-          <Section
-            header={`Found ${searchResults.length} user${searchResults.length === 1 ? '' : 's'}`}
-          >
+          <Section header={t('resultsHeader', { count: searchResults.length })}>
             {searchResults.map((user) => (
               <Cell
                 key={user.id}
@@ -224,7 +234,7 @@ export function BuddySearch({
                     mode="outline"
                     onClick={() => handleUserSelect(user)}
                   >
-                    Send Request
+                    {t('sendRequest')}
                   </Button>
                 }
               >

@@ -43,7 +43,8 @@ describe('POST /api/wallet/connect', () => {
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.success).toBe(true);
-    expect(data.user.ton_wallet_address).toBe(testWalletAddress);
+    expect(data.address).toBe(testWalletAddress);
+    expect(data.previousAccountUnlinked).toBeFalsy();
 
     // Verify database persistence
     const user = db
@@ -106,7 +107,7 @@ describe('POST /api/wallet/connect', () => {
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.success).toBe(true);
-    expect(data.user.ton_wallet_address).toBe(testWalletAddress);
+    expect(data.address).toBe(testWalletAddress);
 
     // Verify old address was replaced
     const user = db
@@ -114,5 +115,35 @@ describe('POST /api/wallet/connect', () => {
       .get(testUserId) as { ton_wallet_address: string };
     expect(user.ton_wallet_address).toBe(testWalletAddress);
     expect(user.ton_wallet_address).not.toBe(oldAddress);
+  });
+
+  it('should unlink wallet from previous account before connecting', async () => {
+    const previousUserId = 888888;
+
+    db.prepare(
+      'INSERT INTO users (id, first_name, ton_wallet_address) VALUES (?, ?, ?)'
+    ).run(previousUserId, 'PreviousUser', testWalletAddress);
+
+    const request = createAuthenticatedRequest(authToken, {
+      method: 'POST',
+      url: 'http://localhost:3000/api/wallet/connect',
+      body: {
+        walletAddress: testWalletAddress,
+      },
+    });
+
+    const response = await walletConnectHandler(request);
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.success).toBe(true);
+    expect(data.address).toBe(testWalletAddress);
+    expect(data.previousAccountUnlinked).toBe(true);
+
+    const previousUser = db
+      .prepare('SELECT ton_wallet_address FROM users WHERE id = ?')
+      .get(previousUserId) as { ton_wallet_address: string | null };
+    expect(previousUser.ton_wallet_address).toBeNull();
+
+    db.prepare('DELETE FROM users WHERE id = ?').run(previousUserId);
   });
 });

@@ -1,100 +1,67 @@
 'use client';
 
 import Link from 'next/link';
-import { List, Section, Cell, Placeholder } from '@telegram-apps/telegram-ui';
-import { Root } from '@/components/Root/Root';
-import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
+import { Cell, List, Section } from '@telegram-apps/telegram-ui';
+import { useAuth } from '@/components/Auth/AuthProvider';
+import { MainLayout } from '@/components/layout/MainLayout';
 
-function MainAppContent() {
-  const { isAuthenticated, user, login } = useAuth();
-
-  if (!isAuthenticated || !user) {
-    return (
-      <Placeholder
-        header="Welcome to Corgi Buddy"
-        description="Connect with your Telegram account to start earning Corgi coins by spotting corgis with your buddy!"
-        action={
-          <button
-            onClick={login}
-            className="bg-corgi-black text-corgi-white px-6 py-2 rounded-full hover:opacity-90 transition-opacity"
-          >
-            Get Started
-          </button>
-        }
-      >
-        <div className="text-6xl mb-4">🐕</div>
-      </Placeholder>
-    );
-  }
+function HomeContent() {
+  const { user } = useAuth();
 
   return (
-    <List>
-      <Section header={`Welcome back, ${user.firstName}!`}>
-        <Cell
-          Component={Link}
-          href="/buddy"
-          subtitle="Find and pair with another user"
-        >
-          Buddy Management
-        </Cell>
-        <Cell
-          Component={Link}
-          href="/corgi"
-          subtitle="Report corgi sightings for Corgi coins"
-        >
-          Corgi Spotting
-        </Cell>
-      </Section>
+    <div className="space-y-4">
+      <div className="rounded-3xl bg-[color:var(--tg-theme-secondary-bg-color,#f5f5f7)] p-5">
+        <p className="text-sm font-medium text-[color:var(--tg-theme-hint-color,#6b6b6d)]">
+          Welcome back{user ? `, ${user.firstName}` : ''}!
+        </p>
+        <p className="mt-2 text-base text-[color:var(--tg-theme-text-color,#1c1c1d)]">
+          Jump into corgi sightings or review your buddy and wallet settings.
+        </p>
+      </div>
 
-      {/* TODO: Uncomment when Wishes & Marketplace features are ready */}
-      {/* <Section header="Wishes & Marketplace">
-        <Cell
-          Component={Link}
-          href="/wishes"
-          subtitle="Create and manage your wish list"
-        >
-          My Wishes
-        </Cell>
-        <Cell
-          Component={Link}
-          href="/marketplace"
-          subtitle="Browse community wishes to fulfill"
-        >
-          Marketplace
-        </Cell>
-      </Section> */}
+      <List>
+        <Section header="Quick actions">
+          <Cell
+            Component={Link}
+            href="/corgi"
+            subtitle="Report sightings, confirm your buddy, and track your activity"
+          >
+            Open Corgi Sighting
+          </Cell>
+          <Cell
+            Component={Link}
+            href="/settings"
+            subtitle="Manage your wallet connection and buddy relationship"
+          >
+            Open Settings
+          </Cell>
+        </Section>
 
-      <Section header="Account">
-        <Cell
-          Component={Link}
-          href="/wallet"
-          subtitle={
-            user.tonWalletAddress
-              ? `Connected: ${user.tonWalletAddress.slice(0, 8)}...`
-              : 'Connect your TON wallet'
-          }
-        >
-          Wallet & Transactions
-        </Cell>
-        {/* TODO: Uncomment when Transaction History feature is ready */}
-        {/* <Cell
-          Component={Link}
-          href="/transactions"
-          subtitle="View your earning history"
-        >
-          Transaction History
-        </Cell> */}
-      </Section>
-    </List>
+        <Section header="Need a refresher?">
+          <Cell
+            Component={Link}
+            href="/onboarding/welcome"
+            subtitle="Reconnect your wallet or restart onboarding if needed"
+          >
+            Review Wallet Step
+          </Cell>
+          <Cell
+            Component={Link}
+            href="/onboarding/buddy"
+            subtitle="Find a new buddy or check pending requests"
+          >
+            Review Buddy Step
+          </Cell>
+        </Section>
+      </List>
+    </div>
   );
 }
 
 export default function HomePage() {
   return (
-    <Root>
-      <AuthProvider>
-        <MainAppContent />
-      </AuthProvider>
-    </Root>
+    <MainLayout title="Home" subtitle="Your Corgi Buddy hub">
+      <HomeContent />
+    </MainLayout>
   );
 }

@@ -106,6 +106,8 @@ export class BuddyService {
     checkExistingRelationship: null as Database.Statement | null,
     getUserActiveBuddy: null as Database.Statement | null,
     getUserPendingBuddy: null as Database.Statement | null,
+    getPendingRequestByInitiator: null as Database.Statement | null,
+    deleteBuddyPairById: null as Database.Statement | null,
     dissolveBuddyPair: null as Database.Statement | null,
   };
 
@@ -171,6 +173,18 @@ export class BuddyService {
     this.statements.getUserPendingBuddy = this.db.prepare(`
       SELECT * FROM buddy_pairs
       WHERE (user1_id = ? OR user2_id = ?) AND status = 'pending'
+    `);
+
+    this.statements.getPendingRequestByInitiator = this.db.prepare(`
+      SELECT * FROM buddy_pairs
+      WHERE initiated_by = ? AND status = 'pending'
+      ORDER BY created_at DESC
+      LIMIT 1
+    `);
+
+    this.statements.deleteBuddyPairById = this.db.prepare(`
+      DELETE FROM buddy_pairs
+      WHERE id = ?
     `);
 
     this.statements.dissolveBuddyPair = this.db.prepare(`
@@ -622,6 +636,87 @@ export class BuddyService {
       }
       throw new BuddyServiceError(
         `Failed to reject buddy request: ${error}`,
+        'DATABASE_ERROR'
+      );
+    }
+  }
+
+  /**
+   * Cancel a pending buddy request initiated by the current user
+   */
+  public async cancelPendingRequest(
+    initiatorId: number
+  ): Promise<BuddyPairWithProfile> {
+    try {
+      if (!userService.userExists(initiatorId)) {
+        throw new UserNotFoundError(initiatorId);
+      }
+
+      const pendingPair = withTransaction(() => {
+        const row =
+          this.statements.getPendingRequestByInitiator!.get(initiatorId);
+
+        if (!row) {
+          throw new BuddyNotFoundError('No pending buddy request found');
+        }
+
+        const buddyPair = this.mapRowToBuddyPair(
+          row as Record<string, unknown>
+        );
+
+        if (buddyPair.initiated_by !== initiatorId) {
+          throw new BuddyConflictError(
+            'Cannot cancel a buddy request that you did not initiate'
+          );
+        }
+
+        const deleteResult = this.statements.deleteBuddyPairById!.run(
+          buddyPair.id
+        );
+
+        if (deleteResult.changes === 0) {
+          throw new BuddyServiceError(
+            'Failed to cancel pending buddy request',
+            'DATABASE_ERROR'
+          );
+        }
+
+        return buddyPair;
+      });
+
+      const buddyId = BuddyPairUtils.getBuddyId(pendingPair, initiatorId);
+      if (!buddyId) {
+        throw new BuddyServiceError(
+          'Could not determine buddy ID for cancelled request',
+          'INTERNAL_ERROR'
+        );
+      }
+
+      const buddyUser = await userService.getUserById(buddyId);
+      if (!buddyUser) {
+        throw new UserNotFoundError(buddyId);
+      }
+
+      const buddyProfile: UserProfile = UserUtils.toProfile(buddyUser);
+
+      return {
+        id: pendingPair.id,
+        buddy: buddyProfile,
+        status: pendingPair.status,
+        createdAt: pendingPair.created_at,
+        confirmedAt: pendingPair.confirmed_at,
+        initiatedBy: pendingPair.initiated_by,
+      };
+    } catch (error) {
+      if (
+        error instanceof BuddyServiceError ||
+        error instanceof UserNotFoundError
+      ) {
+        throw error;
+      }
+
+      throw new BuddyServiceError(
+        `Failed to cancel buddy request: ${error}`,
         'DATABASE_ERROR'
       );
     }

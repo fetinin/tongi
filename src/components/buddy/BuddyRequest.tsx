@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   List,
   Section,
@@ -13,6 +13,7 @@ import {
   Avatar,
   Badge,
 } from '@telegram-apps/telegram-ui';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 // Types for user and buddy request
@@ -65,13 +66,15 @@ export function BuddyRequest({
   const [requestResult, setRequestResult] = useState<BuddyRequestResult | null>(
     null
   );
+  const t = useTranslations('buddy.request');
+  const formatter = useFormatter();
 
   /**
    * Send buddy request to target user
    */
   const sendBuddyRequest = useCallback(async () => {
     if (!targetUser || !isAuthenticated) {
-      const error = 'Authentication required to send buddy request';
+      const error = t('errors.authentication');
       onError?.(error);
       return;
     }
@@ -91,7 +94,9 @@ export function BuddyRequest({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to send buddy request');
+        throw new Error(
+          (errorData && errorData.message) || t('errors.generic')
+        );
       }
 
       const result: BuddyRequestResult = await response.json();
@@ -102,12 +107,19 @@ export function BuddyRequest({
     } catch (err) {
       console.error('Buddy request error:', err);
       const errorMessage =
-        err instanceof Error ? err.message : 'Failed to send buddy request';
+        err instanceof Error ? err.message : t('errors.generic');
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [targetUser, isAuthenticated, authenticatedFetch, onRequestSent, onError]);
+  }, [
+    targetUser,
+    isAuthenticated,
+    authenticatedFetch,
+    onRequestSent,
+    onError,
+    t,
+  ]);
 
   /**
    * Handle modal close
@@ -138,16 +150,29 @@ export function BuddyRequest({
     }
 
     if (user.tonWalletAddress) {
-      details.push('TON Connected');
+      details.push(t('tonReady'));
     } else {
-      details.push('No TON Wallet');
+      details.push(t('noWallet'));
     }
 
-    const joinDate = new Date(user.createdAt).toLocaleDateString();
-    details.push(`Joined ${joinDate}`);
+    const joinDate = new Date(user.createdAt);
+    if (!Number.isNaN(joinDate.getTime())) {
+      const formattedDate = formatter.dateTime(joinDate, {
+        dateStyle: 'medium',
+      });
+      details.push(t('joinedDate', { date: formattedDate }));
+    }
 
     return details.join(' • ');
   };
+
+  const aboutItems = useMemo(() => {
+    const rawItems = t.raw('aboutItems');
+    if (rawItems && typeof rawItems === 'object') {
+      return Object.values(rawItems as Record<string, string>);
+    }
+    return [];
+  }, [t]);
 
   if (!targetUser) {
     return null;
@@ -155,7 +180,7 @@ export function BuddyRequest({
 
   return (
     <Modal
-      header="Send Buddy Request"
+      header={t('modalHeader')}
       open={isOpen}
       onOpenChange={(open) => !open && handleClose()}
     >
@@ -163,8 +188,10 @@ export function BuddyRequest({
       {requestResult && (
         <div className="p-4">
           <Placeholder
-            header="Request Sent!"
-            description={`Your buddy request has been sent to ${formatUsername(targetUser)}. They will receive a notification and can accept or decline your request.`}
+            header={t('successHeader')}
+            description={t('successDescription', {
+              username: formatUsername(targetUser),
+            })}
           >
             <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
               <span className="text-2xl">✅</span>
@@ -172,7 +199,7 @@ export function BuddyRequest({
           </Placeholder>
 
           <div className="mt-6 flex justify-center">
-            <Button onClick={handleClose}>Close</Button>
+            <Button onClick={handleClose}>{t('close')}</Button>
           </div>
         </div>
       )}
@@ -182,7 +209,7 @@ export function BuddyRequest({
         <div className="p-4">
           {/* Target User Info */}
           <List>
-            <Section header="Send Request To">
+            <Section header={t('sendToHeader')}>
               <Cell
                 subtitle={formatUserDetails(targetUser)}
                 before={
@@ -197,9 +224,9 @@ export function BuddyRequest({
                 }
                 after={
                   targetUser.tonWalletAddress ? (
-                    <Badge type="number">TON Ready</Badge>
+                    <Badge type="number">{t('tonReady')}</Badge>
                   ) : (
-                    <Badge type="dot">No Wallet</Badge>
+                    <Badge type="dot">{t('noWallet')}</Badge>
                   )
                 }
               >
@@ -209,25 +236,28 @@ export function BuddyRequest({
           </List>
 
           {/* Request Information */}
-          <Section header="About Buddy Relationships" className="mt-4">
-            <Caption level="1" className="px-4 py-2 text-gray-600">
-              When you become buddies, you&apos;ll be able to:
+          <Section header={t('aboutHeader')} className="mt-4">
+            <Caption
+              level="1"
+              className="px-4 py-2 text-[var(--tg-theme-hint-color,#6b6b6d)]"
+            >
+              {t('aboutIntro')}
             </Caption>
-            <ul className="px-4 text-sm text-gray-600 space-y-1">
-              <li>• Confirm each other&apos;s corgi sightings</li>
-              <li>• Earn Corgi coins together</li>
-              <li>• Create and approve wishes for the marketplace</li>
-              <li>• Support each other&apos;s TON transactions</li>
+            <ul className="space-y-1 px-4 text-sm text-[var(--tg-theme-hint-color,#6b6b6d)]">
+              {aboutItems.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
             </ul>
           </Section>
 
           {/* Warning if no TON wallet */}
           {!targetUser.tonWalletAddress && (
             <Section className="mt-4">
-              <Caption level="1" className="px-4 py-2 text-orange-600">
-                ⚠️ This user hasn&apos;t connected a TON wallet yet.
-                They&apos;ll need to connect one to participate in Corgi coin
-                transactions.
+              <Caption
+                level="1"
+                className="px-4 py-2 text-[var(--tg-theme-destructive-text-color,#ff3b30)]"
+              >
+                {t('walletWarning')}
               </Caption>
             </Section>
           )}
@@ -242,10 +272,10 @@ export function BuddyRequest({
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <Spinner size="s" />
-                  Sending Request...
+                  {t('actions.sending')}
                 </div>
               ) : (
-                'Send Buddy Request'
+                t('actions.send')
               )}
             </Button>
 
@@ -255,14 +285,17 @@ export function BuddyRequest({
               onClick={handleClose}
               disabled={isLoading}
             >
-              Cancel
+              {t('actions.cancel')}
             </Button>
           </div>
 
           {/* Authentication Warning */}
           {!isAuthenticated && (
-            <Caption level="1" className="text-center mt-4 text-red-500">
-              Please log in to send buddy requests
+            <Caption
+              level="1"
+              className="mt-4 text-center text-[var(--tg-theme-destructive-text-color,#ff3b30)]"
+            >
+              {t('authenticationHint')}
             </Caption>
           )}
         </div>

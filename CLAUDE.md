@@ -39,6 +39,8 @@ All commands should be run from the project root directory (after Next.js setup)
 - `src/components/corgi/` - Corgi sighting reporting and confirmation
 - `src/components/wish/` - Wish creation and marketplace
 - `src/components/wallet/` - TON Connect integration
+- `src/components/onboarding/` - Mobile-first onboarding flow (layout, welcome, buddy search, pending states, error handling)
+- `src/components/layout/MainLayout.tsx` & `src/components/layout/BottomNavigation.tsx` - Authenticated shell with bottom navigation, onboarding guard, and screen-size protections
 
 ### Telegram Integration
 - Uses `@telegram-apps/sdk-react` for Telegram Mini Apps functionality

@@ -525,22 +525,19 @@ export function AuthProvider({
     authenticatedFetch,
   };
 
-  // Show loading state with telegram-ui components
-  if (authState.isLoading) {
-    const loadingElement = loadingComponent || (
-      <Placeholder
-        header="Authenticating"
-        description="Please wait while we verify your Telegram identity..."
-      >
-        <Spinner size="l" />
-      </Placeholder>
-    );
-
-    return <>{loadingElement}</>;
-  }
+  const loadingElement = loadingComponent || (
+    <Placeholder
+      header="Authenticating"
+      description="Please wait while we verify your Telegram identity..."
+    >
+      <Spinner size="l" />
+    </Placeholder>
+  );
 
   return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>
+      {authState.isLoading ? loadingElement : children}
+    </AuthContext.Provider>
   );
 }
 

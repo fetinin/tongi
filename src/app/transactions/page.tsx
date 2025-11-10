@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { List, Section, Placeholder, Button } from '@telegram-apps/telegram-ui';
-import { Root } from '@/components/Root/Root';
-import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
+import { useAuth } from '@/components/Auth/AuthProvider';
 import { TransactionHistory } from '@/components/transactions/TransactionHistory';
 
 function TransactionsContent() {
@@ -35,11 +34,5 @@ function TransactionsContent() {
 }
 
 export default function TransactionsPage() {
-  return (
-    <Root>
-      <AuthProvider>
-        <TransactionsContent />
-      </AuthProvider>
-    </Root>
-  );
+  return <TransactionsContent />;
 }
