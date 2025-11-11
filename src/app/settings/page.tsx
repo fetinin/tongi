@@ -16,7 +16,6 @@ import { Root } from '@/components/Root/Root';
 import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
 import { MainLayout } from '@/components/layout/MainLayout';
 
-
 function SettingsContent() {
   const { isAuthenticated, user } = useAuth();
 
