@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   tongi:
-    image: tongi:latest
+    image: ghcr.io/fetinin/tongi:latest
     ports:
       - target: 3000
         published: 3000
