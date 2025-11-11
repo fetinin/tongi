@@ -12,9 +12,17 @@
 import React from 'react';
 import { Title, Text, Section } from '@telegram-apps/telegram-ui';
 import Link from 'next/link';
+import { Root } from '@/components/Root/Root';
+import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
 import { MainLayout } from '@/components/layout/MainLayout';
 
-export default function SettingsPage() {
+function SettingsContent() {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated || !user) {
+    return null; // AuthProvider will handle redirecting to login
+  }
+
   return (
     <MainLayout>
       {/* Header */}
@@ -78,5 +86,15 @@ export default function SettingsPage() {
         </p>
       </Section>
     </MainLayout>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Root>
+      <AuthProvider>
+        <SettingsContent />
+      </AuthProvider>
+    </Root>
   );
 }

@@ -17,7 +17,7 @@ import {
 } from '@telegram-apps/telegram-ui';
 import { useTonWalletContext } from '@/components/wallet/TonProvider';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 export interface WelcomeScreenProps {
@@ -38,6 +38,7 @@ export function WelcomeScreen({ onWalletConnected }: WelcomeScreenProps) {
   const [showErrorSnackbar, setShowErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const hasRedirectedRef = useRef(false);
 
   /**
    * Handle wallet connection
@@ -56,6 +57,7 @@ export function WelcomeScreen({ onWalletConnected }: WelcomeScreenProps) {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Redirect to buddy screen (onboarding step 2)
+      hasRedirectedRef.current = true;
       setIsRedirecting(true);
       if (onWalletConnected) {
         onWalletConnected();
@@ -74,8 +76,8 @@ export function WelcomeScreen({ onWalletConnected }: WelcomeScreenProps) {
 
   // Auto-redirect if wallet is already connected
   useEffect(() => {
-    if (isConnected && !isRedirecting) {
-      setIsRedirecting(true);
+    if (isConnected && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
       // Verify state and redirect
       const redirectToNextStep = async () => {
         try {
@@ -83,17 +85,18 @@ export function WelcomeScreen({ onWalletConnected }: WelcomeScreenProps) {
           if (response.ok) {
             const data = await response.json();
             if (data.onboarding.current_step === 'buddy') {
+              setIsRedirecting(true);
               router.push('/onboarding/buddy');
             }
           }
         } catch (error) {
           console.error('Failed to redirect:', error);
-          setIsRedirecting(false);
+          hasRedirectedRef.current = false;
         }
       };
       redirectToNextStep();
     }
-  }, [isConnected, isRedirecting, authenticatedFetch, router]);
+  }, [isConnected, authenticatedFetch, router]);
 
   return (
     <Section>
