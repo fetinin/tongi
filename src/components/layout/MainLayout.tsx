@@ -2,7 +2,6 @@
 
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Button, Placeholder, Spinner } from '@telegram-apps/telegram-ui';
-import { useTranslations } from 'next-intl';
 import { useAuth } from '@/components/Auth/AuthProvider';
 import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { OnboardingError } from '@/components/onboarding/OnboardingError';
@@ -22,8 +21,7 @@ export function MainLayout({
   contentClassName,
 }: MainLayoutProps) {
   const { isAuthenticated, user, login } = useAuth();
-  const { status, isLoading, error, refresh } = useOnboardingGuard();
-  const t = useTranslations('mainLayout');
+  const { onboardingState, isLoading, error, retry } = useOnboardingGuard();
   const [isScreenTooSmall, setIsScreenTooSmall] = useState(false);
   const [dismissedScreenGuard, setDismissedScreenGuard] = useState(false);
 
@@ -43,8 +41,8 @@ export function MainLayout({
   }, []);
 
   const isOnboardingComplete = useMemo(() => {
-    return status?.onboarding.current_step === 'complete';
-  }, [status]);
+    return onboardingState?.current_step === 'main';
+  }, [onboardingState]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -69,7 +67,7 @@ export function MainLayout({
     );
   }
 
-  if (isLoading || !status) {
+  if (isLoading || !onboardingState) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[color:var(--tg-theme-bg-color,#ffffff)] px-4">
         <Placeholder
@@ -86,8 +84,8 @@ export function MainLayout({
     return (
       <div className="flex min-h-screen items-center justify-center bg-[color:var(--tg-theme-bg-color,#ffffff)] px-4">
         <Placeholder
-          header={t('screenTooSmall.title')}
-          description={t('screenTooSmall.description')}
+          header="Screen Too Small"
+          description="This app is optimized for screens 320px wide or larger. Some features may not work properly."
           action={
             <Button
               mode="outline"
@@ -95,7 +93,7 @@ export function MainLayout({
               className="min-h-[44px] touch-manipulation"
               onClick={() => setDismissedScreenGuard(true)}
             >
-              {t('screenTooSmall.action')}
+              Continue Anyway
             </Button>
           }
         >
@@ -110,7 +108,7 @@ export function MainLayout({
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[color:var(--tg-theme-bg-color,#ffffff)] px-4">
-        <OnboardingError error={error} onRetry={refresh} />
+        <OnboardingError error={error} onRetry={retry} />
       </div>
     );
   }

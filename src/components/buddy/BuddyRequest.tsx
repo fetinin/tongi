@@ -13,6 +13,7 @@ import {
   Avatar,
   Badge,
 } from '@telegram-apps/telegram-ui';
+import { Drawer } from '@xelene/vaul-with-scroll-fix';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 // Types for user and buddy request
@@ -154,11 +155,9 @@ export function BuddyRequest({
   }
 
   return (
-    <Modal
-      header="Send Buddy Request"
-      open={isOpen}
-      onOpenChange={(open) => !open && handleClose()}
-    >
+    <Modal open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <Drawer.Title className="sr-only">Send Buddy Request</Drawer.Title>
+      <Modal.Header>Send Buddy Request</Modal.Header>
       {/* Request Success State */}
       {requestResult && (
         <div className="p-4">

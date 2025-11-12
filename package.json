@@ -29,6 +29,7 @@
     "@ton/ton": "^16.0.0",
     "@tonconnect/sdk": "^3.3.1",
     "@tonconnect/ui-react": "^2.3.0",
+    "@xelene/vaul-with-scroll-fix": "0.1.4",
     "better-sqlite3": "^12.2.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.5.3",
