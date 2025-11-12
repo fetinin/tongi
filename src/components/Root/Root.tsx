@@ -38,8 +38,9 @@ if (typeof window !== 'undefined') {
   ) {
     const originalQuery = permissions.query.bind(permissions);
     const unsupportedStatus = {
+      name: 'device-orientation' as PermissionName,
       state: 'denied' as PermissionState,
-      onchange: null,
+      onchange: null as PermissionStatus['onchange'],
       addEventListener: () => undefined,
       removeEventListener: () => undefined,
       dispatchEvent: () => false,
