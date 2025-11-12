@@ -12,6 +12,7 @@ import {
   Caption,
   Text,
 } from '@telegram-apps/telegram-ui';
+import { Drawer } from '@xelene/vaul-with-scroll-fix';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 // Types for wish creation
@@ -229,11 +230,9 @@ export function WishForm({
   const hasValidationErrors = Object.values(validationErrors).some(Boolean);
 
   return (
-    <Modal
-      header="Create Wish"
-      open={isOpen}
-      onOpenChange={(open) => !open && handleClose()}
-    >
+    <Modal open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <Drawer.Title className="sr-only">Create Wish</Drawer.Title>
+      <Modal.Header>Create Wish</Modal.Header>
       {/* Success State */}
       {wishResult && (
         <div className="p-4">

@@ -38,6 +38,9 @@ importers:
       '@tonconnect/ui-react':
         specifier: ^2.3.0
         version: 2.3.0(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@xelene/vaul-with-scroll-fix':
+        specifier: 0.1.4
+        version: 0.1.4(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       better-sqlite3:
         specifier: ^12.2.0
         version: 12.2.0

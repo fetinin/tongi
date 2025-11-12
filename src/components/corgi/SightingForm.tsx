@@ -11,6 +11,7 @@ import {
   Spinner,
   Caption,
 } from '@telegram-apps/telegram-ui';
+import { Drawer } from '@xelene/vaul-with-scroll-fix';
 import { useAuth } from '@/components/Auth/AuthProvider';
 
 // Types for corgi sighting
@@ -153,11 +154,9 @@ export function SightingForm({
   );
 
   return (
-    <Modal
-      header="Report Corgi Sighting"
-      open={isOpen}
-      onOpenChange={(open) => !open && handleClose()}
-    >
+    <Modal open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <Drawer.Title className="sr-only">Report Corgi Sighting</Drawer.Title>
+      <Modal.Header>Report Corgi Sighting</Modal.Header>
       {/* Success State */}
       {sightingResult && (
         <div className="p-4">
