@@ -133,7 +133,7 @@ export function MainLayout({
     title || subtitle ? '-mt-2' : '',
     contentClassName ?? '',
   ]
-    .filter((value): value is string => Boolean(value))
+    .filter(Boolean)
     .join(' ');
 
   return (
