@@ -29,8 +29,6 @@ if (typeof window !== 'undefined') {
 function RootInner({ children }: PropsWithChildren) {
   const lp = useLaunchParams();
 
-  const isDark = useSignal(miniApp.isDark);
-
   // Manage back button visibility and navigation
   useBackButton();
 
@@ -42,7 +40,7 @@ function RootInner({ children }: PropsWithChildren) {
     <TonConnectUIProvider manifestUrl={manifestUrl}>
       <TonProvider>
         <AppRoot
-          appearance={isDark ? 'dark' : 'light'}
+          appearance="light"
           platform={
             ['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'
           }
