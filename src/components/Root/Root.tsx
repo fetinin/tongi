@@ -24,6 +24,15 @@ import './styles.css';
 if (typeof window !== 'undefined') {
   init();
   backButton.mount();
+
+  // Mount miniApp to initialize theme and background color
+  if (miniApp.mountSync.isAvailable()) {
+    miniApp.mountSync();
+  }
+
+  miniApp.setBackgroundColor('#000000');
+  miniApp.setHeaderColor('#000000');
+  miniApp.ready();
 }
 
 function RootInner({ children }: PropsWithChildren) {
