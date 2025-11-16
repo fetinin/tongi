@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
 } from 'react';
 import {
   useTonAddress,
@@ -14,6 +15,7 @@ import {
 } from '@tonconnect/ui-react';
 import { Cell, Section, Placeholder, Button } from '@telegram-apps/telegram-ui';
 import { TON_CONFIG, standardizeTonError } from '@/lib/ton';
+import { useAuth } from '@/components/Auth/AuthProvider';
 
 // TON Connect wallet state interface
 interface TonWalletState {
@@ -52,9 +54,11 @@ export function TonProvider({ children, className }: TonProviderProps) {
   const wallet = useTonWallet();
   const userFriendlyAddress = useTonAddress();
   const rawAddress = useTonAddress(false);
+  const { authenticatedFetch } = useAuth();
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const persistedAddressRef = useRef<string | null>(null);
 
   // Clear error when wallet state changes
   useEffect(() => {
@@ -63,12 +67,66 @@ export function TonProvider({ children, className }: TonProviderProps) {
     }
   }, [wallet]);
 
+  // Persist wallet address to database when connected
+  useEffect(() => {
+    const persistWallet = async () => {
+      // Only persist if wallet is connected and address hasn't been persisted yet
+      if (
+        !userFriendlyAddress ||
+        persistedAddressRef.current === userFriendlyAddress
+      ) {
+        return;
+      }
+
+      try {
+        const response = await authenticatedFetch('/api/wallet/connect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            walletAddress: userFriendlyAddress,
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error('Failed to persist wallet:', error);
+          setConnectionError(
+            `Failed to save wallet: ${error.error || 'Unknown error'}`
+          );
+          return;
+        }
+
+        // Mark this address as persisted
+        persistedAddressRef.current = userFriendlyAddress;
+      } catch (error) {
+        console.error('Error persisting wallet:', error);
+        setConnectionError('Failed to save wallet to database');
+      }
+    };
+
+    persistWallet();
+  }, [userFriendlyAddress, authenticatedFetch]);
+
+  // Clear persisted address reference when wallet disconnects
+  useEffect(() => {
+    if (!wallet) {
+      persistedAddressRef.current = null;
+    }
+  }, [wallet]);
+
   // Connect wallet function
   const connectWallet = async () => {
+    // If wallet is already connected, don't try to connect again
+    if (wallet) {
+      return;
+    }
+
     try {
       setIsConnecting(true);
       setConnectionError(null);
-      await tonConnectUI.connectWallet();
+      await tonConnectUI.openModal();
     } catch (error) {
       const errorMessage = standardizeTonError(error);
       setConnectionError(errorMessage);
@@ -82,7 +140,26 @@ export function TonProvider({ children, className }: TonProviderProps) {
   const disconnectWallet = async () => {
     try {
       setConnectionError(null);
+
+      // Disconnect from TON Connect UI
       await tonConnectUI.disconnect();
+
+      // Clear wallet from database
+      try {
+        const response = await authenticatedFetch('/api/wallet/disconnect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error('Failed to disconnect wallet from database:', error);
+        }
+      } catch (error) {
+        console.error('Error disconnecting wallet from database:', error);
+      }
     } catch (error) {
       const errorMessage = standardizeTonError(error);
       setConnectionError(errorMessage);

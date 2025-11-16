@@ -16,6 +16,7 @@ import { ErrorPage } from '@/components/ErrorPage';
 import { useDidMount } from '@/hooks/useDidMount';
 import { useBackButton } from '@/hooks/useBackButton';
 import { TonProvider } from '@/components/wallet/TonProvider';
+import { AuthProvider } from '@/components/Auth/AuthProvider';
 
 import './styles.css';
 
@@ -47,16 +48,22 @@ function RootInner({ children }: PropsWithChildren) {
 
   return (
     <TonConnectUIProvider manifestUrl={manifestUrl}>
-      <TonProvider>
-        <AppRoot
-          appearance="light"
-          platform={
-            ['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'
-          }
-        >
-          {children}
-        </AppRoot>
-      </TonProvider>
+      <AuthProvider
+        loadingComponent={
+          <div className="root__loading">Authenticating...</div>
+        }
+      >
+        <TonProvider>
+          <AppRoot
+            appearance="light"
+            platform={
+              ['macos', 'ios'].includes(lp.tgWebAppPlatform) ? 'ios' : 'base'
+            }
+          >
+            {children}
+          </AppRoot>
+        </TonProvider>
+      </AuthProvider>
     </TonConnectUIProvider>
   );
 }
