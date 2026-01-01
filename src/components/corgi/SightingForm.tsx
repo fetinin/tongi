@@ -43,7 +43,7 @@ export function SightingForm({
   onError,
 }: SightingFormProps) {
   const { isAuthenticated, authenticatedFetch } = useAuth();
-  const [corgiCount, setCorgiCount] = useState<number>(1);
+  const [corgiCount, setCorgiCount] = useState<number | ''>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [sightingResult, setSightingResult] =
     useState<CorgiSightingResult | null>(null);
@@ -52,8 +52,8 @@ export function SightingForm({
   /**
    * Validate corgi count input
    */
-  const validateCorgiCount = useCallback((count: number): string => {
-    if (!Number.isInteger(count) || count < 1) {
+  const validateCorgiCount = useCallback((count: number | ''): string => {
+    if (count === '' || !Number.isInteger(count) || count < 1) {
       return 'Must spot at least 1 corgi';
     }
     if (count > 100) {
@@ -67,7 +67,7 @@ export function SightingForm({
    */
   const handleCorgiCountChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseInt(e.target.value) || 1;
+      const value = e.target.value === '' ? '' : parseInt(e.target.value);
       setCorgiCount(value);
       setValidationError(validateCorgiCount(value));
     },
@@ -88,6 +88,11 @@ export function SightingForm({
     const error = validateCorgiCount(corgiCount);
     if (error) {
       setValidationError(error);
+      return;
+    }
+
+    // Type guard: at this point corgiCount must be a valid number
+    if (corgiCount === '') {
       return;
     }
 
@@ -192,7 +197,7 @@ export function SightingForm({
                     min="1"
                     max="100"
                     placeholder="1"
-                    value={corgiCount.toString()}
+                    value={corgiCount === '' ? '' : corgiCount.toString()}
                     onChange={handleCorgiCountChange}
                     status={validationError ? 'error' : undefined}
                   />
@@ -232,7 +237,7 @@ export function SightingForm({
                   Reporting Sighting...
                 </div>
               ) : (
-                `Report ${corgiCount} Corgi${corgiCount > 1 ? 's' : ''}`
+                `Report ${corgiCount === '' ? 0 : corgiCount} Corgi${corgiCount !== 1 ? 's' : ''}`
               )}
             </Button>
 
