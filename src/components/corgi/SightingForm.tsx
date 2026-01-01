@@ -237,7 +237,7 @@ export function SightingForm({
                   Reporting Sighting...
                 </div>
               ) : (
-                `Report ${corgiCount === '' ? 0 : corgiCount} Corgi${corgiCount !== 1 ? 's' : ''}`
+                `Report ${corgiCount === '' ? 0 : corgiCount} Corgi${!(corgiCount === 1) ? 's' : ''}`
               )}
             </Button>
 
