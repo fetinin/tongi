@@ -6,9 +6,20 @@
  * Fails gracefully in development/test environments where the bot cannot DM users.
  */
 
+export interface InlineKeyboardButton {
+  text: string;
+  callback_data?: string;
+  url?: string;
+}
+
+export interface InlineKeyboardMarkup {
+  inline_keyboard: InlineKeyboardButton[][];
+}
+
 export interface BotSendOptions {
   disableLinkPreviews?: boolean;
   disableNotification?: boolean;
+  reply_markup?: InlineKeyboardMarkup;
 }
 
 export class NotificationService {
@@ -45,12 +56,16 @@ export class NotificationService {
 
     try {
       const url = `${this.apiBaseUrl}/sendMessage`;
-      const body = {
+      const body: Record<string, unknown> = {
         chat_id: chatId,
         text,
         disable_web_page_preview: options?.disableLinkPreviews ?? true,
         disable_notification: options?.disableNotification ?? true,
-      } as const;
+      };
+
+      if (options?.reply_markup) {
+        body.reply_markup = options.reply_markup;
+      }
 
       const response = await fetch(url, {
         method: 'POST',
@@ -103,10 +118,21 @@ export class NotificationService {
   public async notifyNewSighting(
     buddyUserId: number,
     reporterName: string,
-    corgiCount: number
+    corgiCount: number,
+    sightingId: number
   ): Promise<void> {
     const message = `🐶 New corgi sighting from ${reporterName}: ${corgiCount} corgi(s) to confirm.`;
-    await this.sendMessage(buddyUserId, message).catch(() => {});
+    const reply_markup: InlineKeyboardMarkup = {
+      inline_keyboard: [
+        [
+          { text: '✅ Approve', callback_data: `approve:${sightingId}` },
+          { text: '❌ Reject', callback_data: `reject:${sightingId}` },
+        ],
+      ],
+    };
+    await this.sendMessage(buddyUserId, message, { reply_markup }).catch(
+      () => {}
+    );
   }
 
   public async notifySightingResponse(
