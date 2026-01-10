@@ -275,7 +275,12 @@ export class CorgiService {
       });
       // Best-effort notify buddy about new sighting
       await notificationService
-        .notifyNewSighting(buddyId, reporterUser.first_name, corgiCount)
+        .notifyNewSighting(
+          buddyId,
+          reporterUser.first_name,
+          corgiCount,
+          result.sighting.id
+        )
         .catch(() => {});
       return result;
     } catch (error) {
