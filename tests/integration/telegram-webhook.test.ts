@@ -252,35 +252,18 @@ function setupTONRPCMocks() {
 /**
  * Helper function to set up Telegram Bot API mocks
  */
-function setupTelegramBotMocks(
-  expectedSuccessMessage?: string,
-  expectedRejectionMessage?: string
-) {
+function setupTelegramBotMocks(): {
+  answerCallbackScope: nock.Scope;
+  editMarkupScope: nock.Scope;
+} {
   const botToken = process.env.TELEGRAM_BOT_TOKEN || 'test_token';
   const TELEGRAM_API = 'https://api.telegram.org';
 
-  // Mock answerCallbackQuery
   const answerCallbackScope = nock(TELEGRAM_API)
     .persist()
     .post(`/bot${botToken}/answerCallbackQuery`)
-    .reply(200, (uri: string, requestBody: any) => {
-      // Verify the message content matches expectations
-      if (
-        expectedSuccessMessage &&
-        requestBody.text === expectedSuccessMessage
-      ) {
-        return { ok: true };
-      }
-      if (
-        expectedRejectionMessage &&
-        requestBody.text === expectedRejectionMessage
-      ) {
-        return { ok: true };
-      }
-      return { ok: true };
-    });
+    .reply(200, { ok: true });
 
-  // Mock editMessageReplyMarkup
   const editMarkupScope = nock(TELEGRAM_API)
     .persist()
     .post(`/bot${botToken}/editMessageReplyMarkup`)
@@ -345,7 +328,7 @@ describe('Telegram Webhook Integration Tests', () => {
     setupTONRPCMocks();
 
     // Set up Telegram Bot API mocks
-    setupTelegramBotMocks('Sighting confirmed! Reward has been sent.');
+    setupTelegramBotMocks();
 
     // Create test users
     const reporterWallet = generateTestTonAddress(200010);
@@ -411,7 +394,7 @@ describe('Telegram Webhook Integration Tests', () => {
 
   test('should successfully reject sighting via inline keyboard button', async () => {
     // Set up Telegram Bot API mocks
-    setupTelegramBotMocks(undefined, 'Sighting rejected.');
+    setupTelegramBotMocks();
 
     // Create test users
     const reporterToken = await authenticateTestUser({
@@ -467,7 +450,7 @@ describe('Telegram Webhook Integration Tests', () => {
 
   test('should handle duplicate callback processing gracefully', async () => {
     // Set up Telegram Bot API mocks
-    setupTelegramBotMocks('Sighting confirmed! Reward has been sent.');
+    setupTelegramBotMocks();
 
     // Create test users
     const reporterToken = await authenticateTestUser({

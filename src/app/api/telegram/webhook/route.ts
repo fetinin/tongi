@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { corgiService, BlockchainError } from '@/services/CorgiService';
 import {
-  CorgiServiceError,
+  corgiService,
+  BlockchainError,
   CorgiNotFoundError,
   CorgiAuthorizationError,
   CorgiConflictError,
@@ -141,19 +141,7 @@ export async function POST(
         callbackQuery.message.message_id
       );
     } catch (serviceError) {
-      let errorMessage = 'Failed to process sighting';
-
-      if (serviceError instanceof CorgiNotFoundError) {
-        errorMessage = 'Sighting not found or already processed';
-      } else if (serviceError instanceof CorgiAuthorizationError) {
-        errorMessage = 'You are not authorized to confirm this sighting';
-      } else if (serviceError instanceof CorgiConflictError) {
-        errorMessage = 'Sighting is not in pending status';
-      } else if (serviceError instanceof BlockchainError) {
-        errorMessage = serviceError.isRetryable
-          ? 'Blockchain operation failed. Please try again.'
-          : 'Blockchain operation failed. Contact support.';
-      }
+      const errorMessage = getServiceErrorMessage(serviceError);
 
       await answerCallbackQuery(callbackId, {
         text: errorMessage,
@@ -174,6 +162,24 @@ export async function POST(
       { status: 500 }
     );
   }
+}
+
+function getServiceErrorMessage(error: unknown): string {
+  if (error instanceof CorgiNotFoundError) {
+    return 'Sighting not found or already processed';
+  }
+  if (error instanceof CorgiAuthorizationError) {
+    return 'You are not authorized to confirm this sighting';
+  }
+  if (error instanceof CorgiConflictError) {
+    return 'Sighting is not in pending status';
+  }
+  if (error instanceof BlockchainError) {
+    return error.isRetryable
+      ? 'Blockchain operation failed. Please try again.'
+      : 'Blockchain operation failed. Contact support.';
+  }
+  return 'Failed to process sighting';
 }
 
 function parseCallbackData(
