@@ -6,6 +6,8 @@
  * Fails gracefully in development/test environments where the bot cannot DM users.
  */
 
+import { logger } from '@/lib/logger';
+
 export interface InlineKeyboardButton {
   text: string;
   callback_data?: string;
@@ -91,7 +93,13 @@ export class NotificationService {
     requesterName: string
   ): Promise<void> {
     const message = `🤝 Buddy request: ${requesterName} wants to be your buddy.`;
-    await this.sendMessage(targetUserId, message).catch(() => {});
+    await this.sendMessage(targetUserId, message).catch((error) => {
+      logger.warn('notification', 'Failed to send buddy request notification', {
+        targetUserId,
+        requesterName,
+        error,
+      });
+    });
   }
 
   public async notifyBuddyConfirmed(
@@ -99,7 +107,17 @@ export class NotificationService {
     confirmerName: string
   ): Promise<void> {
     const message = `✅ Buddy confirmed: ${confirmerName} accepted your buddy request.`;
-    await this.sendMessage(initiatorUserId, message).catch(() => {});
+    await this.sendMessage(initiatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send buddy confirmed notification',
+        {
+          initiatorUserId,
+          confirmerName,
+          error,
+        }
+      );
+    });
   }
 
   /**
@@ -112,7 +130,17 @@ export class NotificationService {
     rejecterName: string
   ): Promise<void> {
     const message = `❌ Buddy request: ${rejecterName} declined your buddy request.`;
-    await this.sendMessage(initiatorUserId, message).catch(() => {});
+    await this.sendMessage(initiatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send buddy rejected notification',
+        {
+          initiatorUserId,
+          rejecterName,
+          error,
+        }
+      );
+    });
   }
 
   public async notifyNewSighting(
@@ -131,7 +159,17 @@ export class NotificationService {
       ],
     };
     await this.sendMessage(buddyUserId, message, { reply_markup }).catch(
-      () => {}
+      (error) => {
+        logger.warn(
+          'notification',
+          'Failed to send new sighting notification',
+          {
+            buddyUserId,
+            sightingId,
+            error,
+          }
+        );
+      }
     );
   }
 
@@ -148,7 +186,19 @@ export class NotificationService {
       confirmed && typeof reward === 'number'
         ? `${base} Reward: ${reward} Corgi coin(s).`
         : base;
-    await this.sendMessage(reporterUserId, message).catch(() => {});
+    await this.sendMessage(reporterUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send sighting response notification',
+        {
+          reporterUserId,
+          confirmerName,
+          confirmed,
+          reward,
+          error,
+        }
+      );
+    });
   }
 
   public async notifyWishCreated(
@@ -158,7 +208,15 @@ export class NotificationService {
     amount: number
   ): Promise<void> {
     const message = `📝 New wish from ${creatorName}: "${description}" (proposed ${amount} Corgi coins).`;
-    await this.sendMessage(buddyUserId, message).catch(() => {});
+    await this.sendMessage(buddyUserId, message).catch((error) => {
+      logger.warn('notification', 'Failed to send wish created notification', {
+        buddyUserId,
+        creatorName,
+        description,
+        amount,
+        error,
+      });
+    });
   }
 
   public async notifyWishResponded(
@@ -170,7 +228,19 @@ export class NotificationService {
     const message = accepted
       ? `✅ ${buddyName} accepted your wish: "${description}"`
       : `❌ ${buddyName} rejected your wish: "${description}"`;
-    await this.sendMessage(creatorUserId, message).catch(() => {});
+    await this.sendMessage(creatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send wish responded notification',
+        {
+          creatorUserId,
+          buddyName,
+          accepted,
+          description,
+          error,
+        }
+      );
+    });
   }
 
   public async notifyWishPurchased(
@@ -180,7 +250,19 @@ export class NotificationService {
     amount: number
   ): Promise<void> {
     const message = `💸 Your wish "${description}" was purchased by ${purchaserName} for ${amount} Corgi coins.`;
-    await this.sendMessage(creatorUserId, message).catch(() => {});
+    await this.sendMessage(creatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send wish purchased notification',
+        {
+          creatorUserId,
+          purchaserName,
+          description,
+          amount,
+          error,
+        }
+      );
+    });
   }
 }
 
