@@ -6,9 +6,22 @@
  * Fails gracefully in development/test environments where the bot cannot DM users.
  */
 
+import { logger } from '@/lib/logger';
+
+export interface InlineKeyboardButton {
+  text: string;
+  callback_data?: string;
+  url?: string;
+}
+
+export interface InlineKeyboardMarkup {
+  inline_keyboard: InlineKeyboardButton[][];
+}
+
 export interface BotSendOptions {
   disableLinkPreviews?: boolean;
   disableNotification?: boolean;
+  reply_markup?: InlineKeyboardMarkup;
 }
 
 export class NotificationService {
@@ -45,12 +58,16 @@ export class NotificationService {
 
     try {
       const url = `${this.apiBaseUrl}/sendMessage`;
-      const body = {
+      const body: Record<string, unknown> = {
         chat_id: chatId,
         text,
         disable_web_page_preview: options?.disableLinkPreviews ?? true,
         disable_notification: options?.disableNotification ?? true,
-      } as const;
+      };
+
+      if (options?.reply_markup) {
+        body.reply_markup = options.reply_markup;
+      }
 
       const response = await fetch(url, {
         method: 'POST',
@@ -76,7 +93,13 @@ export class NotificationService {
     requesterName: string
   ): Promise<void> {
     const message = `🤝 Buddy request: ${requesterName} wants to be your buddy.`;
-    await this.sendMessage(targetUserId, message).catch(() => {});
+    await this.sendMessage(targetUserId, message).catch((error) => {
+      logger.warn('notification', 'Failed to send buddy request notification', {
+        targetUserId,
+        requesterName,
+        error,
+      });
+    });
   }
 
   public async notifyBuddyConfirmed(
@@ -84,7 +107,17 @@ export class NotificationService {
     confirmerName: string
   ): Promise<void> {
     const message = `✅ Buddy confirmed: ${confirmerName} accepted your buddy request.`;
-    await this.sendMessage(initiatorUserId, message).catch(() => {});
+    await this.sendMessage(initiatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send buddy confirmed notification',
+        {
+          initiatorUserId,
+          confirmerName,
+          error,
+        }
+      );
+    });
   }
 
   /**
@@ -97,16 +130,47 @@ export class NotificationService {
     rejecterName: string
   ): Promise<void> {
     const message = `❌ Buddy request: ${rejecterName} declined your buddy request.`;
-    await this.sendMessage(initiatorUserId, message).catch(() => {});
+    await this.sendMessage(initiatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send buddy rejected notification',
+        {
+          initiatorUserId,
+          rejecterName,
+          error,
+        }
+      );
+    });
   }
 
   public async notifyNewSighting(
     buddyUserId: number,
     reporterName: string,
-    corgiCount: number
+    corgiCount: number,
+    sightingId: number
   ): Promise<void> {
     const message = `🐶 New corgi sighting from ${reporterName}: ${corgiCount} corgi(s) to confirm.`;
-    await this.sendMessage(buddyUserId, message).catch(() => {});
+    const reply_markup: InlineKeyboardMarkup = {
+      inline_keyboard: [
+        [
+          { text: '✅ Approve', callback_data: `approve:${sightingId}` },
+          { text: '❌ Reject', callback_data: `reject:${sightingId}` },
+        ],
+      ],
+    };
+    await this.sendMessage(buddyUserId, message, { reply_markup }).catch(
+      (error) => {
+        logger.warn(
+          'notification',
+          'Failed to send new sighting notification',
+          {
+            buddyUserId,
+            sightingId,
+            error,
+          }
+        );
+      }
+    );
   }
 
   public async notifySightingResponse(
@@ -122,7 +186,19 @@ export class NotificationService {
       confirmed && typeof reward === 'number'
         ? `${base} Reward: ${reward} Corgi coin(s).`
         : base;
-    await this.sendMessage(reporterUserId, message).catch(() => {});
+    await this.sendMessage(reporterUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send sighting response notification',
+        {
+          reporterUserId,
+          confirmerName,
+          confirmed,
+          reward,
+          error,
+        }
+      );
+    });
   }
 
   public async notifyWishCreated(
@@ -132,7 +208,15 @@ export class NotificationService {
     amount: number
   ): Promise<void> {
     const message = `📝 New wish from ${creatorName}: "${description}" (proposed ${amount} Corgi coins).`;
-    await this.sendMessage(buddyUserId, message).catch(() => {});
+    await this.sendMessage(buddyUserId, message).catch((error) => {
+      logger.warn('notification', 'Failed to send wish created notification', {
+        buddyUserId,
+        creatorName,
+        description,
+        amount,
+        error,
+      });
+    });
   }
 
   public async notifyWishResponded(
@@ -144,7 +228,19 @@ export class NotificationService {
     const message = accepted
       ? `✅ ${buddyName} accepted your wish: "${description}"`
       : `❌ ${buddyName} rejected your wish: "${description}"`;
-    await this.sendMessage(creatorUserId, message).catch(() => {});
+    await this.sendMessage(creatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send wish responded notification',
+        {
+          creatorUserId,
+          buddyName,
+          accepted,
+          description,
+          error,
+        }
+      );
+    });
   }
 
   public async notifyWishPurchased(
@@ -154,7 +250,19 @@ export class NotificationService {
     amount: number
   ): Promise<void> {
     const message = `💸 Your wish "${description}" was purchased by ${purchaserName} for ${amount} Corgi coins.`;
-    await this.sendMessage(creatorUserId, message).catch(() => {});
+    await this.sendMessage(creatorUserId, message).catch((error) => {
+      logger.warn(
+        'notification',
+        'Failed to send wish purchased notification',
+        {
+          creatorUserId,
+          purchaserName,
+          description,
+          amount,
+          error,
+        }
+      );
+    });
   }
 }
 
