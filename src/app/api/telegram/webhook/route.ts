@@ -227,7 +227,8 @@ async function answerCallbackQuery(
 
     const data = (await response.json()) as { ok?: boolean };
     return Boolean(data?.ok);
-  } catch {
+  } catch (error) {
+    logger.error('telegram-webhook', 'Failed to answer callback query', error);
     return false;
   }
 }
@@ -255,7 +256,12 @@ async function editMessageReplyMarkup(
 
     const data = (await response.json()) as { ok?: boolean };
     return Boolean(data?.ok);
-  } catch {
+  } catch (error) {
+    logger.error(
+      'telegram-webhook',
+      'Failed to edit message reply markup',
+      error
+    );
     return false;
   }
 }
