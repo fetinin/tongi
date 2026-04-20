@@ -56,8 +56,11 @@ interface ErrorResponse {
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<{ ok: boolean } | ErrorResponse>> {
+  console.log('[telegram-webhook] Received request');
   try {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const botSecret = process.env.TELEGRAM_BOT_SECRET;
+    console.log('[telegram-webhook] BOT_TOKEN set:', !!botToken, 'BOT_SECRET:', botSecret);
     if (!botToken) {
       return NextResponse.json(
         {
@@ -80,6 +83,7 @@ export async function POST(
     }
 
     const secretHeader = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
+    console.log('[telegram-webhook] Secret header:', secretHeader);
     if (secretHeader !== botSecret) {
       return NextResponse.json(
         {
@@ -106,6 +110,7 @@ export async function POST(
     const callbackId = callbackQuery.id;
     const callbackData = callbackQuery.data;
     const userId = callbackQuery.from.id;
+    console.log('[telegram-webhook] Callback:', { callbackId, callbackData, userId });
 
     const parsedData = parseCallbackData(callbackData);
 
